@@ -22,7 +22,7 @@
         .input-field:focus { border-color: #3b82f6; background-color: #fff; }
         .animate-slide-up { animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        /* Badge Animation */
+        /* حركة جرس التنبيهات */
         .ping { animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite; }
         @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
     </style>
@@ -35,34 +35,41 @@
             <div class="w-full max-w-md bg-white p-6 md:p-8 rounded-3xl shadow-2xl border border-gray-100 my-auto">
                 <div class="text-center mb-6">
                     <img src="image_0.png" class="h-24 mx-auto mb-4 object-contain" @error="handleImageError">
-                    <h2 class="text-2xl font-extrabold text-slate-800">{{ isRegistering ? 'تسجيل جديد' : 'تسجيل الدخول' }}</h2>
+                    <h2 class="text-2xl font-extrabold text-slate-800">{{ isRegistering ? 'طلب انضمام جديد' : 'تسجيل الدخول' }}</h2>
                 </div>
+                
                 <form @submit.prevent="authAction" class="space-y-4">
                     <div v-if="isRegistering" class="space-y-4">
+                        <div class="bg-yellow-50 text-yellow-800 p-3 rounded-lg text-xs font-bold border border-yellow-200 text-center">
+                            <i class="fas fa-shield-alt ml-1"></i> سيتم مراجعة طلبك من قبل الإدارة قبل التفعيل.
+                        </div>
                         <div class="flex justify-center">
-                            <div @click="$refs.profilePic.click()" class="relative w-24 h-24 rounded-full border-2 border-dashed border-blue-300 flex items-center justify-center cursor-pointer bg-blue-50 overflow-hidden">
+                            <div @click="$refs.profilePic.click()" class="relative w-24 h-24 rounded-full border-2 border-dashed border-blue-300 flex items-center justify-center cursor-pointer bg-blue-50 overflow-hidden hover:bg-blue-100 transition">
                                 <img v-if="authForm.image" :src="authForm.image" class="w-full h-full object-cover">
                                 <div v-else class="text-center text-blue-400"><i class="fas fa-camera text-xl"></i></div>
                             </div>
                             <input ref="profilePic" type="file" class="hidden" accept="image/*" @change="handleProfilePic">
                         </div>
-                        <select v-model="authForm.role" class="input-field" required>
+                        <select v-model="authForm.role" class="input-field font-bold text-slate-600" required>
                             <option value="technician">فني / عامل</option>
                             <option value="supervisor">مشرف</option>
-                            <option value="manager">مدير</option>
+                            <option value="manager">مدير (يتطلب موافقة)</option>
                         </select>
                         <input v-model="authForm.email" type="email" placeholder="البريد الإلكتروني" class="input-field" required>
                     </div>
+                    
                     <input v-model="authForm.username" type="text" placeholder="اسم المستخدم" class="input-field font-bold" required>
                     <input v-model="authForm.password" type="password" placeholder="كلمة المرور" class="input-field" required>
                     
-                    <button type="submit" :disabled="loading" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition">
-                        {{ loading ? 'جاري التحميل...' : (isRegistering ? 'تسجيل' : 'دخول') }}
+                    <button type="submit" :disabled="loading" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition flex justify-center items-center gap-2">
+                        <span v-if="loading" class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+                        {{ loading ? 'جاري المعالجة...' : (isRegistering ? 'إرسال الطلب' : 'دخول') }}
                     </button>
                 </form>
+
                 <div class="mt-6 text-center">
                     <button @click="toggleAuthMode" class="text-sm text-blue-600 font-bold hover:underline">
-                        {{ isRegistering ? 'لديك حساب؟ دخول' : 'إنشاء حساب جديد' }}
+                        {{ isRegistering ? 'لديك حساب مفعل؟ دخول' : 'ليس لديك حساب؟ طلب انضمام' }}
                     </button>
                 </div>
             </div>
@@ -93,7 +100,6 @@
             </aside>
 
             <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-slate-100">
-                
                 <header class="bg-white h-16 border-b border-gray-200 flex items-center justify-between px-4 z-10 shadow-sm">
                     <div class="flex items-center gap-2 font-bold text-slate-700 md:hidden">
                         <img :src="currentUser.image" class="w-8 h-8 rounded-full border">
@@ -108,11 +114,10 @@
                                     <span class="absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75 ping"></span>
                                 </span>
                             </button>
-
                             <div v-if="showNotifications" class="absolute left-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 overflow-hidden">
                                 <div class="p-3 border-b bg-gray-50 flex justify-between items-center">
                                     <h4 class="font-bold text-sm">الإشعارات</h4>
-                                    <button @click="markAllRead" class="text-xs text-blue-600">تحديد كمقروء</button>
+                                    <button @click="markAllRead" class="text-xs text-blue-600">تحديد الكل كمقروء</button>
                                 </div>
                                 <div class="max-h-64 overflow-y-auto">
                                     <div v-if="notifications.length === 0" class="p-4 text-center text-gray-400 text-sm">لا توجد إشعارات جديدة</div>
@@ -137,7 +142,6 @@
                 </header>
 
                 <div class="flex-1 overflow-y-auto p-4 md:p-8 pb-24">
-                    
                     <div v-if="currentPage === 'dashboard'" class="space-y-6 max-w-7xl mx-auto">
                         <div class="flex justify-between items-end mb-4">
                             <div>
@@ -148,7 +152,6 @@
                                 <i class="fas fa-plus ml-2"></i> مهمة جديدة
                             </button>
                         </div>
-                        
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div class="bg-white p-5 rounded-2xl shadow-sm border-r-4 border-blue-500">
                                 <div class="text-gray-400 text-xs font-bold mb-1">المهام الكلية</div>
@@ -167,7 +170,6 @@
                                 <div class="text-3xl font-black text-purple-600">{{ stats.completed }}</div>
                             </div>
                         </div>
-
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-2">
                                 <h3 class="font-bold text-slate-700 mb-4">تقدم المهام الحالية</h3>
@@ -197,7 +199,7 @@
                                         </h3>
                                         <p class="text-xs text-gray-500 mt-1 flex gap-3">
                                             <span><i class="far fa-clock"></i> {{ item.endDate || 'غير محدد' }}</span>
-                                            <span><i class="fas fa-user-tag"></i> {{ item.assignedTo || 'عام' }}</span>
+                                            <span><i class="fas fa-user-tag"></i> <span class="text-blue-600 font-bold">{{ item.assignedTo || 'عام' }}</span></span>
                                         </p>
                                     </div>
                                     <div class="text-center">
@@ -206,21 +208,41 @@
                                     </div>
                                 </div>
                                 <p class="text-sm text-gray-600 bg-slate-50 p-3 rounded-lg border border-slate-100 mb-3">{{ item.description }}</p>
+                                <div v-if="item.images && item.images.length" class="flex gap-2 overflow-x-auto pb-1">
+                                    <img v-for="(img, idx) in item.images" :key="idx" :src="img" @click="previewImage = img" class="w-10 h-10 rounded bg-gray-200 object-cover cursor-pointer hover:opacity-80">
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <div v-if="currentPage === 'users' && currentUser.role === 'manager'" class="space-y-6">
                         <h2 class="text-xl font-bold text-slate-800">إدارة الموظفين</h2>
-                        <div class="bg-white rounded-xl shadow-sm border p-4">
-                            <h3 class="font-bold mb-3">الموظفين النشطين</h3>
-                            <div v-for="user in activeUsers" :key="user.id" class="flex justify-between items-center py-2 border-b last:border-0">
-                                <div class="flex items-center gap-3">
-                                    <img :src="user.image" class="w-8 h-8 rounded-full">
-                                    <span class="font-bold text-sm">{{ user.username }}</span>
-                                    <span class="text-xs bg-gray-100 px-2 rounded">{{ getRoleName(user.role) }}</span>
+                        <div v-if="pendingUsers.length" class="bg-orange-50 p-4 rounded-xl border border-orange-200 animate-slide-up">
+                            <h3 class="font-bold text-orange-700 mb-3 flex items-center gap-2"><i class="fas fa-user-clock"></i> طلبات الانتظار</h3>
+                            <div class="grid gap-3">
+                                <div v-for="user in pendingUsers" :key="user.id" class="bg-white p-3 rounded-lg shadow-sm flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <img :src="user.image" class="w-10 h-10 rounded-full bg-gray-200 border">
+                                        <div><p class="font-bold">{{ user.username }}</p><p class="text-xs text-gray-500">{{ getRoleName(user.role) }}</p></div>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button @click="approveUser(user)" class="bg-green-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-green-600 transition">قبول</button>
+                                        <button @click="rejectUser(user.id)" class="bg-red-100 text-red-500 px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-red-200 transition">رفض</button>
+                                    </div>
                                 </div>
-                                <button v-if="user.id !== currentUser.id" @click="rejectUser(user.id)" class="text-red-400 text-xs">حذف</button>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border p-4">
+                            <h3 class="font-bold mb-3 text-slate-700">الموظفين النشطين</h3>
+                            <div v-for="user in activeUsers" :key="user.id" class="flex justify-between items-center py-3 border-b last:border-0 hover:bg-gray-50 px-2 rounded transition">
+                                <div class="flex items-center gap-3">
+                                    <img :src="user.image" class="w-9 h-9 rounded-full border">
+                                    <div>
+                                        <p class="font-bold text-sm">{{ user.username }}</p>
+                                        <span class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded border border-blue-100">{{ getRoleName(user.role) }}</span>
+                                    </div>
+                                </div>
+                                <button v-if="user.id !== currentUser.id" @click="rejectUser(user.id)" class="text-red-400 hover:text-red-600 text-xs font-bold border border-red-100 px-3 py-1 rounded hover:bg-red-50 transition">حذف الحساب</button>
                             </div>
                         </div>
                     </div>
@@ -230,6 +252,10 @@
                     <button @click="currentPage = 'dashboard'" :class="currentPage === 'dashboard' ? 'text-blue-600' : 'text-gray-400'" class="flex flex-col items-center"><i class="fas fa-chart-line text-xl"></i></button>
                     <button @click="currentPage = 'reports'" :class="currentPage === 'reports' ? 'text-blue-600' : 'text-gray-400'" class="flex flex-col items-center"><i class="fas fa-list-check text-xl"></i></button>
                     <button @click="openAddModal" class="flex flex-col items-center text-blue-600"><i class="fas fa-plus-circle text-3xl -mt-1"></i></button>
+                    <button v-if="currentUser.role === 'manager'" @click="currentPage = 'users'" :class="currentPage === 'users' ? 'text-blue-600' : 'text-gray-400'" class="flex flex-col items-center relative">
+                        <i class="fas fa-users text-xl"></i>
+                        <span v-if="pendingUsersCount > 0" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
+                    </button>
                 </div>
             </main>
         </div>
@@ -240,7 +266,6 @@
                     <h3 class="font-bold text-lg text-slate-800">{{ isEditing ? 'تحديث ومتابعة' : 'إنشاء مشروع/مهمة' }}</h3>
                     <button @click="closeModal" class="text-gray-400 hover:text-red-500 text-2xl">&times;</button>
                 </div>
-                
                 <div class="p-6 overflow-y-auto flex-1 space-y-5">
                     <div v-if="isEditing" class="bg-blue-50 p-4 rounded-xl border border-blue-100">
                         <label class="flex justify-between text-sm font-bold text-blue-800 mb-2">
@@ -248,12 +273,10 @@
                         </label>
                         <input type="range" v-model.number="form.progress" min="0" max="100" step="5" class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer">
                     </div>
-
                     <div>
                         <label class="font-bold text-xs text-gray-500 mb-1 block">عنوان المهمة</label>
                         <input v-model="form.title" type="text" class="input-field font-bold" :disabled="isEditing && currentUser.role !== 'manager'">
                     </div>
-
                     <div v-if="!isEditing || currentUser.role === 'manager'" class="space-y-4">
                         <div class="grid grid-cols-2 gap-3">
                             <div>
@@ -269,12 +292,10 @@
                             </div>
                         </div>
                     </div>
-
                     <div>
                         <label class="font-bold text-xs text-gray-500 mb-1 block">ملاحظات / وصف</label>
                         <textarea v-model="form.description" rows="3" class="input-field text-sm"></textarea>
                     </div>
-
                     <div>
                         <label class="font-bold text-xs text-gray-500 mb-2 block">المرفقات</label>
                         <div class="flex flex-wrap gap-2">
@@ -289,7 +310,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="p-4 border-t bg-gray-50 flex gap-3 flex-none rounded-b-xl">
                     <button @click="saveReport" :disabled="submitting" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold shadow hover:bg-blue-700 transition">
                         {{ submitting ? 'جاري الحفظ...' : 'حفظ التغييرات' }}
@@ -297,6 +317,10 @@
                     <button @click="closeModal" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-bold shadow-sm hover:bg-gray-300 transition">إلغاء</button>
                 </div>
             </div>
+        </div>
+
+        <div v-if="previewImage" class="fixed inset-0 z-[60] bg-black bg-opacity-90 flex items-center justify-center p-4" @click="previewImage = null">
+            <img :src="previewImage" class="max-w-full max-h-full rounded shadow-2xl">
         </div>
     </div>
 
@@ -318,29 +342,26 @@
         createApp({
             data() {
                 return {
-                    // Auth
                     currentUser: JSON.parse(localStorage.getItem('jsaas_user_v5')) || null,
                     isRegistering: false,
                     authForm: { username: '', password: '', role: 'technician', email: '', image: null },
                     loading: false,
 
-                    // App Data
                     currentPage: 'dashboard',
                     users: [],
                     reports: [],
                     notifications: [],
                     showNotifications: false,
 
-                    // Modal
                     showModal: false,
                     isEditing: false,
                     editingId: null,
                     submitting: false,
                     form: { title: '', description: '', assignedTo: '', endDate: '', progress: 0, images: [] },
 
-                    // Charts
                     barChart: null,
-                    doughnutChart: null
+                    doughnutChart: null,
+                    previewImage: null
                 }
             },
             computed: {
@@ -364,61 +385,72 @@
                 }
             },
             methods: {
-                // --- Notifications System ---
+                // --- Real-time Security & Init ---
+                initData() {
+                    // === FIX START: كود الأمان الجديد للطرد الفوري ===
+                    if(this.currentUser && this.currentUser.id) {
+                        db.collection("users").doc(this.currentUser.id).onSnapshot(doc => {
+                            const data = doc.data();
+                            // إذا تم حذف المستند أو تغيرت الحالة لغير active
+                            if (!data || data.status !== 'active') {
+                                if(this.currentUser) {
+                                    // إذا كان الحساب غير نشط أو محذوف، قم بتسجيل الخروج
+                                    alert("تم تغيير حالة حسابك أو إيقافه من قبل الإدارة.");
+                                    this.logout();
+                                }
+                            } else {
+                                // تحديث البيانات المحلية (مثلاً لو تمت الترقية لمدير وأنت داخل التطبيق)
+                                this.currentUser = { id: doc.id, ...data };
+                                localStorage.setItem('jsaas_user_v5', JSON.stringify(this.currentUser));
+                            }
+                        });
+                    }
+                    // ============================================
+
+                    // جلب باقي البيانات
+                    db.collection("users").onSnapshot(s => this.users = s.docs.map(d => ({id:d.id, ...d.data()})));
+                    db.collection("reports").orderBy("timestamp", "desc").onSnapshot(s => {
+                        this.reports = s.docs.map(d => ({id:d.id, ...d.data()}));
+                        setTimeout(this.updateCharts, 200);
+                        setTimeout(this.checkDeadlines, 1000); 
+                    });
+                    this.initNotifications();
+                },
+
+                // --- Notifications ---
                 initNotifications() {
                     if (!this.currentUser) return;
+                    if ("Notification" in window && Notification.permission !== "granted") Notification.requestPermission();
                     
-                    // Request Browser Permission
-                    if ("Notification" in window && Notification.permission !== "granted") {
-                        Notification.requestPermission();
-                    }
-
-                    // Listen for DB notifications
                     db.collection("notifications")
                         .where("toUser", "==", this.currentUser.username)
                         .orderBy("timestamp", "desc")
                         .limit(20)
                         .onSnapshot(snap => {
                             this.notifications = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                            // Send browser notification for the latest one if unread
                             if (this.notifications.length > 0 && !this.notifications[0].read) {
                                 this.sendBrowserNotification(this.notifications[0].title, this.notifications[0].message);
                             }
                         });
                         
-                    // Check for deadlines (Client-side Check)
                     this.checkDeadlines();
                 },
-
                 async checkDeadlines() {
-                    // This runs once when app loads to check deadlines locally
                     const today = new Date();
                     this.reports.forEach(task => {
                         if (task.assignedTo === this.currentUser.username && task.progress < 100 && task.endDate) {
                             const end = new Date(task.endDate);
-                            const diffTime = end - today;
-                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-                            
-                            // If deadline is passed or within 2 days, show alert
-                            if (diffDays < 0) {
-                                this.pushLocalNotification('تنبيه متأخر', `المهمة "${task.title}" متأخرة عن موعدها!`, 'alert');
-                            } else if (diffDays <= 2) {
-                                this.pushLocalNotification('اقتراب موعد', `تبقى ${diffDays} أيام على تسليم "${task.title}"`, 'warning');
-                            }
+                            const diffDays = Math.ceil((end - today) / (1000 * 60 * 60 * 24)); 
+                            if (diffDays < 0) this.pushLocalNotification('تنبيه متأخر', `المهمة "${task.title}" متأخرة!`, 'alert');
+                            else if (diffDays <= 2) this.pushLocalNotification('اقتراب موعد', `تبقى ${diffDays} أيام على "${task.title}"`, 'warning');
                         }
                     });
                 },
-
-                // Push a temporary notification (not saved to DB to avoid spam loop)
                 pushLocalNotification(title, message, type) {
-                    // Check if already exists in list to avoid duplicates
                     if (!this.notifications.some(n => n.message === message)) {
-                        this.notifications.unshift({
-                            id: Date.now(), title, message, type, read: false, timestamp: firebase.firestore.Timestamp.now()
-                        });
+                        this.notifications.unshift({ id: Date.now(), title, message, type, read: false, timestamp: {seconds: Date.now()/1000} });
                     }
                 },
-
                 async createDBNotification(toUser, title, message, type) {
                     if (!toUser) return;
                     await db.collection("notifications").add({
@@ -426,56 +458,48 @@
                         timestamp: firebase.firestore.FieldValue.serverTimestamp()
                     });
                 },
-
                 sendBrowserNotification(title, body) {
-                    if ("Notification" in window && Notification.permission === "granted") {
-                        new Notification(title, { body, icon: 'image_0.png' });
-                    }
+                    if ("Notification" in window && Notification.permission === "granted") new Notification(title, { body, icon: 'image_0.png' });
                 },
-
                 markAllRead() {
                     this.notifications.forEach(n => {
-                        if(!n.read && n.id.toString().length > 15) { // Only update DB notifications
-                            db.collection("notifications").doc(n.id).update({read: true});
-                        }
+                        if(!n.read && typeof n.id === 'string' && n.id.length > 10) db.collection("notifications").doc(n.id).update({read: true});
                         n.read = true; 
                     });
                 },
 
-                getNotifIcon(type) {
-                    if (type === 'alert') return { icon: 'fas fa-exclamation-triangle', bg: 'bg-red-500' };
-                    if (type === 'warning') return { icon: 'fas fa-clock', bg: 'bg-orange-500' };
-                    return { icon: 'fas fa-info-circle', bg: 'bg-blue-500' };
-                },
-                
-                formatDate(ts) {
-                    if(!ts) return '';
-                    return new Date(ts.seconds * 1000).toLocaleDateString('ar-EG');
-                },
-                
-                isOverdue(task) {
-                    if (!task.endDate || task.progress === 100) return false;
-                    return new Date(task.endDate) < new Date();
-                },
-
-                // --- Auth & Main Logic ---
+                // --- Auth Logic ---
                 toggleAuthMode() { this.isRegistering = !this.isRegistering; },
                 handleProfilePic(e) { this.processImage(e.target.files[0], res => this.authForm.image = res); },
+                
                 async authAction() {
                     this.loading = true;
                     try {
                         if(this.isRegistering) {
                             if(!this.authForm.image) throw new Error("الصورة مطلوبة");
                             const check = await db.collection('users').where('username','==',this.authForm.username).get();
-                            if(!check.empty) throw new Error("الاسم مستخدم");
-                            const userData = { ...this.authForm, status: this.authForm.role==='manager'?'active':'pending' };
+                            if(!check.empty) throw new Error("اسم المستخدم محجوز");
+                            
+                            // إجبار الحالة على PENDING
+                            const userData = { 
+                                ...this.authForm, 
+                                status: 'pending',
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                            };
+                            
                             await db.collection('users').add(userData);
-                            this.loginUser(userData);
+                            alert("تم إرسال طلبك بنجاح! سيتم مراجعته من قبل الإدارة.");
+                            this.isRegistering = false; // لا نسجل الدخول، فقط نعود للشاشة الرئيسية
+
                         } else {
                             const snap = await db.collection('users').where('username','==',this.authForm.username).where('password','==',this.authForm.password).get();
-                            if(snap.empty) throw new Error("خطأ في البيانات");
+                            if(snap.empty) throw new Error("اسم المستخدم أو كلمة المرور خطأ");
+                            
                             const user = { id: snap.docs[0].id, ...snap.docs[0].data() };
-                            if(user.status === 'pending') throw new Error("الحساب قيد المراجعة");
+                            
+                            if(user.status === 'pending') throw new Error("الحساب قيد المراجعة، يرجى الانتظار");
+                            if(user.status === 'banned') throw new Error("تم تعطيل هذا الحساب");
+                            
                             this.loginUser(user);
                         }
                     } catch(e) { alert(e.message); }
@@ -488,17 +512,7 @@
                 },
                 logout() { localStorage.removeItem('jsaas_user_v5'); location.reload(); },
 
-                initData() {
-                    db.collection("users").onSnapshot(s => this.users = s.docs.map(d => ({id:d.id, ...d.data()})));
-                    db.collection("reports").orderBy("timestamp", "desc").onSnapshot(s => {
-                        this.reports = s.docs.map(d => ({id:d.id, ...d.data()}));
-                        setTimeout(this.updateCharts, 200);
-                        setTimeout(this.checkDeadlines, 1000); // Check deadlines after data load
-                    });
-                    this.initNotifications();
-                },
-
-                // --- Saving & Notifications Trigger ---
+                // --- Operations ---
                 async saveReport() {
                     if(!this.form.title) return alert("العنوان مطلوب");
                     this.submitting = true;
@@ -511,17 +525,9 @@
                         timestamp: firebase.firestore.FieldValue.serverTimestamp()
                     };
 
-                    // Check Assigned Change to notify
-                    let notifyUser = null;
-                    let notifMsg = '';
-                    
-                    if (!this.isEditing && this.form.assignedTo) {
-                        notifyUser = this.form.assignedTo;
-                        notifMsg = `تم إسناد مهمة جديدة إليك: "${this.form.title}"`;
-                    } else if (this.isEditing && this.form.assignedTo) {
-                        // Logic could be deeper here, but assuming reassignment
-                         notifyUser = this.form.assignedTo;
-                         notifMsg = `تم تحديث المهمة المسندة إليك: "${this.form.title}"`;
+                    if (this.form.assignedTo && this.form.assignedTo !== this.currentUser.username) {
+                        const msg = this.isEditing ? `تم تحديث المهمة: "${this.form.title}"` : `مهمة جديدة: "${this.form.title}"`;
+                        this.createDBNotification(this.form.assignedTo, 'تحديث المهام', msg, 'info');
                     }
 
                     if(!this.isEditing) {
@@ -532,21 +538,14 @@
                         await db.collection("reports").doc(this.editingId).update(data);
                     }
 
-                    // Send Notification if assigned to someone else
-                    if (notifyUser && notifyUser !== this.currentUser.username) {
-                        await this.createDBNotification(notifyUser, 'تحديث المهام', notifMsg, 'info');
-                    }
-                    
-                    // Notify Owner if task completed by someone else
-                    if (isCompleted && this.form.assignedTo === this.currentUser.username) {
-                         // Need to find who created it, simplified here to notify Manager
-                         // For now, we don't know the creator ID easily without fetching, keeping it simple.
-                    }
-
                     this.submitting = false;
                     this.showModal = false;
                 },
 
+                // --- Admin Actions ---
+                approveUser(u) { if(confirm('تفعيل الموظف؟')) db.collection('users').doc(u.id).update({status:'active'}); },
+                rejectUser(id) { if(confirm('حذف هذا الحساب نهائياً؟')) db.collection('users').doc(id).delete(); },
+                
                 // --- Helpers ---
                 openAddModal() { this.isEditing = false; this.form = { title: '', description: '', assignedTo: '', endDate: '', progress: 0, images: [] }; this.showModal = true; },
                 openEditModal(item) { this.isEditing = true; this.editingId = item.id; this.form = JSON.parse(JSON.stringify(item)); this.showModal = true; },
@@ -564,7 +563,6 @@
                         }
                     }; reader.readAsDataURL(file);
                 },
-                
                 updateCharts() {
                     const ctxBar = document.getElementById('tasksBarChart');
                     const ctxDoughnut = document.getElementById('statusDoughnutChart');
@@ -589,9 +587,11 @@
                 getRoleName(r) { return r==='manager'?'مدير':r==='supervisor'?'مشرف':'فني'; },
                 getProgressColor(p) { return p < 30 ? 'bg-red-500' : p < 70 ? 'bg-orange-500' : 'bg-green-500'; },
                 getProgressTextColor(p) { return p < 30 ? 'text-red-500' : p < 70 ? 'text-orange-500' : 'text-green-500'; },
-                handleImageError(e) { e.target.style.display = 'none'; },
-                approveUser(u) { if(confirm('قبول؟')) db.collection('users').doc(u.id).update({status:'active'}); },
-                rejectUser(id) { if(confirm('حذف؟')) db.collection('users').doc(id).delete(); }
+                getNotifIcon(type) { if (type === 'alert') return { icon: 'fas fa-exclamation-triangle', bg: 'bg-red-500' }; if (type === 'warning') return { icon: 'fas fa-clock', bg: 'bg-orange-500' }; return { icon: 'fas fa-info-circle', bg: 'bg-blue-500' }; },
+                formatDate(ts) { if(!ts) return ''; return new Date(ts.seconds * 1000).toLocaleDateString('ar-EG'); },
+                isOverdue(task) { if (!task.endDate || task.progress === 100) return false; return new Date(task.endDate) < new Date(); },
+                handleNotificationClick(n) { this.markAllRead(); this.currentPage = 'reports'; this.showNotifications = false; },
+                handleImageError(e) { e.target.style.display = 'none'; }
             },
             mounted() { if(this.currentUser) this.initData(); },
             watch: { currentPage(val) { if(val==='dashboard') setTimeout(this.updateCharts, 200); } }
