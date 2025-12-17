@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>نظام إدارة المشاريع - جسّاس</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .input-field { width: 100%; padding: 0.75rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; background-color: #f8fafc; outline: none; transition: all 0.2s; }
+        .input-field:focus { border-color: #3b82f6; background-color: #fff; }
+        .animate-slide-up { animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        /* Badge Animation */
+        .ping { animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite; }
+        @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-screen overflow-hidden">
+
+    <div id="app" class="h-full flex flex-col">
+        
+        <div v-if="!currentUser" class="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center p-4 overflow-y-auto">
+            <div class="w-full max-w-md bg-white p-6 md:p-8 rounded-3xl shadow-2xl border border-gray-100 my-auto">
+                <div class="text-center mb-6">
+                    <img src="image_0.png" class="h-24 mx-auto mb-4 object-contain" @error="handleImageError">
+                    <h2 class="text-2xl font-extrabold text-slate-800">{{ isRegistering ? 'تسجيل جديد' : 'تسجيل الدخول' }}</h2>
+                </div>
+                <form @submit.prevent="authAction" class="space-y-4">
+                    <div v-if="isRegistering" class="space-y-4">
+                        <div class="flex justify-center">
+                            <div @click="$refs.profilePic.click()" class="relative w-24 h-24 rounded-full border-2 border-dashed border-blue-300 flex items-center justify-center cursor-pointer bg-blue-50 overflow-hidden">
+                                <img v-if="authForm.image" :src="authForm.image" class="w-full h-full object-cover">
+                                <div v-else class="text-center text-blue-400"><i class="fas fa-camera text-xl"></i></div>
+                            </div>
+                            <input ref="profilePic" type="file" class="hidden" accept="image/*" @change="handleProfilePic">
+                        </div>
+                        <select v-model="authForm.role" class="input-field" required>
+                            <option value="technician">فني / عامل</option>
+                            <option value="supervisor">مشرف</option>
+                            <option value="manager">مدير</option>
+                        </select>
+                        <input v-model="authForm.email" type="email" placeholder="البريد الإلكتروني" class="input-field" required>
+                    </div>
+                    <input v-model="authForm.username" type="text" placeholder="اسم المستخدم" class="input-field font-bold" required>
+                    <input v-model="authForm.password" type="password" placeholder="كلمة المرور" class="input-field" required>
+                    
+                    <button type="submit" :disabled="loading" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition">
+                        {{ loading ? 'جاري التحميل...' : (isRegistering ? 'تسجيل' : 'دخول') }}
+                    </button>
+                </form>
+                <div class="mt-6 text-center">
+                    <button @click="toggleAuthMode" class="text-sm text-blue-600 font-bold hover:underline">
+                        {{ isRegistering ? 'لديك حساب؟ دخول' : 'إنشاء حساب جديد' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div v-else class="flex h-full">
+            <aside class="w-64 bg-white hidden md:flex flex-col border-l border-gray-200 z-20 shadow-lg">
+                <div class="h-24 flex items-center justify-center border-b border-gray-100 bg-slate-50">
+                    <img src="image_0.png" class="h-16 object-contain" @error="handleImageError">
+                </div>
+                <div class="p-6 text-center border-b border-gray-50">
+                    <img :src="currentUser.image || 'https://via.placeholder.com/150'" class="w-20 h-20 rounded-full mx-auto border-4 border-white shadow-lg mb-3 object-cover">
+                    <h3 class="font-bold text-gray-800">{{ currentUser.username }}</h3>
+                    <span class="text-xs px-2 py-1 rounded bg-blue-100 text-blue-700 font-bold">{{ getRoleName(currentUser.role) }}</span>
+                </div>
+                <nav class="flex-1 px-4 py-4 space-y-2">
+                    <a @click="currentPage = 'dashboard'" :class="currentPage === 'dashboard' ? 'bg-blue-50 text-blue-600 border-r-4 border-blue-600' : 'text-slate-600 hover:bg-slate-50'" class="flex items-center px-4 py-3 rounded-l-lg cursor-pointer transition">
+                        <i class="fas fa-chart-line ml-3 w-6"></i> <span class="font-bold">مؤشرات الأداء</span>
+                    </a>
+                    <a @click="currentPage = 'reports'" :class="currentPage === 'reports' ? 'bg-blue-50 text-blue-600 border-r-4 border-blue-600' : 'text-slate-600 hover:bg-slate-50'" class="flex items-center px-4 py-3 rounded-l-lg cursor-pointer transition">
+                        <i class="fas fa-list-check ml-3 w-6"></i> <span class="font-bold">إدارة المهام</span>
+                    </a>
+                    <a v-if="currentUser.role === 'manager'" @click="currentPage = 'users'" :class="currentPage === 'users' ? 'bg-blue-50 text-blue-600 border-r-4 border-blue-600' : 'text-slate-600 hover:bg-slate-50'" class="flex items-center px-4 py-3 rounded-l-lg cursor-pointer transition">
+                        <i class="fas fa-users ml-3 w-6"></i> <span class="font-bold">الموظفين</span>
+                        <span v-if="pendingUsersCount > 0" class="mr-auto bg-red-500 text-white text-[10px] px-2 rounded-full">{{ pendingUsersCount }}</span>
+                    </a>
+                </nav>
+            </aside>
+
+            <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-slate-100">
+                
+                <header class="bg-white h-16 border-b border-gray-200 flex items-center justify-between px-4 z-10 shadow-sm">
+                    <div class="flex items-center gap-2 font-bold text-slate-700 md:hidden">
+                        <img :src="currentUser.image" class="w-8 h-8 rounded-full border">
+                        {{ currentUser.username }}
+                    </div>
+                    
+                    <div class="mr-auto flex items-center gap-4">
+                        <div class="relative">
+                            <button @click="showNotifications = !showNotifications" class="relative p-2 text-gray-500 hover:text-blue-600 transition">
+                                <i class="fas fa-bell text-xl"></i>
+                                <span v-if="unreadCount > 0" class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-white">
+                                    <span class="absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75 ping"></span>
+                                </span>
+                            </button>
+
+                            <div v-if="showNotifications" class="absolute left-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 overflow-hidden">
+                                <div class="p-3 border-b bg-gray-50 flex justify-between items-center">
+                                    <h4 class="font-bold text-sm">الإشعارات</h4>
+                                    <button @click="markAllRead" class="text-xs text-blue-600">تحديد كمقروء</button>
+                                </div>
+                                <div class="max-h-64 overflow-y-auto">
+                                    <div v-if="notifications.length === 0" class="p-4 text-center text-gray-400 text-sm">لا توجد إشعارات جديدة</div>
+                                    <div v-for="notif in notifications" :key="notif.id" :class="notif.read ? 'bg-white' : 'bg-blue-50'" class="p-3 border-b hover:bg-gray-50 cursor-pointer flex gap-3 items-start" @click="handleNotificationClick(notif)">
+                                        <div :class="getNotifIcon(notif.type).bg" class="w-8 h-8 rounded-full flex items-center justify-center text-white shrink-0">
+                                            <i :class="getNotifIcon(notif.type).icon"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-bold text-slate-800">{{ notif.title }}</p>
+                                            <p class="text-xs text-slate-500">{{ notif.message }}</p>
+                                            <span class="text-[10px] text-gray-400">{{ formatDate(notif.timestamp) }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button @click="logout" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="تسجيل خروج">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                </header>
+
+                <div class="flex-1 overflow-y-auto p-4 md:p-8 pb-24">
+                    
+                    <div v-if="currentPage === 'dashboard'" class="space-y-6 max-w-7xl mx-auto">
+                        <div class="flex justify-between items-end mb-4">
+                            <div>
+                                <h2 class="text-2xl font-bold text-slate-800">لوحة المتابعة</h2>
+                                <p class="text-sm text-slate-500">أهلاً، {{ currentUser.username }}</p>
+                            </div>
+                            <button @click="openAddModal" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold shadow hover:bg-blue-700 text-sm">
+                                <i class="fas fa-plus ml-2"></i> مهمة جديدة
+                            </button>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="bg-white p-5 rounded-2xl shadow-sm border-r-4 border-blue-500">
+                                <div class="text-gray-400 text-xs font-bold mb-1">المهام الكلية</div>
+                                <div class="text-3xl font-black text-slate-800">{{ stats.total }}</div>
+                            </div>
+                            <div class="bg-white p-5 rounded-2xl shadow-sm border-r-4 border-green-500">
+                                <div class="text-gray-400 text-xs font-bold mb-1">متوسط الإنجاز</div>
+                                <div class="text-3xl font-black text-green-600">{{ stats.avgProgress }}%</div>
+                            </div>
+                            <div class="bg-white p-5 rounded-2xl shadow-sm border-r-4 border-orange-500">
+                                <div class="text-gray-400 text-xs font-bold mb-1">قيد التنفيذ</div>
+                                <div class="text-3xl font-black text-orange-500">{{ stats.active }}</div>
+                            </div>
+                            <div class="bg-white p-5 rounded-2xl shadow-sm border-r-4 border-purple-500">
+                                <div class="text-gray-400 text-xs font-bold mb-1">تم التسليم</div>
+                                <div class="text-3xl font-black text-purple-600">{{ stats.completed }}</div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-2">
+                                <h3 class="font-bold text-slate-700 mb-4">تقدم المهام الحالية</h3>
+                                <div class="h-64 relative w-full"><canvas id="tasksBarChart"></canvas></div>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                                <h3 class="font-bold text-slate-700 mb-4">توزيع الحالات</h3>
+                                <div class="h-64 relative w-full flex justify-center"><canvas id="statusDoughnutChart"></canvas></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="currentPage === 'reports'" class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-xl font-bold text-slate-800">قائمة المهام</h2>
+                        </div>
+                        <div v-for="item in filteredReports" :key="item.id" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-md transition">
+                            <div class="h-1.5 w-full bg-gray-100">
+                                <div class="h-1.5 transition-all duration-1000" :class="getProgressColor(item.progress)" :style="{width: item.progress + '%'}"></div>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div>
+                                        <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                                            {{ item.title }}
+                                            <span v-if="isOverdue(item)" class="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full border border-red-200">متأخرة</span>
+                                        </h3>
+                                        <p class="text-xs text-gray-500 mt-1 flex gap-3">
+                                            <span><i class="far fa-clock"></i> {{ item.endDate || 'غير محدد' }}</span>
+                                            <span><i class="fas fa-user-tag"></i> {{ item.assignedTo || 'عام' }}</span>
+                                        </p>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-2xl font-black" :class="getProgressTextColor(item.progress)">{{ item.progress }}%</div>
+                                        <button @click="openEditModal(item)" class="text-xs text-blue-600 font-bold hover:underline">تحديث</button>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-600 bg-slate-50 p-3 rounded-lg border border-slate-100 mb-3">{{ item.description }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="currentPage === 'users' && currentUser.role === 'manager'" class="space-y-6">
+                        <h2 class="text-xl font-bold text-slate-800">إدارة الموظفين</h2>
+                        <div class="bg-white rounded-xl shadow-sm border p-4">
+                            <h3 class="font-bold mb-3">الموظفين النشطين</h3>
+                            <div v-for="user in activeUsers" :key="user.id" class="flex justify-between items-center py-2 border-b last:border-0">
+                                <div class="flex items-center gap-3">
+                                    <img :src="user.image" class="w-8 h-8 rounded-full">
+                                    <span class="font-bold text-sm">{{ user.username }}</span>
+                                    <span class="text-xs bg-gray-100 px-2 rounded">{{ getRoleName(user.role) }}</span>
+                                </div>
+                                <button v-if="user.id !== currentUser.id" @click="rejectUser(user.id)" class="text-red-400 text-xs">حذف</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md:hidden fixed bottom-0 w-full bg-white border-t border-gray-200 flex justify-around py-3 pb-safe z-30">
+                    <button @click="currentPage = 'dashboard'" :class="currentPage === 'dashboard' ? 'text-blue-600' : 'text-gray-400'" class="flex flex-col items-center"><i class="fas fa-chart-line text-xl"></i></button>
+                    <button @click="currentPage = 'reports'" :class="currentPage === 'reports' ? 'text-blue-600' : 'text-gray-400'" class="flex flex-col items-center"><i class="fas fa-list-check text-xl"></i></button>
+                    <button @click="openAddModal" class="flex flex-col items-center text-blue-600"><i class="fas fa-plus-circle text-3xl -mt-1"></i></button>
+                </div>
+            </main>
+        </div>
+
+        <div v-if="showModal" class="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-end md:items-center justify-center p-0 md:p-4 backdrop-blur-sm">
+            <div class="bg-white w-full md:max-w-lg md:rounded-2xl rounded-t-3xl shadow-2xl max-h-[90vh] flex flex-col animate-slide-up">
+                <div class="p-4 border-b flex justify-between items-center bg-gray-50 rounded-t-2xl flex-none">
+                    <h3 class="font-bold text-lg text-slate-800">{{ isEditing ? 'تحديث ومتابعة' : 'إنشاء مشروع/مهمة' }}</h3>
+                    <button @click="closeModal" class="text-gray-400 hover:text-red-500 text-2xl">&times;</button>
+                </div>
+                
+                <div class="p-6 overflow-y-auto flex-1 space-y-5">
+                    <div v-if="isEditing" class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                        <label class="flex justify-between text-sm font-bold text-blue-800 mb-2">
+                            <span>نسبة الإنجاز الحالية</span> <span class="text-xl">{{ form.progress }}%</span>
+                        </label>
+                        <input type="range" v-model.number="form.progress" min="0" max="100" step="5" class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <div>
+                        <label class="font-bold text-xs text-gray-500 mb-1 block">عنوان المهمة</label>
+                        <input v-model="form.title" type="text" class="input-field font-bold" :disabled="isEditing && currentUser.role !== 'manager'">
+                    </div>
+
+                    <div v-if="!isEditing || currentUser.role === 'manager'" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="font-bold text-xs text-gray-500 mb-1 block">تاريخ التسليم</label>
+                                <input v-model="form.endDate" type="date" class="input-field text-sm">
+                            </div>
+                            <div>
+                                <label class="font-bold text-xs text-gray-500 mb-1 block">إسناد إلى</label>
+                                <select v-model="form.assignedTo" class="input-field text-sm font-bold text-blue-800">
+                                    <option value="">عام (الكل)</option>
+                                    <option v-for="u in activeUsers" :key="u.id" :value="u.username">{{ u.username }}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="font-bold text-xs text-gray-500 mb-1 block">ملاحظات / وصف</label>
+                        <textarea v-model="form.description" rows="3" class="input-field text-sm"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="font-bold text-xs text-gray-500 mb-2 block">المرفقات</label>
+                        <div class="flex flex-wrap gap-2">
+                            <div v-for="(img, idx) in form.images" :key="idx" class="relative w-16 h-16 rounded-lg overflow-hidden border">
+                                <img :src="img" class="w-full h-full object-cover">
+                                <button @click="removeImage(idx)" class="absolute top-0 right-0 bg-red-500 text-white w-5 h-5 flex items-center justify-center text-xs">x</button>
+                            </div>
+                            <div @click="$refs.files.click()" class="w-16 h-16 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-gray-400 cursor-pointer hover:border-blue-500 hover:text-blue-500 transition">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                            <input ref="files" type="file" multiple class="hidden" accept="image/*" @change="handleFiles">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 border-t bg-gray-50 flex gap-3 flex-none rounded-b-xl">
+                    <button @click="saveReport" :disabled="submitting" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold shadow hover:bg-blue-700 transition">
+                        {{ submitting ? 'جاري الحفظ...' : 'حفظ التغييرات' }}
+                    </button>
+                    <button @click="closeModal" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-bold shadow-sm hover:bg-gray-300 transition">إلغاء</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === Firebase Setup ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyCCYWgYL7SqUprocWZMrPuHqnclyOQ5HOc",
+            authDomain: "maintenance-app-4b02b.firebaseapp.com",
+            projectId: "maintenance-app-4b02b",
+            storageBucket: "maintenance-app-4b02b.firebasestorage.app",
+            messagingSenderId: "711045496244",
+            appId: "1:711045496244:web:c8b00f88cd43b0daa946c1",
+            measurementId: "G-RTFD0FVSKV"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    // Auth
+                    currentUser: JSON.parse(localStorage.getItem('jsaas_user_v5')) || null,
+                    isRegistering: false,
+                    authForm: { username: '', password: '', role: 'technician', email: '', image: null },
+                    loading: false,
+
+                    // App Data
+                    currentPage: 'dashboard',
+                    users: [],
+                    reports: [],
+                    notifications: [],
+                    showNotifications: false,
+
+                    // Modal
+                    showModal: false,
+                    isEditing: false,
+                    editingId: null,
+                    submitting: false,
+                    form: { title: '', description: '', assignedTo: '', endDate: '', progress: 0, images: [] },
+
+                    // Charts
+                    barChart: null,
+                    doughnutChart: null
+                }
+            },
+            computed: {
+                activeUsers() { return this.users.filter(u => u.status === 'active'); },
+                pendingUsers() { return this.users.filter(u => u.status === 'pending'); },
+                pendingUsersCount() { return this.pendingUsers.length; },
+                unreadCount() { return this.notifications.filter(n => !n.read).length; },
+                
+                filteredReports() {
+                    let list = this.reports;
+                    if(this.currentUser.role === 'manager') return list;
+                    return list.filter(r => r.createdBy === this.currentUser.username || r.assignedTo === this.currentUser.username || !r.assignedTo);
+                },
+                stats() {
+                    const list = this.filteredReports;
+                    const total = list.length;
+                    const completed = list.filter(r => r.progress === 100).length;
+                    const active = list.filter(r => r.progress > 0 && r.progress < 100).length;
+                    const sumProgress = list.reduce((acc, curr) => acc + (curr.progress || 0), 0);
+                    return { total, completed, active, avgProgress: total ? Math.round(sumProgress / total) : 0 };
+                }
+            },
+            methods: {
+                // --- Notifications System ---
+                initNotifications() {
+                    if (!this.currentUser) return;
+                    
+                    // Request Browser Permission
+                    if ("Notification" in window && Notification.permission !== "granted") {
+                        Notification.requestPermission();
+                    }
+
+                    // Listen for DB notifications
+                    db.collection("notifications")
+                        .where("toUser", "==", this.currentUser.username)
+                        .orderBy("timestamp", "desc")
+                        .limit(20)
+                        .onSnapshot(snap => {
+                            this.notifications = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                            // Send browser notification for the latest one if unread
+                            if (this.notifications.length > 0 && !this.notifications[0].read) {
+                                this.sendBrowserNotification(this.notifications[0].title, this.notifications[0].message);
+                            }
+                        });
+                        
+                    // Check for deadlines (Client-side Check)
+                    this.checkDeadlines();
+                },
+
+                async checkDeadlines() {
+                    // This runs once when app loads to check deadlines locally
+                    const today = new Date();
+                    this.reports.forEach(task => {
+                        if (task.assignedTo === this.currentUser.username && task.progress < 100 && task.endDate) {
+                            const end = new Date(task.endDate);
+                            const diffTime = end - today;
+                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                            
+                            // If deadline is passed or within 2 days, show alert
+                            if (diffDays < 0) {
+                                this.pushLocalNotification('تنبيه متأخر', `المهمة "${task.title}" متأخرة عن موعدها!`, 'alert');
+                            } else if (diffDays <= 2) {
+                                this.pushLocalNotification('اقتراب موعد', `تبقى ${diffDays} أيام على تسليم "${task.title}"`, 'warning');
+                            }
+                        }
+                    });
+                },
+
+                // Push a temporary notification (not saved to DB to avoid spam loop)
+                pushLocalNotification(title, message, type) {
+                    // Check if already exists in list to avoid duplicates
+                    if (!this.notifications.some(n => n.message === message)) {
+                        this.notifications.unshift({
+                            id: Date.now(), title, message, type, read: false, timestamp: firebase.firestore.Timestamp.now()
+                        });
+                    }
+                },
+
+                async createDBNotification(toUser, title, message, type) {
+                    if (!toUser) return;
+                    await db.collection("notifications").add({
+                        toUser, title, message, type, read: false, 
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                },
+
+                sendBrowserNotification(title, body) {
+                    if ("Notification" in window && Notification.permission === "granted") {
+                        new Notification(title, { body, icon: 'image_0.png' });
+                    }
+                },
+
+                markAllRead() {
+                    this.notifications.forEach(n => {
+                        if(!n.read && n.id.toString().length > 15) { // Only update DB notifications
+                            db.collection("notifications").doc(n.id).update({read: true});
+                        }
+                        n.read = true; 
+                    });
+                },
+
+                getNotifIcon(type) {
+                    if (type === 'alert') return { icon: 'fas fa-exclamation-triangle', bg: 'bg-red-500' };
+                    if (type === 'warning') return { icon: 'fas fa-clock', bg: 'bg-orange-500' };
+                    return { icon: 'fas fa-info-circle', bg: 'bg-blue-500' };
+                },
+                
+                formatDate(ts) {
+                    if(!ts) return '';
+                    return new Date(ts.seconds * 1000).toLocaleDateString('ar-EG');
+                },
+                
+                isOverdue(task) {
+                    if (!task.endDate || task.progress === 100) return false;
+                    return new Date(task.endDate) < new Date();
+                },
+
+                // --- Auth & Main Logic ---
+                toggleAuthMode() { this.isRegistering = !this.isRegistering; },
+                handleProfilePic(e) { this.processImage(e.target.files[0], res => this.authForm.image = res); },
+                async authAction() {
+                    this.loading = true;
+                    try {
+                        if(this.isRegistering) {
+                            if(!this.authForm.image) throw new Error("الصورة مطلوبة");
+                            const check = await db.collection('users').where('username','==',this.authForm.username).get();
+                            if(!check.empty) throw new Error("الاسم مستخدم");
+                            const userData = { ...this.authForm, status: this.authForm.role==='manager'?'active':'pending' };
+                            await db.collection('users').add(userData);
+                            this.loginUser(userData);
+                        } else {
+                            const snap = await db.collection('users').where('username','==',this.authForm.username).where('password','==',this.authForm.password).get();
+                            if(snap.empty) throw new Error("خطأ في البيانات");
+                            const user = { id: snap.docs[0].id, ...snap.docs[0].data() };
+                            if(user.status === 'pending') throw new Error("الحساب قيد المراجعة");
+                            this.loginUser(user);
+                        }
+                    } catch(e) { alert(e.message); }
+                    this.loading = false;
+                },
+                loginUser(user) { 
+                    this.currentUser = user; 
+                    localStorage.setItem('jsaas_user_v5', JSON.stringify(user)); 
+                    this.initData(); 
+                },
+                logout() { localStorage.removeItem('jsaas_user_v5'); location.reload(); },
+
+                initData() {
+                    db.collection("users").onSnapshot(s => this.users = s.docs.map(d => ({id:d.id, ...d.data()})));
+                    db.collection("reports").orderBy("timestamp", "desc").onSnapshot(s => {
+                        this.reports = s.docs.map(d => ({id:d.id, ...d.data()}));
+                        setTimeout(this.updateCharts, 200);
+                        setTimeout(this.checkDeadlines, 1000); // Check deadlines after data load
+                    });
+                    this.initNotifications();
+                },
+
+                // --- Saving & Notifications Trigger ---
+                async saveReport() {
+                    if(!this.form.title) return alert("العنوان مطلوب");
+                    this.submitting = true;
+                    
+                    const isCompleted = this.form.progress === 100;
+                    const data = { 
+                        ...this.form, 
+                        status: isCompleted ? 'مكتمل' : 'قيد العمل',
+                        updatedBy: this.currentUser.username,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+
+                    // Check Assigned Change to notify
+                    let notifyUser = null;
+                    let notifMsg = '';
+                    
+                    if (!this.isEditing && this.form.assignedTo) {
+                        notifyUser = this.form.assignedTo;
+                        notifMsg = `تم إسناد مهمة جديدة إليك: "${this.form.title}"`;
+                    } else if (this.isEditing && this.form.assignedTo) {
+                        // Logic could be deeper here, but assuming reassignment
+                         notifyUser = this.form.assignedTo;
+                         notifMsg = `تم تحديث المهمة المسندة إليك: "${this.form.title}"`;
+                    }
+
+                    if(!this.isEditing) {
+                        data.createdBy = this.currentUser.username;
+                        data.date = new Date().toLocaleDateString('ar-EG');
+                        await db.collection("reports").add(data);
+                    } else {
+                        await db.collection("reports").doc(this.editingId).update(data);
+                    }
+
+                    // Send Notification if assigned to someone else
+                    if (notifyUser && notifyUser !== this.currentUser.username) {
+                        await this.createDBNotification(notifyUser, 'تحديث المهام', notifMsg, 'info');
+                    }
+                    
+                    // Notify Owner if task completed by someone else
+                    if (isCompleted && this.form.assignedTo === this.currentUser.username) {
+                         // Need to find who created it, simplified here to notify Manager
+                         // For now, we don't know the creator ID easily without fetching, keeping it simple.
+                    }
+
+                    this.submitting = false;
+                    this.showModal = false;
+                },
+
+                // --- Helpers ---
+                openAddModal() { this.isEditing = false; this.form = { title: '', description: '', assignedTo: '', endDate: '', progress: 0, images: [] }; this.showModal = true; },
+                openEditModal(item) { this.isEditing = true; this.editingId = item.id; this.form = JSON.parse(JSON.stringify(item)); this.showModal = true; },
+                closeModal() { this.showModal = false; },
+                handleFiles(e) { Array.from(e.target.files).forEach(f => this.processImage(f, res => this.form.images.push(res))); },
+                removeImage(i) { this.form.images.splice(i, 1); },
+                processImage(file, cb) {
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        const img = new Image(); img.src = e.target.result;
+                        img.onload = () => {
+                            const c = document.createElement('canvas'); const ctx = c.getContext('2d');
+                            const scale = 600 / img.width; c.width = 600; c.height = img.height * scale;
+                            ctx.drawImage(img,0,0,c.width,c.height); cb(c.toDataURL('image/jpeg', 0.6));
+                        }
+                    }; reader.readAsDataURL(file);
+                },
+                
+                updateCharts() {
+                    const ctxBar = document.getElementById('tasksBarChart');
+                    const ctxDoughnut = document.getElementById('statusDoughnutChart');
+                    if(ctxBar) {
+                        if(this.barChart) this.barChart.destroy();
+                        const recent = this.filteredReports.slice(0, 10);
+                        this.barChart = new Chart(ctxBar, {
+                            type: 'bar',
+                            data: { labels: recent.map(t => t.title.substring(0, 10)), datasets: [{ label: 'النسبة %', data: recent.map(t => t.progress), backgroundColor: '#3b82f6', borderRadius: 5 }] },
+                            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }
+                        });
+                    }
+                    if(ctxDoughnut) {
+                        if(this.doughnutChart) this.doughnutChart.destroy();
+                        this.doughnutChart = new Chart(ctxDoughnut, {
+                            type: 'doughnut',
+                            data: { labels: ['مكتمل', 'جاري', 'متوقف'], datasets: [{ data: [this.stats.completed, this.stats.active, this.stats.total - (this.stats.completed + this.stats.active)], backgroundColor: ['#22c55e', '#f97316', '#e2e8f0'], borderWidth: 0 }] },
+                            options: { responsive: true, cutout: '75%', plugins: { legend: { position: 'bottom' } } }
+                        });
+                    }
+                },
+                getRoleName(r) { return r==='manager'?'مدير':r==='supervisor'?'مشرف':'فني'; },
+                getProgressColor(p) { return p < 30 ? 'bg-red-500' : p < 70 ? 'bg-orange-500' : 'bg-green-500'; },
+                getProgressTextColor(p) { return p < 30 ? 'text-red-500' : p < 70 ? 'text-orange-500' : 'text-green-500'; },
+                handleImageError(e) { e.target.style.display = 'none'; },
+                approveUser(u) { if(confirm('قبول؟')) db.collection('users').doc(u.id).update({status:'active'}); },
+                rejectUser(id) { if(confirm('حذف؟')) db.collection('users').doc(id).delete(); }
+            },
+            mounted() { if(this.currentUser) this.initData(); },
+            watch: { currentPage(val) { if(val==='dashboard') setTimeout(this.updateCharts, 200); } }
+        }).mount('#app');
+    </script>
+</body>
+</html>
