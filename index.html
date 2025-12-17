@@ -338,14 +338,15 @@ const app = Vue.createApp({
     },
     methods: {
         async initFirebase() {
-            // ⚠️ هام: استبدل البيانات أدناه ببيانات مشروعك من Firebase Console
+            // ✅ تم دمج بياناتك هنا بنجاح
             const firebaseConfig = {
-                apiKey: "AIzaSy_XXXXXXXXXXXXXXXXXXXXXXXX",
-                authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-                projectId: "YOUR_PROJECT_ID",
-                storageBucket: "YOUR_PROJECT_ID.appspot.com",
-                messagingSenderId: "XXXXXXXXXXXX",
-                appId: "1:XXXXXXXXXXXX:web:XXXXXXXXXXXX"
+                apiKey: "AIzaSyCCYWgYl7SQuprocWZMrPuHqnclyOQ5HOc",
+                authDomain: "maintenance-app-4b02b.firebaseapp.com",
+                projectId: "maintenance-app-4b02b",
+                storageBucket: "maintenance-app-4b02b.firebasestorage.app",
+                messagingSenderId: "711045496244",
+                appId: "1:711045496244:web:e8b00f88ed43b0daa946e1",
+                measurementId: "G-RTFD0FVSKV"
             };
 
             firebase.initializeApp(firebaseConfig);
