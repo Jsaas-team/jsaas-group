@@ -2,444 +2,537 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة المشاريع - Light Mode</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>نظام إدارة المشاريع - جسّاس (Dark Glass)</title>
     
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
     <style>
-        /* * المتغيرات الأساسية للألوان (Theme Variables)
-         * تم تطبيق الخلفية البيضاء وتنسيق اللون الأحمر الجديد 
-         */
-        :root {
-            --bg-body: #F4F7FE;      /* خلفية عامة فاتحة */
-            --bg-card: #FFFFFF;      /* خلفية الكروت بيضاء */
-            --text-primary: #2B3674; /* لون النص الأساسي (كحلي غامق) */
-            --text-secondary: #A3AED0; /* لون النص الفرعي (رمادي) */
-            --accent-red: #FF5B5B;   /* اللون الأحمر الجديد (أكثر نعومة) */
-            --accent-orange: #FF9F2E; /* لون برتقالي للأزرار */
-            --primary-blue: #4318FF; /* لون أزرق للتشارت */
-            --shadow: 0px 18px 40px rgba(112, 144, 176, 0.12); /* ظل ناعم */
-            --border-radius: 20px;
-            --anim-speed: 1s; /* تبطيء الأنيميشن ليكون ملحوظاً */
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            transition: all 0.5s ease-in-out; /* حركة ناعمة لكل العناصر */
-        }
-
+        /* === 1. الخلفية والأساسيات === */
         body {
-            background-color: var(--bg-body);
-            color: var(--text-primary);
-            display: flex;
+            font-family: 'Tajawal', sans-serif;
+            color: #ffffff;
+            background: url('image_12.png') no-repeat center center fixed; /* الخلفية التي اخترتها */
+            background-size: cover;
             min-height: 100vh;
             overflow-x: hidden;
         }
 
-        /* --- القائمة الجانبية (Sidebar) --- */
-        .sidebar {
-            width: 280px;
-            background-color: var(--bg-card);
-            padding: 30px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-shadow: var(--shadow);
-            z-index: 100;
+        /* طبقة تعتيم قوية فوق الصورة لضمان وضوح النص */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6); /* لون كحلي غامق شفاف */
+            backdrop-filter: blur(8px); /* ضبابية للخلفية لتركيز النظر على المحتوى */
+            z-index: -1;
         }
 
-        .profile-section {
-            text-align: center;
-            margin-bottom: 50px;
-            /* أنيميشن الظهور */
-            animation: fadeInDown var(--anim-speed) ease-out;
-        }
-
-        .profile-img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid var(--bg-body);
-            margin-bottom: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .profile-name {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .profile-role {
-            font-size: 0.9rem;
-            color: var(--accent-orange);
-            background: #FFF8F1;
-            padding: 4px 12px;
-            border-radius: 10px;
-            display: inline-block;
-            margin-top: 5px;
-        }
-
-        .nav-menu {
-            width: 100%;
-            list-style: none;
-        }
-
-        .nav-item {
-            margin-bottom: 15px;
-            /* أنيميشن متتابع للعناصر */
-            opacity: 0;
-            animation: slideInRight var(--anim-speed) forwards;
-        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.5); border-radius: 4px; }
         
-        /* تأخير زمني لكل عنصر عشان يظهروا ورا بعض */
-        .nav-item:nth-child(1) { animation-delay: 0.2s; }
-        .nav-item:nth-child(2) { animation-delay: 0.4s; }
-        .nav-item:nth-child(3) { animation-delay: 0.6s; }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 15px 20px;
-            text-decoration: none;
-            color: var(--text-secondary);
-            font-weight: 600;
-            border-radius: 15px;
-            position: relative;
-            overflow: hidden;
+        /* === 2. نظام الزجاج الداكن (Dark Glass) === */
+        
+        /* اللوحات الرئيسية */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.75); /* زجاج داكن */
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1); /* حدود خافتة */
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); /* ظل قوي */
         }
 
-        .nav-link.active {
-            background: var(--accent-orange);
-            color: white;
-            box-shadow: 0 10px 20px rgba(255, 159, 46, 0.4);
+        /* البطاقات */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.07); /* شفافية خفيفة جداً */
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: transform 0.3s ease, background 0.3s, border-color 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .glass-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(99, 102, 241, 0.5); /* حدود تضيء بالأزرق عند اللمس */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
         }
 
-        .nav-link:hover:not(.active) {
-            background-color: var(--bg-body);
-            color: var(--text-primary);
-            padding-right: 30px; /* حركة بطيئة عند الماوس */
+        /* حقول الإدخال */
+        .glass-input {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.4); /* خلفية سوداء شفافة للكتابة */
+            color: #fff;
+            font-weight: 500;
+            outline: none;
+            transition: 0.3s;
         }
-
-        .nav-link i {
-            margin-left: 15px;
-            font-size: 1.2rem;
+        .glass-input:focus {
+            border-color: #6366f1; /* إطار أزرق مضيء */
+            background: rgba(0, 0, 0, 0.6);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
         }
+        .glass-input::placeholder { color: rgba(255, 255, 255, 0.5); }
 
-        .logout-btn {
-            margin-top: auto;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--accent-red);
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: none;
-            opacity: 0;
-            animation: fadeIn var(--anim-speed) forwards 1s;
-        }
-
-        /* --- المحتوى الرئيسي (Main Content) --- */
-        .main-content {
-            flex: 1;
-            padding: 30px;
-            overflow-y: auto;
-        }
-
-        /* الهيدر */
-        .header-card {
-            background: linear-gradient(135deg, #1f253e 0%, #2B3674 100%);
-            border-radius: var(--border-radius);
-            padding: 30px;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            box-shadow: var(--shadow);
-            animation: fadeInDown var(--anim-speed) ease-out;
-        }
-
-        .header-text h2 { margin-bottom: 5px; }
-        .header-text p { opacity: 0.8; }
-
-        .btn-new-project {
-            background-color: var(--accent-orange);
+        /* الأزرار */
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
             color: white;
             border: none;
-            padding: 12px 25px;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 10px 20px rgba(255, 159, 46, 0.3);
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6);
+            filter: brightness(1.1);
         }
 
-        .btn-new-project:hover {
-            transform: translateY(-5px); /* حركة الرفع */
-            background-color: #e68a1c;
-        }
+        /* نصوص واضحة */
+        h1, h2, h3, h4, h5, h6 { color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        p, span, label { color: #e2e8f0; }
+        .text-accent { color: #818cf8; } /* لون أزرق فاتح للعناوين الفرعية */
 
-        /* كروت الإحصائيات */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
+        /* رسوم بيانية */
+        .gauge-container { position: relative; height: 140px; display: flex; justify-content: center; align-items: flex-end; }
+        .bar-bg { background: rgba(255,255,255,0.1); border-radius: 99px; height: 8px; width: 100%; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 99px; transition: width 1s ease; box-shadow: 0 0 10px currentColor; }
 
-        .stat-card {
-            background-color: var(--bg-card);
-            padding: 20px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-            opacity: 0;
-            animation: fadeInUp var(--anim-speed) forwards;
-        }
-        
-        .stat-card:nth-child(1) { animation-delay: 0.2s; }
-        .stat-card:nth-child(2) { animation-delay: 0.4s; }
-        .stat-card:nth-child(3) { animation-delay: 0.6s; }
-        .stat-card:nth-child(4) { animation-delay: 0.8s; }
-
-        .stat-label { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 5px; }
-        .stat-value { font-size: 2rem; font-weight: 800; color: var(--text-primary); }
-        .stat-icon {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 2.5rem;
-            color: rgba(43, 54, 116, 0.05);
-        }
-
-        /* قسم الرسوم البيانية */
-        .charts-grid {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 20px;
-        }
-
-        .chart-card {
-            background-color: var(--bg-card);
-            border-radius: var(--border-radius);
-            padding: 25px;
-            box-shadow: var(--shadow);
-            opacity: 0;
-            animation: fadeInUp var(--anim-speed) forwards 1s;
-        }
-
-        .chart-header {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            color: var(--text-primary);
-        }
-
-        /* تخصيص للبار الأحمر الكبير */
-        .big-bar-container {
-            height: 250px;
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-        }
-
-        /* --- Keyframes Animations (الحركات البطيئة) --- */
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes slideInRight {
-            from { opacity: 0; transform: translateX(30px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* Responsive */
-        @media (max-width: 992px) {
-            .charts-grid { grid-template-columns: 1fr; }
-            .sidebar { display: none; /* يمكن إضافة زر لفتح القائمة للموبايل */ }
-            .main-content { width: 100%; }
-        }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body>
+<body class="h-screen overflow-hidden">
 
-    <aside class="sidebar">
-        <div class="profile-section">
-            <img src="https://i.pravatar.cc/150?img=11" alt="Profile" class="profile-img">
-            <div class="profile-name">MASalah</div>
-            <div class="profile-role">مدير</div>
-        </div>
+    <div id="app" class="h-full flex flex-col">
 
-        <ul class="nav-menu">
-            <li class="nav-item">
-                <a href="#" class="nav-link active">
-                    <i class="fa-solid fa-table-columns"></i>
-                    <span>لوحة القيادة</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link">
-                    <i class="fa-solid fa-clipboard-list"></i>
-                    <span>المشاريع</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link">
-                    <i class="fa-solid fa-users"></i>
-                    <span>الموظفين</span>
-                </a>
-            </li>
-        </ul>
-
-        <a href="#" class="logout-btn">
-            <i class="fa-solid fa-right-from-bracket"></i>
-            <span>خروج</span>
-        </a>
-    </aside>
-
-    <main class="main-content">
-        
-        <div class="header-card">
-            <div class="header-text">
-                <h2>لوحة المتابعة</h2>
-                <p>أهلاً بك في نظام جستاس، لديك 1 مشاريع جارية.</p>
-            </div>
-            <button class="btn-new-project">
-                <i class="fa-solid fa-plus"></i> مشروع جديد
-            </button>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">متوسط الإنجاز</div>
-                <div class="stat-value" style="color: var(--primary-blue)">85%</div>
-                <div class="stat-icon"><i class="fa-solid fa-chart-pie"></i></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">المكتملة</div>
-                <div class="stat-value" style="color: #05CD99">0</div>
-                <div class="stat-icon"><i class="fa-solid fa-check-circle"></i></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">قيد التنفيذ</div>
-                <div class="stat-value" style="color: var(--accent-orange)">1</div>
-                <div class="stat-icon"><i class="fa-solid fa-spinner"></i></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">الكل</div>
-                <div class="stat-value">1</div>
-                <div class="stat-icon"><i class="fa-solid fa-layer-group"></i></div>
-            </div>
-        </div>
-
-        <div class="charts-grid">
-            <div class="chart-card">
-                <div class="chart-header">مؤشر الأداء العام</div>
-                <div style="position: relative; height: 200px; width: 100%;">
-                    <canvas id="gaugeChart"></canvas>
+        <div v-if="!currentUser" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="glass-panel w-full max-w-md p-8 rounded-3xl animate-fade-in">
+                <div class="text-center mb-8">
+                    <img src="image_0.png" class="h-24 mx-auto mb-4 object-contain drop-shadow-2xl" @error="handleImageError">
+                    <h2 class="text-3xl font-bold mb-2">مرحباً بك</h2>
+                    <p class="text-gray-400 text-sm">سجل الدخول للمتابعة إلى لوحة التحكم</p>
                 </div>
-            </div>
 
-            <div class="chart-card">
-                <div class="chart-header">تقدم المشاريع الحالية</div>
-                <div style="position: relative; height: 300px; width: 100%;">
-                    <canvas id="barChart"></canvas>
+                <form @submit.prevent="authAction" class="space-y-5">
+                    <div v-if="isRegistering" class="space-y-4">
+                        <div class="bg-yellow-500/10 border border-yellow-500/30 p-3 rounded-xl text-yellow-300 text-xs font-bold text-center">
+                            <i class="fas fa-info-circle ml-1"></i> الحسابات الجديدة تتطلب موافقة الإدارة
+                        </div>
+                        <div class="flex justify-center">
+                            <div @click="$refs.profilePic.click()" class="relative w-24 h-24 rounded-full border-2 border-dashed border-gray-500 flex items-center justify-center cursor-pointer hover:border-white transition group">
+                                <img v-if="authForm.image" :src="authForm.image" class="w-full h-full object-cover rounded-full">
+                                <div v-else class="text-gray-400 group-hover:text-white"><i class="fas fa-camera text-2xl"></i></div>
+                            </div>
+                            <input ref="profilePic" type="file" class="hidden" accept="image/*" @change="handleProfilePic">
+                        </div>
+                        <select v-model="authForm.role" class="glass-input cursor-pointer" required>
+                            <option class="bg-slate-800 text-white" value="technician">فني / عامل</option>
+                            <option class="bg-slate-800 text-white" value="supervisor">مشرف</option>
+                            <option class="bg-slate-800 text-white" value="manager">مدير</option>
+                        </select>
+                        <input v-model="authForm.email" type="email" placeholder="البريد الإلكتروني" class="glass-input">
+                    </div>
+
+                    <input v-model="authForm.username" type="text" placeholder="اسم المستخدم" class="glass-input">
+                    <input v-model="authForm.password" type="password" placeholder="كلمة المرور" class="glass-input">
+
+                    <button type="submit" :disabled="loading" class="btn-primary w-full py-4 rounded-xl font-bold text-lg flex justify-center items-center gap-2">
+                        <span v-if="loading" class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+                        {{ loading ? 'جاري التحميل...' : (isRegistering ? 'إرسال الطلب' : 'دخول') }}
+                    </button>
+                </form>
+
+                <div class="mt-6 text-center">
+                    <button @click="toggleAuthMode" class="text-sm text-accent hover:text-white transition font-bold">
+                        {{ isRegistering ? 'لديك حساب؟ تسجيل الدخول' : 'ليس لديك حساب؟ إنشاء حساب جديد' }}
+                    </button>
                 </div>
             </div>
         </div>
 
-    </main>
+        <div v-else class="flex h-full">
+            
+            <aside class="hidden md:flex flex-col w-72 m-4 glass-panel rounded-2xl overflow-hidden border border-white/10 z-20">
+                <div class="p-6 text-center border-b border-white/10 bg-white/5">
+                    <div class="relative inline-block">
+                        <img :src="currentUser.image || 'https://via.placeholder.com/150'" class="w-20 h-20 rounded-full border-2 border-white/50 shadow-lg object-cover">
+                        <div class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-slate-800"></div>
+                    </div>
+                    <h3 class="font-bold text-lg mt-3">{{ currentUser.username }}</h3>
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">{{ getRoleName(currentUser.role) }}</span>
+                </div>
+
+                <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                    <a @click="changePage('dashboard')" :class="currentPage === 'dashboard' ? 'bg-indigo-600 shadow-lg text-white' : 'text-gray-300 hover:bg-white/10'" class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300">
+                        <i class="fas fa-th-large ml-3 w-6"></i> <span class="font-bold">لوحة القيادة</span>
+                    </a>
+                    <a @click="changePage('reports')" :class="currentPage === 'reports' ? 'bg-indigo-600 shadow-lg text-white' : 'text-gray-300 hover:bg-white/10'" class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300">
+                        <i class="fas fa-clipboard-list ml-3 w-6"></i> <span class="font-bold">المهام</span>
+                    </a>
+                    <a v-if="currentUser.role === 'manager'" @click="changePage('users')" :class="currentPage === 'users' ? 'bg-indigo-600 shadow-lg text-white' : 'text-gray-300 hover:bg-white/10'" class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300">
+                        <i class="fas fa-users ml-3 w-6"></i> <span class="font-bold">الموظفين</span>
+                        <span v-if="pendingUsersCount > 0" class="mr-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ pendingUsersCount }}</span>
+                    </a>
+                </nav>
+
+                <div class="p-4 border-t border-white/10">
+                    <button @click="logout" class="w-full flex items-center justify-center gap-2 text-red-400 hover:bg-red-500/10 hover:text-red-300 py-3 rounded-xl transition font-bold">
+                        <i class="fas fa-sign-out-alt"></i> خروج
+                    </button>
+                </div>
+            </aside>
+
+            <main class="flex-1 flex flex-col h-full relative overflow-hidden">
+                <header class="h-20 flex items-center justify-between px-6 z-10">
+                    <div class="md:hidden flex items-center gap-3 glass-panel px-4 py-2 rounded-full">
+                        <img :src="currentUser.image" class="w-8 h-8 rounded-full">
+                        <span class="font-bold text-sm">{{ currentUser.username }}</span>
+                    </div>
+
+                    <div class="ml-auto flex items-center gap-3">
+                        <button @click="showNotifications = !showNotifications" class="glass-panel w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 transition relative">
+                            <i class="fas fa-bell text-gray-300"></i>
+                            <span v-if="unreadCount > 0" class="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-slate-800"></span>
+                        </button>
+                        
+                        <div v-if="showNotifications" class="absolute left-6 top-20 w-80 glass-panel rounded-2xl shadow-2xl z-50 overflow-hidden border border-white/10 animate-fade-in">
+                            <div class="p-3 border-b border-white/10 flex justify-between items-center bg-white/5">
+                                <span class="font-bold text-sm">الإشعارات</span>
+                                <button @click="markAllRead" class="text-xs text-indigo-400 hover:text-indigo-300">تحديد كمقروء</button>
+                            </div>
+                            <div class="max-h-64 overflow-y-auto p-2">
+                                <div v-for="n in notifications" :key="n.id" @click="handleNotificationClick(n)" class="p-3 mb-1 rounded-xl hover:bg-white/10 cursor-pointer flex gap-3 transition">
+                                    <div class="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center shrink-0"><i class="fas fa-info"></i></div>
+                                    <div>
+                                        <p class="text-sm font-bold text-white">{{ n.title }}</p>
+                                        <p class="text-xs text-gray-400">{{ n.message }}</p>
+                                    </div>
+                                </div>
+                                <div v-if="!notifications.length" class="text-center py-6 text-gray-500 text-sm">لا توجد إشعارات</div>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 scroll-smooth">
+                    
+                    <div v-if="currentPage === 'dashboard'" class="max-w-7xl mx-auto space-y-6">
+                        <div class="glass-panel p-6 rounded-2xl flex flex-col md:flex-row justify-between items-center bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border border-white/10">
+                            <div>
+                                <h2 class="text-2xl font-bold text-white mb-1">لوحة المتابعة</h2>
+                                <p class="text-gray-400 text-sm">نظرة عامة على أداء المشاريع والمهام</p>
+                            </div>
+                            <button @click="openAddModal" class="btn-primary px-6 py-2.5 rounded-xl font-bold shadow-lg flex items-center gap-2 mt-4 md:mt-0">
+                                <i class="fas fa-plus"></i> مهمة جديدة
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div class="glass-card p-5 relative overflow-hidden group">
+                                <div class="absolute -right-6 -top-6 w-20 h-20 bg-blue-500/20 rounded-full blur-xl group-hover:bg-blue-500/30 transition"></div>
+                                <div class="relative z-10">
+                                    <p class="text-gray-400 text-xs font-bold mb-1">المهام الكلية</p>
+                                    <h3 class="text-3xl font-black text-white">{{ stats.total }}</h3>
+                                    <i class="fas fa-layer-group absolute bottom-5 left-5 text-2xl text-white/5"></i>
+                                </div>
+                            </div>
+                            <div class="glass-card p-5 relative overflow-hidden group">
+                                <div class="absolute -right-6 -top-6 w-20 h-20 bg-orange-500/20 rounded-full blur-xl group-hover:bg-orange-500/30 transition"></div>
+                                <div class="relative z-10">
+                                    <p class="text-gray-400 text-xs font-bold mb-1">قيد التنفيذ</p>
+                                    <h3 class="text-3xl font-black text-orange-400">{{ stats.active }}</h3>
+                                </div>
+                            </div>
+                            <div class="glass-card p-5 relative overflow-hidden group">
+                                <div class="absolute -right-6 -top-6 w-20 h-20 bg-green-500/20 rounded-full blur-xl group-hover:bg-green-500/30 transition"></div>
+                                <div class="relative z-10">
+                                    <p class="text-gray-400 text-xs font-bold mb-1">المكتملة</p>
+                                    <h3 class="text-3xl font-black text-green-400">{{ stats.completed }}</h3>
+                                </div>
+                            </div>
+                            <div class="glass-card p-5 relative overflow-hidden group">
+                                <div class="absolute -right-6 -top-6 w-20 h-20 bg-purple-500/20 rounded-full blur-xl group-hover:bg-purple-500/30 transition"></div>
+                                <div class="relative z-10">
+                                    <p class="text-gray-400 text-xs font-bold mb-1">متوسط الإنجاز</p>
+                                    <h3 class="text-3xl font-black text-purple-400">{{ stats.avgProgress }}%</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div class="glass-card p-6 lg:col-span-2">
+                                <h3 class="font-bold text-white mb-4">تقدم المهام الحالية</h3>
+                                <div class="h-64 relative w-full"><canvas id="dailyProgressChart"></canvas></div>
+                            </div>
+                            <div class="glass-card p-6">
+                                <h3 class="font-bold text-white mb-4 text-center">مؤشر الأداء العام</h3>
+                                <div class="gauge-container w-full">
+                                    <canvas id="efficiencyGauge"></canvas>
+                                    <div class="absolute bottom-0 text-center transform translate-y-3">
+                                        <div class="text-3xl font-black text-white">{{ stats.avgProgress }}%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="currentPage === 'reports'" class="space-y-4 max-w-5xl mx-auto">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold text-white">قائمة المهام</h2>
+                        </div>
+                        <div v-for="item in filteredReports" :key="item.id" class="glass-card p-5 hover:bg-white/10 transition flex flex-col md:flex-row gap-4 items-center">
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg shadow-lg" :class="getProgressBg(item.progress)">
+                                {{ item.progress }}%
+                            </div>
+                            <div class="flex-1 text-center md:text-right">
+                                <h3 class="font-bold text-lg text-white">{{ item.title }}</h3>
+                                <p class="text-sm text-gray-400 mt-1 flex gap-3 justify-center md:justify-start">
+                                    <span><i class="far fa-calendar"></i> {{ item.endDate }}</span>
+                                    <span><i class="far fa-user"></i> {{ item.assignedTo || 'عام' }}</span>
+                                </p>
+                            </div>
+                            <div class="w-full md:w-48">
+                                <div class="bar-bg"><div class="bar-fill" :style="{width: item.progress + '%', backgroundColor: getProgressColorHex(item.progress)}"></div></div>
+                            </div>
+                            <button @click="openEditModal(item)" class="w-10 h-10 rounded-full bg-white/5 hover:bg-indigo-600 hover:text-white transition flex items-center justify-center text-gray-300"><i class="fas fa-pen"></i></button>
+                        </div>
+                    </div>
+
+                    <div v-if="currentPage === 'users' && currentUser.role === 'manager'" class="space-y-4 max-w-4xl mx-auto">
+                        <h2 class="text-xl font-bold text-white mb-4">إدارة الفريق</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div v-for="user in users" :key="user.id" class="glass-card p-4 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <img :src="user.image" class="w-12 h-12 rounded-full border border-white/20">
+                                    <div>
+                                        <p class="font-bold text-white">{{ user.username }}</p>
+                                        <div class="flex gap-2 text-xs mt-1">
+                                            <span class="bg-white/10 px-2 py-0.5 rounded text-gray-300">{{ getRoleName(user.role) }}</span>
+                                            <span :class="user.status==='active'?'text-green-400':'text-orange-400'">{{ user.status==='active'?'نشط':'انتظار' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button v-if="user.status === 'pending'" @click="approveUser(user)" class="w-8 h-8 rounded bg-green-500/20 text-green-400 hover:bg-green-500 hover:text-white transition"><i class="fas fa-check"></i></button>
+                                    <button v-if="user.id !== currentUser.id" @click="rejectUser(user.id)" class="w-8 h-8 rounded bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="md:hidden fixed bottom-0 w-full glass-panel border-t border-white/10 flex justify-around py-3 z-30 backdrop-blur-xl">
+                    <button @click="changePage('dashboard')" :class="currentPage==='dashboard'?'text-indigo-400':'text-gray-500'"><i class="fas fa-th-large text-xl"></i></button>
+                    <button @click="changePage('reports')" :class="currentPage==='reports'?'text-indigo-400':'text-gray-500'"><i class="fas fa-clipboard-list text-xl"></i></button>
+                    <button @click="openAddModal" class="bg-indigo-600 text-white w-12 h-12 rounded-full -mt-8 shadow-lg border-4 border-slate-900 flex items-center justify-center"><i class="fas fa-plus text-xl"></i></button>
+                    <button v-if="currentUser.role==='manager'" @click="changePage('users')" :class="currentPage==='users'?'text-indigo-400':'text-gray-500'"><i class="fas fa-users text-xl"></i></button>
+                </div>
+            </main>
+        </div>
+
+        <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="closeModal"></div>
+            <div class="glass-panel w-full max-w-lg rounded-2xl relative z-10 animate-fade-in border border-white/10">
+                <div class="p-5 border-b border-white/10 flex justify-between items-center">
+                    <h3 class="font-bold text-xl text-white">{{ isEditing ? 'تحديث' : 'جديد' }}</h3>
+                    <button @click="closeModal" class="text-gray-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 mb-1 block">العنوان</label>
+                        <input v-model="form.title" class="glass-input">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 mb-1 block">الوصف</label>
+                        <textarea v-model="form.description" class="glass-input h-24"></textarea>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="flex-1">
+                            <label class="text-xs font-bold text-gray-400 mb-1 block">التسليم</label>
+                            <input type="date" v-model="form.endDate" class="glass-input text-gray-200">
+                        </div>
+                        <div class="flex-1">
+                            <label class="text-xs font-bold text-gray-400 mb-1 block">المسؤول</label>
+                            <select v-model="form.assignedTo" class="glass-input text-gray-200 cursor-pointer">
+                                <option class="bg-slate-800" value="">الجميع</option>
+                                <option class="bg-slate-800" v-for="u in activeUsers" :key="u.id" :value="u.username">{{ u.username }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div v-if="isEditing" class="glass-card p-4 rounded-xl bg-white/5">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm font-bold text-gray-300">نسبة الإنجاز</span>
+                            <span class="text-indigo-400 font-bold">{{ form.progress }}%</span>
+                        </div>
+                        <input type="range" v-model.number="form.progress" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                    </div>
+                    <button @click="saveReport" :disabled="submitting" class="btn-primary w-full py-3 rounded-xl font-bold shadow-lg mt-2">
+                        {{ submitting ? 'جاري الحفظ...' : 'حفظ' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
 
     <script>
-        // إعدادات التشارت الدائري (المؤشر)
-        const ctxGauge = document.getElementById('gaugeChart').getContext('2d');
-        new Chart(ctxGauge, {
-            type: 'doughnut',
-            data: {
-                labels: ['المنجز', 'المتبقي'],
-                datasets: [{
-                    data: [85, 15],
-                    backgroundColor: ['#4318FF', '#EFF4FB'], // الأزرق مع خلفية فاتحة
-                    borderWidth: 0,
-                    cutout: '75%', // سماكة الخط
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                rotation: -90,      // البدء من اليسار
-                circumference: 180, // نصف دائرة
-                plugins: {
-                    legend: { display: false },
-                    tooltip: { enabled: false }
-                },
-                animation: {
-                    duration: 2000, // أنيميشن بطيء (2 ثانية)
-                    easing: 'easeOutQuart'
-                }
-            }
-        });
+        const firebaseConfig = {
+            apiKey: "AIzaSyCCYWgYL7SqUprocWZMrPuHqnclyOQ5HOc",
+            authDomain: "maintenance-app-4b02b.firebaseapp.com",
+            projectId: "maintenance-app-4b02b",
+            storageBucket: "maintenance-app-4b02b.firebasestorage.app",
+            messagingSenderId: "711045496244",
+            appId: "1:711045496244:web:c8b00f88cd43b0daa946c1",
+            measurementId: "G-RTFD0FVSKV"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-        // إعدادات البار تشارت (الأحمر المعدل)
-        const ctxBar = document.getElementById('barChart').getContext('2d');
-        new Chart(ctxBar, {
-            type: 'bar',
-            data: {
-                labels: ['مشروع أ', 'مشروع ب', 'مشروع ج', 'مشروع د'], // بيانات وهمية
-                datasets: [{
-                    label: 'التقدم',
-                    data: [30, 50, 80, 45],
-                    // اللون الأحمر الجديد المتدرج
-                    backgroundColor: '#FF5B5B',
-                    borderRadius: 10, // حواف دائرية للبار
-                    barThickness: 50, // عرض البار
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { display: true, color: '#E9EDF7', borderDash: [5, 5] },
-                        ticks: { color: '#A3AED0' }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { color: '#A3AED0' }
-                    }
-                },
-                plugins: {
-                    legend: { display: false }
-                },
-                animation: {
-                    duration: 2500, // أنيميشن بطيء جداً للبار
-                    easing: 'easeInOutQuad'
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    currentUser: JSON.parse(localStorage.getItem('jsaas_user_v5')) || null,
+                    isRegistering: false,
+                    authForm: { username: '', password: '', role: 'technician', email: '', image: null },
+                    loading: false,
+                    currentPage: 'dashboard',
+                    users: [],
+                    reports: [],
+                    notifications: [],
+                    showNotifications: false,
+                    showModal: false, isEditing: false, editingId: null, submitting: false,
+                    form: { title: '', description: '', assignedTo: '', endDate: '', progress: 0, images: [] },
+                    charts: {}
                 }
-            }
-        });
+            },
+            computed: {
+                activeUsers() { return this.users.filter(u => u.status === 'active'); },
+                pendingUsers() { return this.users.filter(u => u.status === 'pending'); },
+                pendingUsersCount() { return this.pendingUsers.length; },
+                unreadCount() { return this.notifications.filter(n => !n.read).length; },
+                filteredReports() {
+                    let list = this.reports;
+                    if(this.currentUser.role !== 'manager') list = list.filter(r => r.createdBy === this.currentUser.username || r.assignedTo === this.currentUser.username || !r.assignedTo);
+                    return list;
+                },
+                recentReports() { return this.filteredReports.slice(0, 5); },
+                stats() {
+                    const list = this.reports;
+                    const total = list.length;
+                    const completed = list.filter(r => r.progress === 100).length;
+                    const active = list.filter(r => r.progress > 0 && r.progress < 100).length;
+                    const sum = list.reduce((a, c) => a + (c.progress || 0), 0);
+                    return { total, completed, active, avgProgress: total ? Math.round(sum / total) : 0 };
+                }
+            },
+            methods: {
+                changePage(p) { this.currentPage = p; },
+                initData() {
+                    if(this.currentUser && this.currentUser.id) {
+                        db.collection("users").doc(this.currentUser.id).onSnapshot(d => {
+                             const data = d.data();
+                             if(!data || data.status!=='active') { alert("حساب غير نشط"); this.logout(); }
+                             else { this.currentUser = {id:d.id, ...data}; localStorage.setItem('jsaas_user_v5', JSON.stringify(this.currentUser)); }
+                        });
+                    }
+                    db.collection("users").onSnapshot(s => this.users = s.docs.map(d => ({id:d.id, ...d.data()})));
+                    db.collection("reports").orderBy("timestamp", "desc").onSnapshot(s => {
+                        this.reports = s.docs.map(d => ({id:d.id, ...d.data()}));
+                        setTimeout(this.updateCharts, 300);
+                    });
+                    this.initNotifications();
+                },
+                updateCharts() {
+                    if(this.currentPage !== 'dashboard') return;
+                    
+                    const gaugeOptions = {
+                        rotation: -90, circumference: 180, cutout: '75%', 
+                        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                        maintainAspectRatio: false, responsive: true
+                    };
+                    
+                    // Chart Configs for Dark Mode
+                    Chart.defaults.color = '#94a3b8';
+                    Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
+
+                    this.renderChart('dailyProgressChart', 'bar', {
+                        labels: this.recentReports.map(t => t.title.substring(0,5)),
+                        datasets: [{ data: this.recentReports.map(t => t.progress), backgroundColor: '#6366f1', borderRadius: 4 }]
+                    }, { plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(255,255,255,0.05)' } } }, maintainAspectRatio: false });
+
+                    this.renderChart('efficiencyGauge', 'doughnut', {
+                        datasets: [{ data: [this.stats.avgProgress, 100 - this.stats.avgProgress], backgroundColor: ['#a855f7', 'rgba(255,255,255,0.1)'], borderWidth: 0 }]
+                    }, gaugeOptions);
+                },
+                renderChart(id, type, data, options) {
+                    const ctx = document.getElementById(id);
+                    if(!ctx) return;
+                    if(this.charts[id]) this.charts[id].destroy();
+                    this.charts[id] = new Chart(ctx, { type, data, options });
+                },
+                getProgressBg(p) { return p < 30 ? 'bg-red-500/20 text-red-400' : p < 70 ? 'bg-orange-500/20 text-orange-400' : 'bg-green-500/20 text-green-400'; },
+                getProgressColorHex(p) { return p < 30 ? '#ef4444' : p < 70 ? '#f97316' : '#22c55e'; },
+                getRoleName(r) { return r==='manager'?'مدير':r==='supervisor'?'مشرف':'فني'; },
+                toggleAuthMode() { this.isRegistering = !this.isRegistering; },
+                handleProfilePic(e) { const f = e.target.files[0]; const r = new FileReader(); r.onload=v=>this.authForm.image=v.target.result; r.readAsDataURL(f); },
+                handleImageError(e) { e.target.style.display='none'; },
+                async authAction() {
+                    this.loading = true;
+                    try {
+                        if(this.isRegistering) {
+                            if(!this.authForm.image) throw "الصورة مطلوبة";
+                            const check = await db.collection('users').where('username','==',this.authForm.username).get();
+                            if(!check.empty) throw "الاسم مستخدم";
+                            await db.collection('users').add({...this.authForm, status: 'pending', createdAt: new Date()});
+                            alert("تم إرسال الطلب"); this.isRegistering = false;
+                        } else {
+                            const snap = await db.collection('users').where('username','==',this.authForm.username).where('password','==',this.authForm.password).get();
+                            if(snap.empty) throw "بيانات خطأ";
+                            const u = {id:snap.docs[0].id, ...snap.docs[0].data()};
+                            if(u.status!=='active') throw "الحساب غير نشط";
+                            this.currentUser = u; localStorage.setItem('jsaas_user_v5', JSON.stringify(u)); this.initData();
+                        }
+                    } catch(e) { alert(e); }
+                    this.loading = false;
+                },
+                logout() { localStorage.removeItem('jsaas_user_v5'); location.reload(); },
+                openAddModal() { this.isEditing=false; this.form={title:'', description:'', assignedTo:'', endDate:'', progress:0}; this.showModal=true; },
+                openEditModal(i) { this.isEditing=true; this.editingId=i.id; this.form={...i}; this.showModal=true; },
+                closeModal() { this.showModal=false; },
+                async saveReport() {
+                    if(!this.form.title) return alert("مطلوب العنوان");
+                    this.submitting = true;
+                    const d = {...this.form, updatedBy: this.currentUser.username, timestamp: firebase.firestore.FieldValue.serverTimestamp()};
+                    if(!this.isEditing) { d.createdBy = this.currentUser.username; await db.collection("reports").add(d); }
+                    else { await db.collection("reports").doc(this.editingId).update(d); }
+                    this.submitting = false; this.showModal = false;
+                },
+                approveUser(u) { if(confirm('تفعيل؟')) db.collection('users').doc(u.id).update({status:'active'}); },
+                rejectUser(id) { if(confirm('حذف؟')) db.collection('users').doc(id).delete(); },
+                initNotifications() { 
+                    if (!this.currentUser) return;
+                    db.collection("notifications").where("toUser", "==", this.currentUser.username).orderBy("timestamp", "desc").limit(10)
+                        .onSnapshot(s => this.notifications = s.docs.map(d => ({id:d.id, ...d.data()})));
+                },
+                handleNotificationClick(n) { if(!n.read) db.collection("notifications").doc(n.id).update({read:true}); this.changePage('reports'); this.showNotifications=false; },
+                markAllRead() { this.notifications.forEach(n => { if(!n.read) db.collection("notifications").doc(n.id).update({read:true}); }); }
+            },
+            mounted() { if(this.currentUser) this.initData(); }
+        }).mount('#app');
     </script>
 </body>
 </html>
