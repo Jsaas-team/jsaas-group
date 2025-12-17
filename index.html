@@ -25,6 +25,10 @@
         /* حركة جرس التنبيهات */
         .ping { animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite; }
         @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
+        
+        /* كلاسات جديدة للحركة الانسيابية */
+        .hover-card { transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
+        .hover-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); cursor: pointer; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 h-screen overflow-hidden">
@@ -86,13 +90,13 @@
                     <span class="text-xs px-2 py-1 rounded bg-blue-100 text-blue-700 font-bold">{{ getRoleName(currentUser.role) }}</span>
                 </div>
                 <nav class="flex-1 px-4 py-4 space-y-2">
-                    <a @click="currentPage = 'dashboard'" :class="currentPage === 'dashboard' ? 'bg-blue-50 text-blue-600 border-r-4 border-blue-600' : 'text-slate-600 hover:bg-slate-50'" class="flex items-center px-4 py-3 rounded-l-lg cursor-pointer transition">
+                    <a @click="changePage('dashboard')" :class="currentPage === 'dashboard' ? 'bg-blue-50 text-blue-600 border-r-4 border-blue-600' : 'text-slate-600 hover:bg-slate-50'" class="flex items-center px-4 py-3 rounded-l-lg cursor-pointer transition">
                         <i class="fas fa-chart-line ml-3 w-6"></i> <span class="font-bold">مؤشرات الأداء</span>
                     </a>
-                    <a @click="currentPage = 'reports'" :class="currentPage === 'reports' ? 'bg-blue-50 text-blue-600 border-r-4 border-blue-600' : 'text-slate-600 hover:bg-slate-50'" class="flex items-center px-4 py-3 rounded-l-lg cursor-pointer transition">
+                    <a @click="changePage('reports')" :class="currentPage === 'reports' ? 'bg-blue-50 text-blue-600 border-r-4 border-blue-600' : 'text-slate-600 hover:bg-slate-50'" class="flex items-center px-4 py-3 rounded-l-lg cursor-pointer transition">
                         <i class="fas fa-list-check ml-3 w-6"></i> <span class="font-bold">إدارة المهام</span>
                     </a>
-                    <a v-if="currentUser.role === 'manager'" @click="currentPage = 'users'" :class="currentPage === 'users' ? 'bg-blue-50 text-blue-600 border-r-4 border-blue-600' : 'text-slate-600 hover:bg-slate-50'" class="flex items-center px-4 py-3 rounded-l-lg cursor-pointer transition">
+                    <a v-if="currentUser.role === 'manager'" @click="changePage('users')" :class="currentPage === 'users' ? 'bg-blue-50 text-blue-600 border-r-4 border-blue-600' : 'text-slate-600 hover:bg-slate-50'" class="flex items-center px-4 py-3 rounded-l-lg cursor-pointer transition">
                         <i class="fas fa-users ml-3 w-6"></i> <span class="font-bold">الموظفين</span>
                         <span v-if="pendingUsersCount > 0" class="mr-auto bg-red-500 text-white text-[10px] px-2 rounded-full">{{ pendingUsersCount }}</span>
                     </a>
@@ -148,27 +152,65 @@
                                 <h2 class="text-2xl font-bold text-slate-800">لوحة المتابعة</h2>
                                 <p class="text-sm text-slate-500">أهلاً، {{ currentUser.username }}</p>
                             </div>
-                            <button @click="openAddModal" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold shadow hover:bg-blue-700 text-sm">
+                            <button @click="openAddModal" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold shadow hover:bg-blue-700 text-sm transition transform hover:scale-105">
                                 <i class="fas fa-plus ml-2"></i> مهمة جديدة
                             </button>
                         </div>
+                        
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div class="bg-white p-5 rounded-2xl shadow-sm border-r-4 border-blue-500">
-                                <div class="text-gray-400 text-xs font-bold mb-1">المهام الكلية</div>
-                                <div class="text-3xl font-black text-slate-800">{{ stats.total }}</div>
+                            
+                            <div @click="filterAndGo('all')" title="عرض جميع المهام" class="hover-card bg-white p-5 rounded-2xl shadow-sm border-r-4 border-blue-500 relative overflow-hidden group">
+                                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <div class="text-gray-400 text-xs font-bold mb-1 group-hover:text-blue-600 transition-colors">المهام الكلية</div>
+                                        <div class="text-3xl font-black text-slate-800">{{ stats.total }}</div>
+                                    </div>
+                                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300">
+                                        <i class="fas fa-tasks"></i>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="bg-white p-5 rounded-2xl shadow-sm border-r-4 border-green-500">
-                                <div class="text-gray-400 text-xs font-bold mb-1">متوسط الإنجاز</div>
-                                <div class="text-3xl font-black text-green-600">{{ stats.avgProgress }}%</div>
+
+                            <div title="متوسط نسبة الإنجاز العام" class="hover-card bg-white p-5 rounded-2xl shadow-sm border-r-4 border-green-500 relative overflow-hidden group">
+                                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-400 to-green-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <div class="text-gray-400 text-xs font-bold mb-1 group-hover:text-green-600 transition-colors">متوسط الإنجاز</div>
+                                        <div class="text-3xl font-black text-green-600">{{ stats.avgProgress }}%</div>
+                                    </div>
+                                    <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-500 group-hover:bg-green-500 group-hover:text-white transition-all duration-300">
+                                        <i class="fas fa-chart-pie"></i>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="bg-white p-5 rounded-2xl shadow-sm border-r-4 border-orange-500">
-                                <div class="text-gray-400 text-xs font-bold mb-1">قيد التنفيذ</div>
-                                <div class="text-3xl font-black text-orange-500">{{ stats.active }}</div>
+
+                            <div @click="filterAndGo('active')" title="عرض المهام الجارية فقط" class="hover-card bg-white p-5 rounded-2xl shadow-sm border-r-4 border-orange-500 relative overflow-hidden group">
+                                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-400 to-orange-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <div class="text-gray-400 text-xs font-bold mb-1 group-hover:text-orange-600 transition-colors">قيد التنفيذ</div>
+                                        <div class="text-3xl font-black text-orange-500">{{ stats.active }}</div>
+                                    </div>
+                                    <div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-all duration-300">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="bg-white p-5 rounded-2xl shadow-sm border-r-4 border-purple-500">
-                                <div class="text-gray-400 text-xs font-bold mb-1">تم التسليم</div>
-                                <div class="text-3xl font-black text-purple-600">{{ stats.completed }}</div>
+
+                            <div @click="filterAndGo('completed')" title="عرض المهام المكتملة" class="hover-card bg-white p-5 rounded-2xl shadow-sm border-r-4 border-purple-500 relative overflow-hidden group">
+                                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-400 to-purple-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <div class="text-gray-400 text-xs font-bold mb-1 group-hover:text-purple-600 transition-colors">تم التسليم</div>
+                                        <div class="text-3xl font-black text-purple-600">{{ stats.completed }}</div>
+                                    </div>
+                                    <div class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-500 group-hover:bg-purple-500 group-hover:text-white transition-all duration-300">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                </div>
                             </div>
+
                         </div>
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-2">
@@ -184,9 +226,21 @@
 
                     <div v-if="currentPage === 'reports'" class="space-y-4">
                         <div class="flex justify-between items-center">
-                            <h2 class="text-xl font-bold text-slate-800">قائمة المهام</h2>
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                قائمة المهام
+                                <span v-if="currentFilter !== 'all'" class="text-xs bg-slate-200 px-2 py-1 rounded-full text-slate-600">
+                                    تصفية: {{ currentFilter === 'completed' ? 'مكتملة' : 'جارية' }}
+                                    <button @click="currentFilter = 'all'" class="mr-1 text-red-500 hover:text-red-700 font-bold">&times;</button>
+                                </span>
+                            </h2>
                         </div>
-                        <div v-for="item in filteredReports" :key="item.id" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-md transition">
+                        
+                        <div v-if="filteredReports.length === 0" class="text-center py-10 text-gray-400">
+                            <i class="fas fa-box-open text-4xl mb-2"></i>
+                            <p>لا توجد مهام في هذا التصنيف</p>
+                        </div>
+
+                        <div v-for="item in filteredReports" :key="item.id" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                             <div class="h-1.5 w-full bg-gray-100">
                                 <div class="h-1.5 transition-all duration-1000" :class="getProgressColor(item.progress)" :style="{width: item.progress + '%'}"></div>
                             </div>
@@ -209,7 +263,7 @@
                                 </div>
                                 <p class="text-sm text-gray-600 bg-slate-50 p-3 rounded-lg border border-slate-100 mb-3">{{ item.description }}</p>
                                 <div v-if="item.images && item.images.length" class="flex gap-2 overflow-x-auto pb-1">
-                                    <img v-for="(img, idx) in item.images" :key="idx" :src="img" @click="previewImage = img" class="w-10 h-10 rounded bg-gray-200 object-cover cursor-pointer hover:opacity-80">
+                                    <img v-for="(img, idx) in item.images" :key="idx" :src="img" @click="previewImage = img" class="w-10 h-10 rounded bg-gray-200 object-cover cursor-pointer hover:opacity-80 transition hover:scale-105">
                                 </div>
                             </div>
                         </div>
@@ -249,10 +303,10 @@
                 </div>
 
                 <div class="md:hidden fixed bottom-0 w-full bg-white border-t border-gray-200 flex justify-around py-3 pb-safe z-30">
-                    <button @click="currentPage = 'dashboard'" :class="currentPage === 'dashboard' ? 'text-blue-600' : 'text-gray-400'" class="flex flex-col items-center"><i class="fas fa-chart-line text-xl"></i></button>
-                    <button @click="currentPage = 'reports'" :class="currentPage === 'reports' ? 'text-blue-600' : 'text-gray-400'" class="flex flex-col items-center"><i class="fas fa-list-check text-xl"></i></button>
+                    <button @click="changePage('dashboard')" :class="currentPage === 'dashboard' ? 'text-blue-600' : 'text-gray-400'" class="flex flex-col items-center"><i class="fas fa-chart-line text-xl"></i></button>
+                    <button @click="changePage('reports')" :class="currentPage === 'reports' ? 'text-blue-600' : 'text-gray-400'" class="flex flex-col items-center"><i class="fas fa-list-check text-xl"></i></button>
                     <button @click="openAddModal" class="flex flex-col items-center text-blue-600"><i class="fas fa-plus-circle text-3xl -mt-1"></i></button>
-                    <button v-if="currentUser.role === 'manager'" @click="currentPage = 'users'" :class="currentPage === 'users' ? 'text-blue-600' : 'text-gray-400'" class="flex flex-col items-center relative">
+                    <button v-if="currentUser.role === 'manager'" @click="changePage('users')" :class="currentPage === 'users' ? 'text-blue-600' : 'text-gray-400'" class="flex flex-col items-center relative">
                         <i class="fas fa-users text-xl"></i>
                         <span v-if="pendingUsersCount > 0" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
                     </button>
@@ -325,7 +379,6 @@
     </div>
 
     <script>
-        // === Firebase Setup ===
         const firebaseConfig = {
             apiKey: "AIzaSyCCYWgYL7SqUprocWZMrPuHqnclyOQ5HOc",
             authDomain: "maintenance-app-4b02b.firebaseapp.com",
@@ -348,6 +401,7 @@
                     loading: false,
 
                     currentPage: 'dashboard',
+                    currentFilter: 'all', // NEW: حالة الفلتر الحالية
                     users: [],
                     reports: [],
                     notifications: [],
@@ -372,11 +426,20 @@
                 
                 filteredReports() {
                     let list = this.reports;
-                    if(this.currentUser.role === 'manager') return list;
-                    return list.filter(r => r.createdBy === this.currentUser.username || r.assignedTo === this.currentUser.username || !r.assignedTo);
+                    // أولاً فلترة الصلاحيات
+                    if(this.currentUser.role !== 'manager') {
+                        list = list.filter(r => r.createdBy === this.currentUser.username || r.assignedTo === this.currentUser.username || !r.assignedTo);
+                    }
+                    // ثانياً فلترة النوع (للبطاقات)
+                    if (this.currentFilter === 'completed') {
+                        list = list.filter(r => r.progress === 100);
+                    } else if (this.currentFilter === 'active') {
+                        list = list.filter(r => r.progress > 0 && r.progress < 100);
+                    }
+                    return list;
                 },
                 stats() {
-                    const list = this.filteredReports;
+                    const list = this.reports; // الإحصائيات تحسب دائماً على الكل
                     const total = list.length;
                     const completed = list.filter(r => r.progress === 100).length;
                     const active = list.filter(r => r.progress > 0 && r.progress < 100).length;
@@ -385,29 +448,27 @@
                 }
             },
             methods: {
-                // --- Real-time Security & Init ---
+                changePage(page) {
+                    this.currentPage = page;
+                    if(page !== 'reports') this.currentFilter = 'all'; // تصفير الفلتر عند الخروج
+                },
+                filterAndGo(type) {
+                    this.currentFilter = type;
+                    this.currentPage = 'reports';
+                },
                 initData() {
-                    // === FIX START: كود الأمان الجديد للطرد الفوري ===
                     if(this.currentUser && this.currentUser.id) {
                         db.collection("users").doc(this.currentUser.id).onSnapshot(doc => {
                             const data = doc.data();
-                            // إذا تم حذف المستند أو تغيرت الحالة لغير active
                             if (!data || data.status !== 'active') {
-                                if(this.currentUser) {
-                                    // إذا كان الحساب غير نشط أو محذوف، قم بتسجيل الخروج
-                                    alert("تم تغيير حالة حسابك أو إيقافه من قبل الإدارة.");
-                                    this.logout();
-                                }
+                                if(this.currentUser) { alert("تم تغيير حالة حسابك."); this.logout(); }
                             } else {
-                                // تحديث البيانات المحلية (مثلاً لو تمت الترقية لمدير وأنت داخل التطبيق)
                                 this.currentUser = { id: doc.id, ...data };
                                 localStorage.setItem('jsaas_user_v5', JSON.stringify(this.currentUser));
                             }
                         });
                     }
-                    // ============================================
 
-                    // جلب باقي البيانات
                     db.collection("users").onSnapshot(s => this.users = s.docs.map(d => ({id:d.id, ...d.data()})));
                     db.collection("reports").orderBy("timestamp", "desc").onSnapshot(s => {
                         this.reports = s.docs.map(d => ({id:d.id, ...d.data()}));
@@ -417,7 +478,6 @@
                     this.initNotifications();
                 },
 
-                // --- Notifications ---
                 initNotifications() {
                     if (!this.currentUser) return;
                     if ("Notification" in window && Notification.permission !== "granted") Notification.requestPermission();
@@ -432,8 +492,6 @@
                                 this.sendBrowserNotification(this.notifications[0].title, this.notifications[0].message);
                             }
                         });
-                        
-                    this.checkDeadlines();
                 },
                 async checkDeadlines() {
                     const today = new Date();
@@ -468,7 +526,6 @@
                     });
                 },
 
-                // --- Auth Logic ---
                 toggleAuthMode() { this.isRegistering = !this.isRegistering; },
                 handleProfilePic(e) { this.processImage(e.target.files[0], res => this.authForm.image = res); },
                 
@@ -480,39 +537,24 @@
                             const check = await db.collection('users').where('username','==',this.authForm.username).get();
                             if(!check.empty) throw new Error("اسم المستخدم محجوز");
                             
-                            // إجبار الحالة على PENDING
-                            const userData = { 
-                                ...this.authForm, 
-                                status: 'pending',
-                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                            };
-                            
+                            const userData = { ...this.authForm, status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() };
                             await db.collection('users').add(userData);
                             alert("تم إرسال طلبك بنجاح! سيتم مراجعته من قبل الإدارة.");
-                            this.isRegistering = false; // لا نسجل الدخول، فقط نعود للشاشة الرئيسية
-
+                            this.isRegistering = false;
                         } else {
                             const snap = await db.collection('users').where('username','==',this.authForm.username).where('password','==',this.authForm.password).get();
                             if(snap.empty) throw new Error("اسم المستخدم أو كلمة المرور خطأ");
-                            
                             const user = { id: snap.docs[0].id, ...snap.docs[0].data() };
-                            
-                            if(user.status === 'pending') throw new Error("الحساب قيد المراجعة، يرجى الانتظار");
+                            if(user.status === 'pending') throw new Error("الحساب قيد المراجعة");
                             if(user.status === 'banned') throw new Error("تم تعطيل هذا الحساب");
-                            
                             this.loginUser(user);
                         }
                     } catch(e) { alert(e.message); }
                     this.loading = false;
                 },
-                loginUser(user) { 
-                    this.currentUser = user; 
-                    localStorage.setItem('jsaas_user_v5', JSON.stringify(user)); 
-                    this.initData(); 
-                },
+                loginUser(user) { this.currentUser = user; localStorage.setItem('jsaas_user_v5', JSON.stringify(user)); this.initData(); },
                 logout() { localStorage.removeItem('jsaas_user_v5'); location.reload(); },
 
-                // --- Operations ---
                 async saveReport() {
                     if(!this.form.title) return alert("العنوان مطلوب");
                     this.submitting = true;
@@ -537,16 +579,13 @@
                     } else {
                         await db.collection("reports").doc(this.editingId).update(data);
                     }
-
                     this.submitting = false;
                     this.showModal = false;
                 },
 
-                // --- Admin Actions ---
                 approveUser(u) { if(confirm('تفعيل الموظف؟')) db.collection('users').doc(u.id).update({status:'active'}); },
                 rejectUser(id) { if(confirm('حذف هذا الحساب نهائياً؟')) db.collection('users').doc(id).delete(); },
                 
-                // --- Helpers ---
                 openAddModal() { this.isEditing = false; this.form = { title: '', description: '', assignedTo: '', endDate: '', progress: 0, images: [] }; this.showModal = true; },
                 openEditModal(item) { this.isEditing = true; this.editingId = item.id; this.form = JSON.parse(JSON.stringify(item)); this.showModal = true; },
                 closeModal() { this.showModal = false; },
@@ -568,7 +607,7 @@
                     const ctxDoughnut = document.getElementById('statusDoughnutChart');
                     if(ctxBar) {
                         if(this.barChart) this.barChart.destroy();
-                        const recent = this.filteredReports.slice(0, 10);
+                        const recent = this.reports.slice(0, 10); // عرض الكل في الشارت
                         this.barChart = new Chart(ctxBar, {
                             type: 'bar',
                             data: { labels: recent.map(t => t.title.substring(0, 10)), datasets: [{ label: 'النسبة %', data: recent.map(t => t.progress), backgroundColor: '#3b82f6', borderRadius: 5 }] },
@@ -590,7 +629,7 @@
                 getNotifIcon(type) { if (type === 'alert') return { icon: 'fas fa-exclamation-triangle', bg: 'bg-red-500' }; if (type === 'warning') return { icon: 'fas fa-clock', bg: 'bg-orange-500' }; return { icon: 'fas fa-info-circle', bg: 'bg-blue-500' }; },
                 formatDate(ts) { if(!ts) return ''; return new Date(ts.seconds * 1000).toLocaleDateString('ar-EG'); },
                 isOverdue(task) { if (!task.endDate || task.progress === 100) return false; return new Date(task.endDate) < new Date(); },
-                handleNotificationClick(n) { this.markAllRead(); this.currentPage = 'reports'; this.showNotifications = false; },
+                handleNotificationClick(n) { this.markAllRead(); this.changePage('reports'); this.showNotifications = false; },
                 handleImageError(e) { e.target.style.display = 'none'; }
             },
             mounted() { if(this.currentUser) this.initData(); },
