@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>نظام إدارة المشاريع - جسّاس (Dark Glass)</title>
+    <title>نظام إدارة المشاريع - جسّاس</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -15,55 +15,53 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <style>
-        /* === 1. الخلفية والأساسيات === */
+        /* === ألوان هوية جساس === */
+        :root {
+            --primary-orange: #fe9b02;
+            --primary-red: #f53f2c;
+            --glass-bg: rgba(30, 41, 59, 0.85);
+        }
+
         body {
             font-family: 'Tajawal', sans-serif;
             color: #ffffff;
-            background: url('image_12.png') no-repeat center center fixed; /* الخلفية التي اخترتها */
+            background: url('image_12.png') no-repeat center center fixed;
             background-size: cover;
             min-height: 100vh;
             overflow-x: hidden;
         }
 
-        /* طبقة تعتيم قوية فوق الصورة لضمان وضوح النص */
         body::before {
             content: '';
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.6); /* لون كحلي غامق شفاف */
-            backdrop-filter: blur(8px); /* ضبابية للخلفية لتركيز النظر على المحتوى */
+            background: rgba(15, 23, 42, 0.8); /* خلفية داكنة لتباين أفضل */
+            backdrop-filter: blur(5px);
             z-index: -1;
         }
 
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
-        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.5); border-radius: 4px; }
-        
-        /* === 2. نظام الزجاج الداكن (Dark Glass) === */
-        
-        /* اللوحات الرئيسية */
+        /* === الزجاج الداكن === */
         .glass-panel {
-            background: rgba(30, 41, 59, 0.75); /* زجاج داكن */
+            background: var(--glass-bg);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1); /* حدود خافتة */
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); /* ظل قوي */
+            border: 1px solid rgba(254, 155, 2, 0.1); /* حدود برتقالية خفيفة */
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
         }
 
-        /* البطاقات */
         .glass-card {
-            background: rgba(255, 255, 255, 0.07); /* شفافية خفيفة جداً */
+            background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
             border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            transition: transform 0.3s ease, background 0.3s, border-color 0.3s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
         }
         .glass-card:hover {
             transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(99, 102, 241, 0.5); /* حدود تضيء بالأزرق عند اللمس */
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary-orange);
+            box-shadow: 0 10px 25px rgba(254, 155, 2, 0.15);
+            cursor: pointer;
         }
 
         /* حقول الإدخال */
@@ -72,43 +70,39 @@
             padding: 1rem;
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            background: rgba(0, 0, 0, 0.4); /* خلفية سوداء شفافة للكتابة */
+            background: rgba(0, 0, 0, 0.3);
             color: #fff;
-            font-weight: 500;
             outline: none;
             transition: 0.3s;
         }
         .glass-input:focus {
-            border-color: #6366f1; /* إطار أزرق مضيء */
-            background: rgba(0, 0, 0, 0.6);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+            border-color: var(--primary-orange);
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 0 4px rgba(254, 155, 2, 0.2);
         }
-        .glass-input::placeholder { color: rgba(255, 255, 255, 0.5); }
 
-        /* الأزرار */
-        .btn-primary {
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        /* زر جساس الرئيسي */
+        .btn-jsaas {
+            background: linear-gradient(135deg, #fe9b02 0%, #f53f2c 100%);
             color: white;
             border: none;
-            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+            box-shadow: 0 4px 15px rgba(245, 63, 44, 0.4);
             transition: all 0.3s;
         }
-        .btn-primary:hover {
+        .btn-jsaas:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6);
+            box-shadow: 0 6px 20px rgba(254, 155, 2, 0.6);
             filter: brightness(1.1);
         }
 
-        /* نصوص واضحة */
-        h1, h2, h3, h4, h5, h6 { color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        p, span, label { color: #e2e8f0; }
-        .text-accent { color: #818cf8; } /* لون أزرق فاتح للعناوين الفرعية */
+        /* شريط التمرير */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+        ::-webkit-scrollbar-thumb { background: var(--primary-orange); border-radius: 4px; }
 
-        /* رسوم بيانية */
-        .gauge-container { position: relative; height: 140px; display: flex; justify-content: center; align-items: flex-end; }
         .bar-bg { background: rgba(255,255,255,0.1); border-radius: 99px; height: 8px; width: 100%; overflow: hidden; }
         .bar-fill { height: 100%; border-radius: 99px; transition: width 1s ease; box-shadow: 0 0 10px currentColor; }
-
+        
         .animate-fade-in { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -118,22 +112,22 @@
     <div id="app" class="h-full flex flex-col">
 
         <div v-if="!currentUser" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div class="glass-panel w-full max-w-md p-8 rounded-3xl animate-fade-in">
+            <div class="glass-panel w-full max-w-md p-8 rounded-3xl animate-fade-in border-t-4 border-[#fe9b02]">
                 <div class="text-center mb-8">
-                    <img src="image_0.png" class="h-24 mx-auto mb-4 object-contain drop-shadow-2xl" @error="handleImageError">
-                    <h2 class="text-3xl font-bold mb-2">مرحباً بك</h2>
-                    <p class="text-gray-400 text-sm">سجل الدخول للمتابعة إلى لوحة التحكم</p>
+                    <img src="image_0.png" class="h-28 mx-auto mb-4 object-contain drop-shadow-2xl" @error="handleImageError">
+                    <h2 class="text-3xl font-bold mb-2 text-white">مرحباً بك</h2>
+                    <p class="text-gray-400 text-sm">بوابة الموظفين والإدارة</p>
                 </div>
 
                 <form @submit.prevent="authAction" class="space-y-5">
                     <div v-if="isRegistering" class="space-y-4">
-                        <div class="bg-yellow-500/10 border border-yellow-500/30 p-3 rounded-xl text-yellow-300 text-xs font-bold text-center">
-                            <i class="fas fa-info-circle ml-1"></i> الحسابات الجديدة تتطلب موافقة الإدارة
+                        <div class="bg-orange-500/10 border border-orange-500/30 p-3 rounded-xl text-orange-300 text-xs font-bold text-center">
+                            <i class="fas fa-info-circle ml-1"></i> التسجيل يتطلب موافقة الإدارة
                         </div>
                         <div class="flex justify-center">
-                            <div @click="$refs.profilePic.click()" class="relative w-24 h-24 rounded-full border-2 border-dashed border-gray-500 flex items-center justify-center cursor-pointer hover:border-white transition group">
+                            <div @click="$refs.profilePic.click()" class="relative w-24 h-24 rounded-full border-2 border-dashed border-gray-500 flex items-center justify-center cursor-pointer hover:border-[#fe9b02] transition group">
                                 <img v-if="authForm.image" :src="authForm.image" class="w-full h-full object-cover rounded-full">
-                                <div v-else class="text-gray-400 group-hover:text-white"><i class="fas fa-camera text-2xl"></i></div>
+                                <div v-else class="text-gray-400 group-hover:text-[#fe9b02]"><i class="fas fa-camera text-2xl"></i></div>
                             </div>
                             <input ref="profilePic" type="file" class="hidden" accept="image/*" @change="handleProfilePic">
                         </div>
@@ -143,19 +137,20 @@
                             <option class="bg-slate-800 text-white" value="manager">مدير</option>
                         </select>
                         <input v-model="authForm.email" type="email" placeholder="البريد الإلكتروني" class="glass-input">
+                        <input v-model="authForm.phone" type="tel" placeholder="رقم الجوال (05xxxxxxx)" class="glass-input">
                     </div>
 
                     <input v-model="authForm.username" type="text" placeholder="اسم المستخدم" class="glass-input">
                     <input v-model="authForm.password" type="password" placeholder="كلمة المرور" class="glass-input">
 
-                    <button type="submit" :disabled="loading" class="btn-primary w-full py-4 rounded-xl font-bold text-lg flex justify-center items-center gap-2">
+                    <button type="submit" :disabled="loading" class="btn-jsaas w-full py-4 rounded-xl font-bold text-lg flex justify-center items-center gap-2">
                         <span v-if="loading" class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
                         {{ loading ? 'جاري التحميل...' : (isRegistering ? 'إرسال الطلب' : 'دخول') }}
                     </button>
                 </form>
 
                 <div class="mt-6 text-center">
-                    <button @click="toggleAuthMode" class="text-sm text-accent hover:text-white transition font-bold">
+                    <button @click="toggleAuthMode" class="text-sm text-[#fe9b02] hover:text-white transition font-bold underline decoration-wavy underline-offset-4">
                         {{ isRegistering ? 'لديك حساب؟ تسجيل الدخول' : 'ليس لديك حساب؟ إنشاء حساب جديد' }}
                     </button>
                 </div>
@@ -165,23 +160,23 @@
         <div v-else class="flex h-full">
             
             <aside class="hidden md:flex flex-col w-72 m-4 glass-panel rounded-2xl overflow-hidden border border-white/10 z-20">
-                <div class="p-6 text-center border-b border-white/10 bg-white/5">
+                <div class="p-6 text-center border-b border-white/10 bg-white/5 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#fe9b02] to-[#f53f2c]"></div>
                     <div class="relative inline-block">
-                        <img :src="currentUser.image || 'https://via.placeholder.com/150'" class="w-20 h-20 rounded-full border-2 border-white/50 shadow-lg object-cover">
-                        <div class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-slate-800"></div>
+                        <img :src="currentUser.image || 'https://via.placeholder.com/150'" class="w-20 h-20 rounded-full border-2 border-[#fe9b02] shadow-lg object-cover">
                     </div>
-                    <h3 class="font-bold text-lg mt-3">{{ currentUser.username }}</h3>
-                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">{{ getRoleName(currentUser.role) }}</span>
+                    <h3 class="font-bold text-lg mt-3 text-white">{{ currentUser.username }}</h3>
+                    <span class="text-xs font-bold text-[#fe9b02] uppercase tracking-wider bg-orange-500/10 px-2 py-1 rounded">{{ getRoleName(currentUser.role) }}</span>
                 </div>
 
                 <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-                    <a @click="changePage('dashboard')" :class="currentPage === 'dashboard' ? 'bg-indigo-600 shadow-lg text-white' : 'text-gray-300 hover:bg-white/10'" class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300">
+                    <a @click="changePage('dashboard')" :class="currentPage === 'dashboard' ? 'bg-gradient-to-r from-[#fe9b02] to-[#f53f2c] shadow-lg text-white' : 'text-gray-300 hover:bg-white/10'" class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300">
                         <i class="fas fa-th-large ml-3 w-6"></i> <span class="font-bold">لوحة القيادة</span>
                     </a>
-                    <a @click="changePage('reports')" :class="currentPage === 'reports' ? 'bg-indigo-600 shadow-lg text-white' : 'text-gray-300 hover:bg-white/10'" class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300">
-                        <i class="fas fa-clipboard-list ml-3 w-6"></i> <span class="font-bold">المهام</span>
+                    <a @click="changePage('reports')" :class="currentPage === 'reports' ? 'bg-gradient-to-r from-[#fe9b02] to-[#f53f2c] shadow-lg text-white' : 'text-gray-300 hover:bg-white/10'" class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300">
+                        <i class="fas fa-clipboard-list ml-3 w-6"></i> <span class="font-bold">المشاريع</span>
                     </a>
-                    <a v-if="currentUser.role === 'manager'" @click="changePage('users')" :class="currentPage === 'users' ? 'bg-indigo-600 shadow-lg text-white' : 'text-gray-300 hover:bg-white/10'" class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300">
+                    <a v-if="currentUser.role === 'manager'" @click="changePage('users')" :class="currentPage === 'users' ? 'bg-gradient-to-r from-[#fe9b02] to-[#f53f2c] shadow-lg text-white' : 'text-gray-300 hover:bg-white/10'" class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300">
                         <i class="fas fa-users ml-3 w-6"></i> <span class="font-bold">الموظفين</span>
                         <span v-if="pendingUsersCount > 0" class="mr-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ pendingUsersCount }}</span>
                     </a>
@@ -197,7 +192,7 @@
             <main class="flex-1 flex flex-col h-full relative overflow-hidden">
                 <header class="h-20 flex items-center justify-between px-6 z-10">
                     <div class="md:hidden flex items-center gap-3 glass-panel px-4 py-2 rounded-full">
-                        <img :src="currentUser.image" class="w-8 h-8 rounded-full">
+                        <img :src="currentUser.image" class="w-8 h-8 rounded-full border border-[#fe9b02]">
                         <span class="font-bold text-sm">{{ currentUser.username }}</span>
                     </div>
 
@@ -210,11 +205,11 @@
                         <div v-if="showNotifications" class="absolute left-6 top-20 w-80 glass-panel rounded-2xl shadow-2xl z-50 overflow-hidden border border-white/10 animate-fade-in">
                             <div class="p-3 border-b border-white/10 flex justify-between items-center bg-white/5">
                                 <span class="font-bold text-sm">الإشعارات</span>
-                                <button @click="markAllRead" class="text-xs text-indigo-400 hover:text-indigo-300">تحديد كمقروء</button>
+                                <button @click="markAllRead" class="text-xs text-[#fe9b02] hover:text-white">تحديد كمقروء</button>
                             </div>
                             <div class="max-h-64 overflow-y-auto p-2">
                                 <div v-for="n in notifications" :key="n.id" @click="handleNotificationClick(n)" class="p-3 mb-1 rounded-xl hover:bg-white/10 cursor-pointer flex gap-3 transition">
-                                    <div class="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center shrink-0"><i class="fas fa-info"></i></div>
+                                    <div class="w-8 h-8 rounded-full bg-orange-500/20 text-[#fe9b02] flex items-center justify-center shrink-0"><i class="fas fa-info"></i></div>
                                     <div>
                                         <p class="text-sm font-bold text-white">{{ n.title }}</p>
                                         <p class="text-xs text-gray-400">{{ n.message }}</p>
@@ -229,51 +224,54 @@
                 <div class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 scroll-smooth">
                     
                     <div v-if="currentPage === 'dashboard'" class="max-w-7xl mx-auto space-y-6">
-                        <div class="glass-panel p-6 rounded-2xl flex flex-col md:flex-row justify-between items-center bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border border-white/10">
+                        <div class="glass-panel p-6 rounded-2xl flex flex-col md:flex-row justify-between items-center bg-gradient-to-r from-slate-900/60 to-slate-800/60 border-t border-[#fe9b02]">
                             <div>
                                 <h2 class="text-2xl font-bold text-white mb-1">لوحة المتابعة</h2>
-                                <p class="text-gray-400 text-sm">نظرة عامة على أداء المشاريع والمهام</p>
+                                <p class="text-gray-400 text-sm">أهلاً بك في نظام جسّاس، لديك <span class="text-[#fe9b02] font-bold">{{ stats.active }}</span> مشاريع جارية.</p>
                             </div>
-                            <button @click="openAddModal" class="btn-primary px-6 py-2.5 rounded-xl font-bold shadow-lg flex items-center gap-2 mt-4 md:mt-0">
-                                <i class="fas fa-plus"></i> مهمة جديدة
+                            <button @click="openAddModal" class="btn-jsaas px-6 py-2.5 rounded-xl font-bold shadow-lg flex items-center gap-2 mt-4 md:mt-0">
+                                <i class="fas fa-plus"></i> مشروع جديد
                             </button>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <div class="glass-card p-5 relative overflow-hidden group">
-                                <div class="absolute -right-6 -top-6 w-20 h-20 bg-blue-500/20 rounded-full blur-xl group-hover:bg-blue-500/30 transition"></div>
+                            <div @click="filterAndGo('all')" class="glass-card p-5 relative overflow-hidden group border-b-4 border-gray-500">
+                                <div class="absolute -right-6 -top-6 w-24 h-24 bg-gray-500/10 rounded-full blur-xl group-hover:bg-gray-500/20 transition"></div>
                                 <div class="relative z-10">
-                                    <p class="text-gray-400 text-xs font-bold mb-1">المهام الكلية</p>
+                                    <p class="text-gray-400 text-xs font-bold mb-1 group-hover:text-white transition">الكل</p>
                                     <h3 class="text-3xl font-black text-white">{{ stats.total }}</h3>
-                                    <i class="fas fa-layer-group absolute bottom-5 left-5 text-2xl text-white/5"></i>
+                                    <span class="text-[10px] text-gray-500 flex items-center gap-1 mt-2 group-hover:text-gray-300"><i class="fas fa-mouse-pointer"></i> اضغط للعرض</span>
                                 </div>
                             </div>
-                            <div class="glass-card p-5 relative overflow-hidden group">
-                                <div class="absolute -right-6 -top-6 w-20 h-20 bg-orange-500/20 rounded-full blur-xl group-hover:bg-orange-500/30 transition"></div>
+                            <div @click="filterAndGo('active')" class="glass-card p-5 relative overflow-hidden group border-b-4 border-[#fe9b02]">
+                                <div class="absolute -right-6 -top-6 w-24 h-24 bg-orange-500/10 rounded-full blur-xl group-hover:bg-orange-500/20 transition"></div>
                                 <div class="relative z-10">
-                                    <p class="text-gray-400 text-xs font-bold mb-1">قيد التنفيذ</p>
-                                    <h3 class="text-3xl font-black text-orange-400">{{ stats.active }}</h3>
+                                    <p class="text-gray-400 text-xs font-bold mb-1 group-hover:text-[#fe9b02] transition">قيد التنفيذ</p>
+                                    <h3 class="text-3xl font-black text-[#fe9b02]">{{ stats.active }}</h3>
+                                    <span class="text-[10px] text-gray-500 flex items-center gap-1 mt-2 group-hover:text-orange-300"><i class="fas fa-mouse-pointer"></i> اضغط للعرض</span>
                                 </div>
                             </div>
-                            <div class="glass-card p-5 relative overflow-hidden group">
-                                <div class="absolute -right-6 -top-6 w-20 h-20 bg-green-500/20 rounded-full blur-xl group-hover:bg-green-500/30 transition"></div>
+                            <div @click="filterAndGo('completed')" class="glass-card p-5 relative overflow-hidden group border-b-4 border-green-500">
+                                <div class="absolute -right-6 -top-6 w-24 h-24 bg-green-500/10 rounded-full blur-xl group-hover:bg-green-500/20 transition"></div>
                                 <div class="relative z-10">
-                                    <p class="text-gray-400 text-xs font-bold mb-1">المكتملة</p>
+                                    <p class="text-gray-400 text-xs font-bold mb-1 group-hover:text-green-400 transition">المكتملة</p>
                                     <h3 class="text-3xl font-black text-green-400">{{ stats.completed }}</h3>
+                                    <span class="text-[10px] text-gray-500 flex items-center gap-1 mt-2 group-hover:text-green-300"><i class="fas fa-mouse-pointer"></i> اضغط للعرض</span>
                                 </div>
                             </div>
-                            <div class="glass-card p-5 relative overflow-hidden group">
-                                <div class="absolute -right-6 -top-6 w-20 h-20 bg-purple-500/20 rounded-full blur-xl group-hover:bg-purple-500/30 transition"></div>
+                            <div class="glass-card p-5 relative overflow-hidden group border-b-4 border-blue-500">
+                                <div class="absolute -right-6 -top-6 w-24 h-24 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition"></div>
                                 <div class="relative z-10">
-                                    <p class="text-gray-400 text-xs font-bold mb-1">متوسط الإنجاز</p>
-                                    <h3 class="text-3xl font-black text-purple-400">{{ stats.avgProgress }}%</h3>
+                                    <p class="text-gray-400 text-xs font-bold mb-1 group-hover:text-blue-400 transition">متوسط الإنجاز</p>
+                                    <h3 class="text-3xl font-black text-blue-400">{{ stats.avgProgress }}%</h3>
+                                    <span class="text-[10px] text-gray-500 mt-2 block">مؤشر عام</span>
                                 </div>
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             <div class="glass-card p-6 lg:col-span-2">
-                                <h3 class="font-bold text-white mb-4">تقدم المهام الحالية</h3>
+                                <h3 class="font-bold text-white mb-4">تقدم المشاريع الحالية</h3>
                                 <div class="h-64 relative w-full"><canvas id="dailyProgressChart"></canvas></div>
                             </div>
                             <div class="glass-card p-6">
@@ -288,45 +286,76 @@
                         </div>
                     </div>
 
-                    <div v-if="currentPage === 'reports'" class="space-y-4 max-w-5xl mx-auto">
-                        <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-xl font-bold text-white">قائمة المهام</h2>
+                    <div v-if="currentPage === 'reports'" class="space-y-4 max-w-6xl mx-auto">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                                <span>قائمة المشاريع</span>
+                                <span v-if="currentFilter !== 'all'" class="text-xs bg-[#fe9b02] text-white px-2 py-1 rounded-md">
+                                    تصفية: {{ currentFilter === 'active' ? 'قيد التنفيذ' : 'مكتملة' }}
+                                    <button @click="currentFilter='all'" class="mr-2 hover:text-black font-bold">&times;</button>
+                                </span>
+                            </h2>
+                            <button @click="openAddModal" class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm transition"><i class="fas fa-plus"></i> جديد</button>
                         </div>
-                        <div v-for="item in filteredReports" :key="item.id" class="glass-card p-5 hover:bg-white/10 transition flex flex-col md:flex-row gap-4 items-center">
-                            <div class="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg shadow-lg" :class="getProgressBg(item.progress)">
-                                {{ item.progress }}%
+                        
+                        <div v-if="filteredReports.length === 0" class="text-center py-12 text-gray-500">
+                            <i class="fas fa-box-open text-4xl mb-2"></i>
+                            <p>لا توجد مشاريع في هذا التصنيف</p>
+                        </div>
+
+                        <div v-for="item in filteredReports" :key="item.id" class="glass-card p-6 hover:bg-white/10 transition group">
+                            <div class="flex flex-col md:flex-row gap-6 items-start md:items-center">
+                                <div class="w-16 h-16 rounded-2xl flex items-center justify-center font-bold text-xl shadow-lg border border-white/10 shrink-0" :class="getProgressBg(item.progress)">
+                                    {{ item.progress }}%
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="font-bold text-xl text-white group-hover:text-[#fe9b02] transition">{{ item.title }}</h3>
+                                    <p class="text-gray-400 mt-2 text-sm line-clamp-2">{{ item.description }}</p>
+                                    <div class="flex flex-wrap gap-4 mt-3 text-xs text-gray-500">
+                                        <span class="flex items-center gap-1 bg-white/5 px-2 py-1 rounded"><i class="far fa-calendar text-[#fe9b02]"></i> {{ item.endDate }}</span>
+                                        <span class="flex items-center gap-1 bg-white/5 px-2 py-1 rounded"><i class="far fa-user text-blue-400"></i> {{ item.assignedTo || 'عام' }}</span>
+                                    </div>
+                                </div>
+                                <div class="flex -space-x-2 overflow-hidden px-2">
+                                    <img v-for="(img, idx) in item.images" :key="idx" :src="img" @click="previewImage = img" class="inline-block h-10 w-10 rounded-full ring-2 ring-slate-800 object-cover cursor-pointer hover:scale-110 transition z-10 relative">
+                                </div>
+                                <button @click="openEditModal(item)" class="w-10 h-10 rounded-full bg-white/5 hover:bg-[#fe9b02] hover:text-white transition flex items-center justify-center text-gray-400 shrink-0"><i class="fas fa-pen"></i></button>
                             </div>
-                            <div class="flex-1 text-center md:text-right">
-                                <h3 class="font-bold text-lg text-white">{{ item.title }}</h3>
-                                <p class="text-sm text-gray-400 mt-1 flex gap-3 justify-center md:justify-start">
-                                    <span><i class="far fa-calendar"></i> {{ item.endDate }}</span>
-                                    <span><i class="far fa-user"></i> {{ item.assignedTo || 'عام' }}</span>
-                                </p>
+                            <div class="mt-4 w-full bg-gray-700/50 h-1.5 rounded-full overflow-hidden">
+                                <div class="h-full transition-all duration-1000" :style="{width: item.progress + '%', backgroundColor: getProgressColorHex(item.progress)}"></div>
                             </div>
-                            <div class="w-full md:w-48">
-                                <div class="bar-bg"><div class="bar-fill" :style="{width: item.progress + '%', backgroundColor: getProgressColorHex(item.progress)}"></div></div>
-                            </div>
-                            <button @click="openEditModal(item)" class="w-10 h-10 rounded-full bg-white/5 hover:bg-indigo-600 hover:text-white transition flex items-center justify-center text-gray-300"><i class="fas fa-pen"></i></button>
                         </div>
                     </div>
 
-                    <div v-if="currentPage === 'users' && currentUser.role === 'manager'" class="space-y-4 max-w-4xl mx-auto">
-                        <h2 class="text-xl font-bold text-white mb-4">إدارة الفريق</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div v-for="user in users" :key="user.id" class="glass-card p-4 flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <img :src="user.image" class="w-12 h-12 rounded-full border border-white/20">
-                                    <div>
-                                        <p class="font-bold text-white">{{ user.username }}</p>
-                                        <div class="flex gap-2 text-xs mt-1">
-                                            <span class="bg-white/10 px-2 py-0.5 rounded text-gray-300">{{ getRoleName(user.role) }}</span>
-                                            <span :class="user.status==='active'?'text-green-400':'text-orange-400'">{{ user.status==='active'?'نشط':'انتظار' }}</span>
-                                        </div>
+                    <div v-if="currentPage === 'users' && currentUser.role === 'manager'" class="space-y-6 max-w-5xl mx-auto">
+                        <h2 class="text-2xl font-bold text-white mb-6">إدارة الموظفين</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                            <div v-for="user in users" :key="user.id" class="glass-card p-6 flex flex-col items-center text-center relative hover:border-[#fe9b02] transition">
+                                <div class="w-20 h-20 rounded-full p-1 border-2 border-[#fe9b02] mb-3">
+                                    <img :src="user.image" class="w-full h-full rounded-full object-cover">
+                                </div>
+                                <h3 class="font-bold text-lg text-white">{{ user.username }}</h3>
+                                <span class="text-xs bg-white/10 px-2 py-1 rounded mt-1 text-gray-300">{{ getRoleName(user.role) }}</span>
+                                
+                                <div class="w-full mt-4 space-y-2 text-sm text-gray-400 border-t border-white/10 pt-4">
+                                    <div class="flex justify-between">
+                                        <span><i class="fas fa-envelope text-[#fe9b02] ml-1"></i> البريد:</span>
+                                        <span class="text-white">{{ user.email || '-' }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span><i class="fas fa-phone text-[#fe9b02] ml-1"></i> الجوال:</span>
+                                        <span class="text-white">{{ user.phone || 'غير مسجل' }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span><i class="fas fa-circle ml-1" :class="user.status==='active'?'text-green-500':'text-orange-500'"></i> الحالة:</span>
+                                        <span :class="user.status==='active'?'text-green-400':'text-orange-400'">{{ user.status==='active'?'نشط':'انتظار' }}</span>
                                     </div>
                                 </div>
-                                <div class="flex gap-2">
-                                    <button v-if="user.status === 'pending'" @click="approveUser(user)" class="w-8 h-8 rounded bg-green-500/20 text-green-400 hover:bg-green-500 hover:text-white transition"><i class="fas fa-check"></i></button>
-                                    <button v-if="user.id !== currentUser.id" @click="rejectUser(user.id)" class="w-8 h-8 rounded bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition"><i class="fas fa-trash"></i></button>
+
+                                <div class="flex gap-2 mt-4 w-full">
+                                    <button v-if="user.status === 'pending'" @click="approveUser(user)" class="flex-1 bg-green-500/20 text-green-400 py-2 rounded hover:bg-green-500 hover:text-white transition font-bold text-xs"><i class="fas fa-check"></i> قبول</button>
+                                    <button v-if="user.id !== currentUser.id" @click="rejectUser(user.id)" class="flex-1 bg-red-500/20 text-red-400 py-2 rounded hover:bg-red-500 hover:text-white transition font-bold text-xs"><i class="fas fa-trash"></i> حذف</button>
                                 </div>
                             </div>
                         </div>
@@ -335,10 +364,10 @@
                 </div>
 
                 <div class="md:hidden fixed bottom-0 w-full glass-panel border-t border-white/10 flex justify-around py-3 z-30 backdrop-blur-xl">
-                    <button @click="changePage('dashboard')" :class="currentPage==='dashboard'?'text-indigo-400':'text-gray-500'"><i class="fas fa-th-large text-xl"></i></button>
-                    <button @click="changePage('reports')" :class="currentPage==='reports'?'text-indigo-400':'text-gray-500'"><i class="fas fa-clipboard-list text-xl"></i></button>
-                    <button @click="openAddModal" class="bg-indigo-600 text-white w-12 h-12 rounded-full -mt-8 shadow-lg border-4 border-slate-900 flex items-center justify-center"><i class="fas fa-plus text-xl"></i></button>
-                    <button v-if="currentUser.role==='manager'" @click="changePage('users')" :class="currentPage==='users'?'text-indigo-400':'text-gray-500'"><i class="fas fa-users text-xl"></i></button>
+                    <button @click="changePage('dashboard')" :class="currentPage==='dashboard'?'text-[#fe9b02]':'text-gray-500'"><i class="fas fa-th-large text-xl"></i></button>
+                    <button @click="changePage('reports')" :class="currentPage==='reports'?'text-[#fe9b02]':'text-gray-500'"><i class="fas fa-clipboard-list text-xl"></i></button>
+                    <button @click="openAddModal" class="bg-[#fe9b02] text-white w-12 h-12 rounded-full -mt-8 shadow-lg border-4 border-slate-900 flex items-center justify-center"><i class="fas fa-plus text-xl"></i></button>
+                    <button v-if="currentUser.role==='manager'" @click="changePage('users')" :class="currentPage==='users'?'text-[#fe9b02]':'text-gray-500'"><i class="fas fa-users text-xl"></i></button>
                 </div>
             </main>
         </div>
@@ -346,22 +375,22 @@
         <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="closeModal"></div>
             <div class="glass-panel w-full max-w-lg rounded-2xl relative z-10 animate-fade-in border border-white/10">
-                <div class="p-5 border-b border-white/10 flex justify-between items-center">
-                    <h3 class="font-bold text-xl text-white">{{ isEditing ? 'تحديث' : 'جديد' }}</h3>
+                <div class="p-5 border-b border-white/10 flex justify-between items-center bg-[#fe9b02]/10">
+                    <h3 class="font-bold text-xl text-white">{{ isEditing ? 'تحديث المشروع' : 'مشروع جديد' }}</h3>
                     <button @click="closeModal" class="text-gray-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
                 </div>
                 <div class="p-6 space-y-4">
                     <div>
-                        <label class="text-xs font-bold text-gray-400 mb-1 block">العنوان</label>
-                        <input v-model="form.title" class="glass-input">
+                        <label class="text-xs font-bold text-gray-400 mb-1 block">عنوان المشروع</label>
+                        <input v-model="form.title" class="glass-input font-bold">
                     </div>
                     <div>
-                        <label class="text-xs font-bold text-gray-400 mb-1 block">الوصف</label>
+                        <label class="text-xs font-bold text-gray-400 mb-1 block">التفاصيل</label>
                         <textarea v-model="form.description" class="glass-input h-24"></textarea>
                     </div>
                     <div class="flex gap-4">
                         <div class="flex-1">
-                            <label class="text-xs font-bold text-gray-400 mb-1 block">التسليم</label>
+                            <label class="text-xs font-bold text-gray-400 mb-1 block">تاريخ التسليم</label>
                             <input type="date" v-model="form.endDate" class="glass-input text-gray-200">
                         </div>
                         <div class="flex-1">
@@ -372,18 +401,38 @@
                             </select>
                         </div>
                     </div>
-                    <div v-if="isEditing" class="glass-card p-4 rounded-xl bg-white/5">
+                    
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 mb-2 block">صور المشروع</label>
+                        <div class="flex flex-wrap gap-2">
+                            <div v-for="(img, idx) in form.images" :key="idx" class="relative w-16 h-16 rounded border border-white/20 overflow-hidden group">
+                                <img :src="img" class="w-full h-full object-cover">
+                                <button @click="removeImage(idx)" class="absolute top-0 right-0 bg-red-500 text-white w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition">&times;</button>
+                            </div>
+                            <div @click="$refs.files.click()" class="w-16 h-16 rounded border-2 border-dashed border-gray-600 flex items-center justify-center cursor-pointer hover:border-[#fe9b02] hover:text-[#fe9b02] text-gray-500 transition">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                            <input ref="files" type="file" multiple class="hidden" accept="image/*" @change="handleFiles">
+                        </div>
+                    </div>
+
+                    <div v-if="isEditing" class="glass-card p-4 rounded-xl bg-white/5 border border-[#fe9b02]/30">
                         <div class="flex justify-between mb-2">
                             <span class="text-sm font-bold text-gray-300">نسبة الإنجاز</span>
-                            <span class="text-indigo-400 font-bold">{{ form.progress }}%</span>
+                            <span class="text-[#fe9b02] font-bold">{{ form.progress }}%</span>
                         </div>
-                        <input type="range" v-model.number="form.progress" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                        <input type="range" v-model.number="form.progress" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[#fe9b02]">
                     </div>
-                    <button @click="saveReport" :disabled="submitting" class="btn-primary w-full py-3 rounded-xl font-bold shadow-lg mt-2">
-                        {{ submitting ? 'جاري الحفظ...' : 'حفظ' }}
+                    <button @click="saveReport" :disabled="submitting" class="btn-jsaas w-full py-3 rounded-xl font-bold shadow-lg mt-2">
+                        {{ submitting ? 'جاري الحفظ...' : 'حفظ التغييرات' }}
                     </button>
                 </div>
             </div>
+        </div>
+
+        <div v-if="previewImage" class="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4 backdrop-blur-md" @click="previewImage = null">
+            <img :src="previewImage" class="max-w-full max-h-full rounded-lg shadow-2xl border border-white/20">
+            <button class="absolute top-4 right-4 text-white text-2xl hover:text-red-500">&times;</button>
         </div>
 
     </div>
@@ -407,16 +456,18 @@
                 return {
                     currentUser: JSON.parse(localStorage.getItem('jsaas_user_v5')) || null,
                     isRegistering: false,
-                    authForm: { username: '', password: '', role: 'technician', email: '', image: null },
+                    authForm: { username: '', password: '', role: 'technician', email: '', image: null, phone: '' }, // Added Phone
                     loading: false,
                     currentPage: 'dashboard',
+                    currentFilter: 'all', // Added for Dashboard Filtering
                     users: [],
                     reports: [],
                     notifications: [],
                     showNotifications: false,
                     showModal: false, isEditing: false, editingId: null, submitting: false,
                     form: { title: '', description: '', assignedTo: '', endDate: '', progress: 0, images: [] },
-                    charts: {}
+                    charts: {},
+                    previewImage: null
                 }
             },
             computed: {
@@ -426,10 +477,19 @@
                 unreadCount() { return this.notifications.filter(n => !n.read).length; },
                 filteredReports() {
                     let list = this.reports;
-                    if(this.currentUser.role !== 'manager') list = list.filter(r => r.createdBy === this.currentUser.username || r.assignedTo === this.currentUser.username || !r.assignedTo);
+                    // تصفية حسب الدور
+                    if(this.currentUser.role !== 'manager') {
+                        list = list.filter(r => r.createdBy === this.currentUser.username || r.assignedTo === this.currentUser.username || !r.assignedTo);
+                    }
+                    // تصفية حسب الداش بورد
+                    if(this.currentFilter === 'active') {
+                        list = list.filter(r => r.progress > 0 && r.progress < 100);
+                    } else if (this.currentFilter === 'completed') {
+                        list = list.filter(r => r.progress === 100);
+                    }
                     return list;
                 },
-                recentReports() { return this.filteredReports.slice(0, 5); },
+                recentReports() { return this.reports.slice(0, 5); }, // Use 'reports' (all) for charts, not filtered
                 stats() {
                     const list = this.reports;
                     const total = list.length;
@@ -440,7 +500,15 @@
                 }
             },
             methods: {
-                changePage(p) { this.currentPage = p; },
+                changePage(p) { 
+                    this.currentPage = p; 
+                    if(p !== 'reports') this.currentFilter = 'all'; // Reset filter when leaving reports
+                },
+                // وظيفة الفلترة من الداش بورد
+                filterAndGo(status) {
+                    this.currentFilter = status;
+                    this.currentPage = 'reports';
+                },
                 initData() {
                     if(this.currentUser && this.currentUser.id) {
                         db.collection("users").doc(this.currentUser.id).onSnapshot(d => {
@@ -465,17 +533,16 @@
                         maintainAspectRatio: false, responsive: true
                     };
                     
-                    // Chart Configs for Dark Mode
                     Chart.defaults.color = '#94a3b8';
-                    Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
+                    Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
 
                     this.renderChart('dailyProgressChart', 'bar', {
-                        labels: this.recentReports.map(t => t.title.substring(0,5)),
-                        datasets: [{ data: this.recentReports.map(t => t.progress), backgroundColor: '#6366f1', borderRadius: 4 }]
+                        labels: this.recentReports.map(t => t.title.substring(0,8)),
+                        datasets: [{ data: this.recentReports.map(t => t.progress), backgroundColor: '#fe9b02', borderRadius: 4 }]
                     }, { plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(255,255,255,0.05)' } } }, maintainAspectRatio: false });
 
                     this.renderChart('efficiencyGauge', 'doughnut', {
-                        datasets: [{ data: [this.stats.avgProgress, 100 - this.stats.avgProgress], backgroundColor: ['#a855f7', 'rgba(255,255,255,0.1)'], borderWidth: 0 }]
+                        datasets: [{ data: [this.stats.avgProgress, 100 - this.stats.avgProgress], backgroundColor: ['#3b82f6', 'rgba(255,255,255,0.1)'], borderWidth: 0 }]
                     }, gaugeOptions);
                 },
                 renderChart(id, type, data, options) {
@@ -497,6 +564,7 @@
                             if(!this.authForm.image) throw "الصورة مطلوبة";
                             const check = await db.collection('users').where('username','==',this.authForm.username).get();
                             if(!check.empty) throw "الاسم مستخدم";
+                            // إضافة الهاتف والبيانات
                             await db.collection('users').add({...this.authForm, status: 'pending', createdAt: new Date()});
                             alert("تم إرسال الطلب"); this.isRegistering = false;
                         } else {
@@ -510,9 +578,22 @@
                     this.loading = false;
                 },
                 logout() { localStorage.removeItem('jsaas_user_v5'); location.reload(); },
-                openAddModal() { this.isEditing=false; this.form={title:'', description:'', assignedTo:'', endDate:'', progress:0}; this.showModal=true; },
-                openEditModal(i) { this.isEditing=true; this.editingId=i.id; this.form={...i}; this.showModal=true; },
+                openAddModal() { this.isEditing=false; this.form={title:'', description:'', assignedTo:'', endDate:'', progress:0, images:[]}; this.showModal=true; },
+                openEditModal(i) { this.isEditing=true; this.editingId=i.id; this.form=JSON.parse(JSON.stringify(i)); if(!this.form.images) this.form.images=[]; this.showModal=true; },
                 closeModal() { this.showModal=false; },
+                handleFiles(e) { Array.from(e.target.files).forEach(f => this.processImage(f, res => this.form.images.push(res))); },
+                removeImage(i) { this.form.images.splice(i, 1); },
+                processImage(file, cb) {
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        const img = new Image(); img.src = e.target.result;
+                        img.onload = () => {
+                            const c = document.createElement('canvas'); const ctx = c.getContext('2d');
+                            const scale = 600 / img.width; c.width = 600; c.height = img.height * scale;
+                            ctx.drawImage(img,0,0,c.width,c.height); cb(c.toDataURL('image/jpeg', 0.6));
+                        }
+                    }; reader.readAsDataURL(file);
+                },
                 async saveReport() {
                     if(!this.form.title) return alert("مطلوب العنوان");
                     this.submitting = true;
