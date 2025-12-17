@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>نظام إدارة المشاريع - جسّاس (Premium Glass Edition)</title>
+    <title>نظام إدارة المشاريع - جسّاس (Dark Glass)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -15,348 +15,318 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <style>
-        /* === 1. الخلفية الزجاجية المتحركة (The Animated Glass Background) === */
+        /* === 1. الخلفية والأساسيات === */
         body {
             font-family: 'Tajawal', sans-serif;
             color: #ffffff;
+            background: url('image_12.png') no-repeat center center fixed; /* الخلفية التي اخترتها */
+            background-size: cover;
+            min-height: 100vh;
             overflow-x: hidden;
-            /* استخدام الصورة كخلفية */
-            background: url('image_12.png') no-repeat center center fixed;
-            background-size: 120% 120%; /* حجم أكبر للحركة */
-            /* حركة بطيئة وانسيابية */
-            animation: subtleMove 60s ease-in-out infinite alternate;
         }
 
-        /* تعريف الحركة */
-        @keyframes subtleMove {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 100% 100%; }
-        }
-
-        /* طبقة تراكب لزيادة التباين والضبابية */
+        /* طبقة تعتيم قوية فوق الصورة لضمان وضوح النص */
         body::before {
             content: '';
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.3); /* تعتيم خفيف */
-            backdrop-filter: blur(8px); /* ضبابية للخلفية */
+            background: rgba(15, 23, 42, 0.6); /* لون كحلي غامق شفاف */
+            backdrop-filter: blur(8px); /* ضبابية للخلفية لتركيز النظر على المحتوى */
             z-index: -1;
         }
 
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 4px; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.5); border-radius: 4px; }
         
-        /* === 2. كلاسات الزجاج الفاخر (Premium Glass Classes) === */
-        /* اللوحات والقوائم الرئيسية */
+        /* === 2. نظام الزجاج الداكن (Dark Glass) === */
+        
+        /* اللوحات الرئيسية */
         .glass-panel {
-            background: rgba(255, 255, 255, 0.1); /* شفافية عالية */
-            backdrop-filter: blur(20px);           /* ضبابية قوية */
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2); /* حدود زجاجية رفيعة */
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2); /* ظل ناعم للعمق */
+            background: rgba(30, 41, 59, 0.75); /* زجاج داكن */
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1); /* حدود خافتة */
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); /* ظل قوي */
         }
 
-        /* البطاقات والعناصر التفاعلية */
+        /* البطاقات */
         .glass-card {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* حركة مرنة */
+            background: rgba(255, 255, 255, 0.07); /* شفافية خفيفة جداً */
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: transform 0.3s ease, background 0.3s, border-color 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
         .glass-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            background: rgba(255, 255, 255, 0.25);
-            border-color: rgba(255, 255, 255, 0.4);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(255,255,255,0.05);
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(99, 102, 241, 0.5); /* حدود تضيء بالأزرق عند اللمس */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
         }
 
-        /* حقول الإدخال الزجاجية */
+        /* حقول الإدخال */
         .glass-input {
             width: 100%;
             padding: 1rem;
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.4); /* خلفية سوداء شفافة للكتابة */
+            color: #fff;
+            font-weight: 500;
             outline: none;
             transition: 0.3s;
         }
-        .glass-input::placeholder { color: rgba(255, 255, 255, 0.6); }
         .glass-input:focus {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: #60a5fa; /* لون أزرق فاتح عند التركيز */
-            box-shadow: 0 0 25px rgba(96, 165, 250, 0.4);
+            border-color: #6366f1; /* إطار أزرق مضيء */
+            background: rgba(0, 0, 0, 0.6);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
         }
+        .glass-input::placeholder { color: rgba(255, 255, 255, 0.5); }
 
-        /* الأزرار الزجاجية */
-        .glass-button {
-            background: rgba(59, 130, 246, 0.5); /* أزرق شفاف */
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+        /* الأزرار */
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
             transition: all 0.3s;
         }
-        .glass-button:hover {
-            background: rgba(59, 130, 246, 0.7);
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6);
+            filter: brightness(1.1);
         }
 
-        /* نصوص وأيقونات */
-        .text-glass { color: rgba(255, 255, 255, 0.9); text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        .text-glass-muted { color: rgba(255, 255, 255, 0.6); }
+        /* نصوص واضحة */
+        h1, h2, h3, h4, h5, h6 { color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        p, span, label { color: #e2e8f0; }
+        .text-accent { color: #818cf8; } /* لون أزرق فاتح للعناوين الفرعية */
 
-        .animate-slide-up { animation: slideUp 0.5s cubic-bezier(0.23, 1, 0.32, 1); }
-        @keyframes slideUp { from { transform: translateY(100px) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
-        
-        .ping { animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite; }
-        @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
+        /* رسوم بيانية */
+        .gauge-container { position: relative; height: 140px; display: flex; justify-content: center; align-items: flex-end; }
+        .bar-bg { background: rgba(255,255,255,0.1); border-radius: 99px; height: 8px; width: 100%; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 99px; transition: width 1s ease; box-shadow: 0 0 10px currentColor; }
 
-        /* Gauge & Charts Helpers */
-        .gauge-container { position: relative; height: 150px; display: flex; justify-content: center; align-items: flex-end; }
-        .bar-bg { background: rgba(255, 255, 255, 0.1); border-radius: 6px; height: 12px; width: 100%; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
-        .bar-fill { height: 100%; transition: width 1.2s ease-in-out; box-shadow: 0 0 15px rgba(255,255,255,0.3); }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="h-screen overflow-hidden">
 
     <div id="app" class="h-full flex flex-col">
-        
-        <div v-if="!currentUser" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 overflow-y-auto">
-            <div class="glass-panel w-full max-w-md p-10 rounded-[30px] shadow-2xl relative z-10 animate-slide-up border-2 border-white/30">
+
+        <div v-if="!currentUser" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="glass-panel w-full max-w-md p-8 rounded-3xl animate-fade-in">
                 <div class="text-center mb-8">
-                    <img src="image_0.png" class="h-28 mx-auto mb-4 object-contain drop-shadow-2xl animate-pulse" @error="handleImageError">
-                    <h2 class="text-4xl font-black text-glass tracking-wide">{{ isRegistering ? 'انضم للفريق' : 'مرحباً بعودتك' }}</h2>
+                    <img src="image_0.png" class="h-24 mx-auto mb-4 object-contain drop-shadow-2xl" @error="handleImageError">
+                    <h2 class="text-3xl font-bold mb-2">مرحباً بك</h2>
+                    <p class="text-gray-400 text-sm">سجل الدخول للمتابعة إلى لوحة التحكم</p>
                 </div>
-                <form @submit.prevent="authAction" class="space-y-6">
-                    <div v-if="isRegistering" class="space-y-5 animate-slide-up">
-                        <div class="glass-card p-4 rounded-2xl text-sm font-bold text-center text-yellow-300 flex items-center justify-center gap-2 border-yellow-400/30 bg-yellow-400/10">
-                            <i class="fas fa-shield-alt text-lg"></i> سيتم مراجعة طلبك من قبل الإدارة.
+
+                <form @submit.prevent="authAction" class="space-y-5">
+                    <div v-if="isRegistering" class="space-y-4">
+                        <div class="bg-yellow-500/10 border border-yellow-500/30 p-3 rounded-xl text-yellow-300 text-xs font-bold text-center">
+                            <i class="fas fa-info-circle ml-1"></i> الحسابات الجديدة تتطلب موافقة الإدارة
                         </div>
                         <div class="flex justify-center">
-                            <div @click="$refs.profilePic.click()" class="relative w-28 h-28 rounded-full border-[6px] border-white/30 shadow-2xl flex items-center justify-center cursor-pointer bg-white/10 hover:bg-white/30 transition overflow-hidden group">
-                                <img v-if="authForm.image" :src="authForm.image" class="w-full h-full object-cover group-hover:scale-110 transition">
-                                <div v-else class="text-center text-glass-muted group-hover:text-white transition"><i class="fas fa-camera text-3xl"></i></div>
+                            <div @click="$refs.profilePic.click()" class="relative w-24 h-24 rounded-full border-2 border-dashed border-gray-500 flex items-center justify-center cursor-pointer hover:border-white transition group">
+                                <img v-if="authForm.image" :src="authForm.image" class="w-full h-full object-cover rounded-full">
+                                <div v-else class="text-gray-400 group-hover:text-white"><i class="fas fa-camera text-2xl"></i></div>
                             </div>
                             <input ref="profilePic" type="file" class="hidden" accept="image/*" @change="handleProfilePic">
                         </div>
-                        <select v-model="authForm.role" class="glass-input font-bold text-lg" required>
-                            <option class="text-slate-800" value="technician">فني / عامل</option>
-                            <option class="text-slate-800" value="supervisor">مشرف</option>
-                            <option class="text-slate-800" value="manager">مدير</option>
+                        <select v-model="authForm.role" class="glass-input cursor-pointer" required>
+                            <option class="bg-slate-800 text-white" value="technician">فني / عامل</option>
+                            <option class="bg-slate-800 text-white" value="supervisor">مشرف</option>
+                            <option class="bg-slate-800 text-white" value="manager">مدير</option>
                         </select>
-                        <input v-model="authForm.email" type="email" placeholder="البريد الإلكتروني" class="glass-input text-lg" required>
+                        <input v-model="authForm.email" type="email" placeholder="البريد الإلكتروني" class="glass-input">
                     </div>
-                    
-                    <input v-model="authForm.username" type="text" placeholder="اسم المستخدم" class="glass-input font-bold text-lg" required>
-                    <input v-model="authForm.password" type="password" placeholder="كلمة المرور" class="glass-input text-lg" required>
-                    
-                    <button type="submit" :disabled="loading" class="w-full glass-button py-4 rounded-2xl font-black text-xl shadow-xl transition flex justify-center items-center gap-3">
-                        <span v-if="loading" class="animate-spin h-6 w-6 border-4 border-white border-t-transparent rounded-full"></span>
-                        {{ loading ? 'جاري التحميل...' : (isRegistering ? 'إرسال الطلب' : 'تسجيل الدخول') }}
+
+                    <input v-model="authForm.username" type="text" placeholder="اسم المستخدم" class="glass-input">
+                    <input v-model="authForm.password" type="password" placeholder="كلمة المرور" class="glass-input">
+
+                    <button type="submit" :disabled="loading" class="btn-primary w-full py-4 rounded-xl font-bold text-lg flex justify-center items-center gap-2">
+                        <span v-if="loading" class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+                        {{ loading ? 'جاري التحميل...' : (isRegistering ? 'إرسال الطلب' : 'دخول') }}
                     </button>
                 </form>
-                <div class="mt-8 text-center">
-                    <button @click="toggleAuthMode" class="text-base text-glass font-bold hover:text-blue-400 transition underline decoration-wavy underline-offset-4">
-                        {{ isRegistering ? 'لديك حساب بالفعل؟ دخول' : 'ليس لديك حساب؟ إنشاء حساب' }}
+
+                <div class="mt-6 text-center">
+                    <button @click="toggleAuthMode" class="text-sm text-accent hover:text-white transition font-bold">
+                        {{ isRegistering ? 'لديك حساب؟ تسجيل الدخول' : 'ليس لديك حساب؟ إنشاء حساب جديد' }}
                     </button>
                 </div>
             </div>
         </div>
 
-        <div v-else class="flex h-full relative z-10">
-            <aside class="w-72 glass-panel hidden md:flex flex-col border-r-0 z-20 m-6 rounded-[30px] overflow-hidden shadow-2xl border-2 border-white/20">
-                <div class="h-40 flex flex-col items-center justify-center bg-white/10 border-b border-white/20">
-                    <img :src="currentUser.image || 'https://via.placeholder.com/150'" class="w-20 h-20 rounded-full border-[5px] border-white/40 shadow-2xl object-cover mb-3">
-                    <h3 class="font-black text-xl text-glass">{{ currentUser.username }}</h3>
-                    <span class="text-xs px-3 py-1 rounded-full glass-card text-glass font-bold mt-1">{{ getRoleName(currentUser.role) }}</span>
+        <div v-else class="flex h-full">
+            
+            <aside class="hidden md:flex flex-col w-72 m-4 glass-panel rounded-2xl overflow-hidden border border-white/10 z-20">
+                <div class="p-6 text-center border-b border-white/10 bg-white/5">
+                    <div class="relative inline-block">
+                        <img :src="currentUser.image || 'https://via.placeholder.com/150'" class="w-20 h-20 rounded-full border-2 border-white/50 shadow-lg object-cover">
+                        <div class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-slate-800"></div>
+                    </div>
+                    <h3 class="font-bold text-lg mt-3">{{ currentUser.username }}</h3>
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">{{ getRoleName(currentUser.role) }}</span>
                 </div>
-                <nav class="flex-1 p-5 space-y-4">
-                    <a @click="changePage('dashboard')" :class="currentPage === 'dashboard' ? 'bg-blue-500/40 border-blue-400/50 shadow-[0_0_20px_rgba(59,130,246,0.3)]' : 'hover:bg-white/20'" class="glass-card flex items-center px-4 py-4 cursor-pointer transition-all duration-300 group border-0">
-                        <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center ml-3 shadow-inner group-hover:scale-110 transition group-hover:bg-white/30"><i class="fas fa-chart-pie text-xl text-glass"></i></div>
-                        <span class="font-bold text-lg text-glass">لوحة القيادة</span>
+
+                <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                    <a @click="changePage('dashboard')" :class="currentPage === 'dashboard' ? 'bg-indigo-600 shadow-lg text-white' : 'text-gray-300 hover:bg-white/10'" class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300">
+                        <i class="fas fa-th-large ml-3 w-6"></i> <span class="font-bold">لوحة القيادة</span>
                     </a>
-                    <a @click="changePage('reports')" :class="currentPage === 'reports' ? 'bg-blue-500/40 border-blue-400/50 shadow-[0_0_20px_rgba(59,130,246,0.3)]' : 'hover:bg-white/20'" class="glass-card flex items-center px-4 py-4 cursor-pointer transition-all duration-300 group border-0">
-                        <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center ml-3 shadow-inner group-hover:scale-110 transition group-hover:bg-white/30"><i class="fas fa-tasks text-xl text-glass"></i></div>
-                        <span class="font-bold text-lg text-glass">المهام والمشاريع</span>
+                    <a @click="changePage('reports')" :class="currentPage === 'reports' ? 'bg-indigo-600 shadow-lg text-white' : 'text-gray-300 hover:bg-white/10'" class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300">
+                        <i class="fas fa-clipboard-list ml-3 w-6"></i> <span class="font-bold">المهام</span>
                     </a>
-                    <a v-if="currentUser.role === 'manager'" @click="changePage('users')" :class="currentPage === 'users' ? 'bg-blue-500/40 border-blue-400/50 shadow-[0_0_20px_rgba(59,130,246,0.3)]' : 'hover:bg-white/20'" class="glass-card flex items-center px-4 py-4 cursor-pointer transition-all duration-300 group border-0">
-                        <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center ml-3 shadow-inner group-hover:scale-110 transition group-hover:bg-white/30"><i class="fas fa-users text-xl text-glass"></i></div>
-                        <span class="font-bold text-lg text-glass">فريق العمل</span>
-                        <span v-if="pendingUsersCount > 0" class="mr-auto bg-red-500 text-white text-xs w-7 h-7 flex items-center justify-center rounded-full shadow-lg animate-bounce font-bold border-2 border-white/30">{{ pendingUsersCount }}</span>
+                    <a v-if="currentUser.role === 'manager'" @click="changePage('users')" :class="currentPage === 'users' ? 'bg-indigo-600 shadow-lg text-white' : 'text-gray-300 hover:bg-white/10'" class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300">
+                        <i class="fas fa-users ml-3 w-6"></i> <span class="font-bold">الموظفين</span>
+                        <span v-if="pendingUsersCount > 0" class="mr-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ pendingUsersCount }}</span>
                     </a>
                 </nav>
-                <div class="p-5 mt-auto">
-                    <button @click="logout" class="w-full glass-card bg-red-500/30 hover:bg-red-500/50 text-red-200 hover:text-white py-4 rounded-2xl font-bold transition flex items-center justify-center gap-3 border-red-400/30 hover:shadow-[0_0_25px_rgba(239,68,68,0.4)]">
-                        <i class="fas fa-sign-out-alt text-lg"></i> تسجيل خروج
+
+                <div class="p-4 border-t border-white/10">
+                    <button @click="logout" class="w-full flex items-center justify-center gap-2 text-red-400 hover:bg-red-500/10 hover:text-red-300 py-3 rounded-xl transition font-bold">
+                        <i class="fas fa-sign-out-alt"></i> خروج
                     </button>
                 </div>
             </aside>
 
             <main class="flex-1 flex flex-col h-full relative overflow-hidden">
-                <header class="h-24 flex items-center justify-between px-8 z-10">
-                    <div class="glass-card px-4 py-2 flex items-center gap-3 md:hidden">
-                        <img :src="currentUser.image" class="w-10 h-10 rounded-full border-2 border-white/50 shadow-md">
-                        <span class="font-bold text-glass">{{ currentUser.username }}</span>
+                <header class="h-20 flex items-center justify-between px-6 z-10">
+                    <div class="md:hidden flex items-center gap-3 glass-panel px-4 py-2 rounded-full">
+                        <img :src="currentUser.image" class="w-8 h-8 rounded-full">
+                        <span class="font-bold text-sm">{{ currentUser.username }}</span>
                     </div>
-                    
-                    <div class="glass-card ml-auto px-3 py-2 flex items-center gap-3 shadow-xl">
-                        <button @click="showNotifications = !showNotifications" class="relative w-12 h-12 rounded-2xl hover:bg-white/20 transition flex items-center justify-center text-glass group">
-                            <i class="fas fa-bell text-2xl group-hover:animate-swing"></i>
-                            <span v-if="unreadCount > 0" class="absolute top-2 right-2 w-3 h-3 bg-red-500 rounded-full border-2 border-white/30"><span class="absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75 ping"></span></span>
+
+                    <div class="ml-auto flex items-center gap-3">
+                        <button @click="showNotifications = !showNotifications" class="glass-panel w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 transition relative">
+                            <i class="fas fa-bell text-gray-300"></i>
+                            <span v-if="unreadCount > 0" class="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-slate-800"></span>
                         </button>
                         
-                        <div v-if="showNotifications" class="absolute left-8 top-24 w-96 glass-panel rounded-[25px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] z-50 overflow-hidden animate-slide-up border-2 border-white/30">
-                            <div class="p-5 border-b border-white/20 bg-white/10 font-bold text-lg flex justify-between text-glass">
-                                <span>الإشعارات</span>
-                                <span class="text-sm bg-blue-500/30 hover:bg-blue-500/50 text-blue-200 px-3 py-1 rounded-full cursor-pointer transition border border-blue-400/30" @click="markAllRead">تحديد الكل كمقروء</span>
+                        <div v-if="showNotifications" class="absolute left-6 top-20 w-80 glass-panel rounded-2xl shadow-2xl z-50 overflow-hidden border border-white/10 animate-fade-in">
+                            <div class="p-3 border-b border-white/10 flex justify-between items-center bg-white/5">
+                                <span class="font-bold text-sm">الإشعارات</span>
+                                <button @click="markAllRead" class="text-xs text-indigo-400 hover:text-indigo-300">تحديد كمقروء</button>
                             </div>
-                            <div class="max-h-80 overflow-y-auto p-3 custom-scrollbar">
-                                <div v-for="n in notifications" :key="n.id" class="glass-card p-4 mb-2 cursor-pointer hover:bg-white/30 transition flex gap-4 items-start border-0" @click="handleNotificationClick(n)">
-                                    <div class="w-10 h-10 rounded-full bg-blue-500/30 flex items-center justify-center text-blue-200 shrink-0 text-sm border border-blue-400/30 shadow-inner"><i class="fas fa-info"></i></div>
-                                    <div><p class="text-base font-bold text-glass">{{ n.title }}</p><p class="text-sm text-glass-muted">{{ n.message }}</p></div>
+                            <div class="max-h-64 overflow-y-auto p-2">
+                                <div v-for="n in notifications" :key="n.id" @click="handleNotificationClick(n)" class="p-3 mb-1 rounded-xl hover:bg-white/10 cursor-pointer flex gap-3 transition">
+                                    <div class="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center shrink-0"><i class="fas fa-info"></i></div>
+                                    <div>
+                                        <p class="text-sm font-bold text-white">{{ n.title }}</p>
+                                        <p class="text-xs text-gray-400">{{ n.message }}</p>
+                                    </div>
                                 </div>
-                                <div v-if="!notifications.length" class="text-center text-glass-muted p-8 text-base">لا توجد إشعارات جديدة</div>
+                                <div v-if="!notifications.length" class="text-center py-6 text-gray-500 text-sm">لا توجد إشعارات</div>
                             </div>
                         </div>
                     </div>
                 </header>
 
-                <div class="flex-1 overflow-y-auto p-6 md:p-8 pb-28 scroll-smooth custom-scrollbar">
+                <div class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 scroll-smooth">
                     
-                    <div v-if="currentPage === 'dashboard'" class="max-w-[1400px] mx-auto space-y-8 animate-slide-up">
-                        
-                        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                            <div class="glass-card flex flex-col justify-center items-center text-center p-8 lg:col-span-1 relative overflow-hidden group border-2 border-white/30">
-                                <div class="absolute inset-0 bg-gradient-to-tr from-blue-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition duration-700"></div>
-                                <div class="w-24 h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent absolute top-0 left-1/2 -translate-x-1/2"></div>
-                                <h2 class="text-4xl font-black text-glass mb-2 z-10 drop-shadow-lg">لوحة المتابعة</h2>
-                                <p class="text-glass-muted text-sm font-bold z-10 tracking-[0.2em] uppercase">Project Dashboard</p>
-                                <button @click="openAddModal" class="mt-8 glass-button bg-blue-600/50 hover:bg-blue-600/70 text-white px-8 py-3 rounded-2xl shadow-xl hover:shadow-2xl text-lg font-bold transition transform hover:-translate-y-1 active:scale-95 z-10 flex items-center gap-3 border-blue-400/50">
-                                    <i class="fas fa-plus-circle text-xl"></i> إضافة مهمة
-                                </button>
+                    <div v-if="currentPage === 'dashboard'" class="max-w-7xl mx-auto space-y-6">
+                        <div class="glass-panel p-6 rounded-2xl flex flex-col md:flex-row justify-between items-center bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border border-white/10">
+                            <div>
+                                <h2 class="text-2xl font-bold text-white mb-1">لوحة المتابعة</h2>
+                                <p class="text-gray-400 text-sm">نظرة عامة على أداء المشاريع والمهام</p>
                             </div>
+                            <button @click="openAddModal" class="btn-primary px-6 py-2.5 rounded-xl font-bold shadow-lg flex items-center gap-2 mt-4 md:mt-0">
+                                <i class="fas fa-plus"></i> مهمة جديدة
+                            </button>
+                        </div>
 
-                            <div class="glass-card p-6 lg:col-span-1 border-2 border-white/30">
-                                <h3 class="font-bold text-lg text-glass mb-6 flex items-center gap-3"><i class="fas fa-stream text-blue-400"></i> أحدث المهام</h3>
-                                <div class="space-y-5">
-                                    <div v-for="task in recentReports" :key="task.id" class="group">
-                                        <div class="flex justify-between text-sm font-bold text-glass-muted mb-2">
-                                            <span>{{ task.title.substring(0, 15) }}..</span>
-                                            <span class="glass-card px-3 py-0.5 text-glass shadow-sm text-xs">{{ task.progress }}%</span>
-                                        </div>
-                                        <div class="bar-bg"><div class="bar-fill shadow-[0_0_10px_currentColor]" :class="getProgressColor(task.progress)" :style="{width: task.progress + '%', color: getProgressColorHex(task.progress)}"></div></div>
-                                    </div>
-                                    <div v-if="!recentReports.length" class="text-sm text-glass-muted text-center py-6">جاري تحميل البيانات...</div>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div class="glass-card p-5 relative overflow-hidden group">
+                                <div class="absolute -right-6 -top-6 w-20 h-20 bg-blue-500/20 rounded-full blur-xl group-hover:bg-blue-500/30 transition"></div>
+                                <div class="relative z-10">
+                                    <p class="text-gray-400 text-xs font-bold mb-1">المهام الكلية</p>
+                                    <h3 class="text-3xl font-black text-white">{{ stats.total }}</h3>
+                                    <i class="fas fa-layer-group absolute bottom-5 left-5 text-2xl text-white/5"></i>
                                 </div>
                             </div>
-
-                            <div class="glass-card p-6 lg:col-span-1 border-2 border-white/30">
-                                <h3 class="font-bold text-lg text-glass mb-4 text-center">توزيع الحالات</h3>
-                                <div class="relative h-48 w-full flex items-center justify-center">
-                                    <canvas id="statusDistributionChart"></canvas>
+                            <div class="glass-card p-5 relative overflow-hidden group">
+                                <div class="absolute -right-6 -top-6 w-20 h-20 bg-orange-500/20 rounded-full blur-xl group-hover:bg-orange-500/30 transition"></div>
+                                <div class="relative z-10">
+                                    <p class="text-gray-400 text-xs font-bold mb-1">قيد التنفيذ</p>
+                                    <h3 class="text-3xl font-black text-orange-400">{{ stats.active }}</h3>
                                 </div>
                             </div>
-
-                             <div class="glass-card p-6 lg:col-span-1 border-2 border-white/30">
-                                <h3 class="font-bold text-lg text-glass mb-4 text-center">التقدم اليومي</h3>
-                                <div class="relative h-48 w-full">
-                                    <canvas id="dailyProgressChart"></canvas>
+                            <div class="glass-card p-5 relative overflow-hidden group">
+                                <div class="absolute -right-6 -top-6 w-20 h-20 bg-green-500/20 rounded-full blur-xl group-hover:bg-green-500/30 transition"></div>
+                                <div class="relative z-10">
+                                    <p class="text-gray-400 text-xs font-bold mb-1">المكتملة</p>
+                                    <h3 class="text-3xl font-black text-green-400">{{ stats.completed }}</h3>
+                                </div>
+                            </div>
+                            <div class="glass-card p-5 relative overflow-hidden group">
+                                <div class="absolute -right-6 -top-6 w-20 h-20 bg-purple-500/20 rounded-full blur-xl group-hover:bg-purple-500/30 transition"></div>
+                                <div class="relative z-10">
+                                    <p class="text-gray-400 text-xs font-bold mb-1">متوسط الإنجاز</p>
+                                    <h3 class="text-3xl font-black text-purple-400">{{ stats.avgProgress }}%</h3>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                            
-                            <div class="glass-card p-6 flex flex-col items-center border-2 border-white/30">
-                                <h3 class="font-bold text-lg text-glass mb-4">نسبة التسليم</h3>
-                                <div class="gauge-container w-full">
-                                    <canvas id="deliveryGauge"></canvas>
-                                    <div class="absolute bottom-0 text-center transform translate-y-4">
-                                        <div class="text-4xl font-black text-glass drop-shadow-md">{{ stats.completed }} / {{ stats.total }}</div>
-                                    </div>
-                                </div>
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div class="glass-card p-6 lg:col-span-2">
+                                <h3 class="font-bold text-white mb-4">تقدم المهام الحالية</h3>
+                                <div class="h-64 relative w-full"><canvas id="dailyProgressChart"></canvas></div>
                             </div>
-
-                            <div class="glass-card p-6 flex flex-col items-center border-2 border-white/30">
-                                <h3 class="font-bold text-lg text-glass mb-4">مؤشر الأداء</h3>
+                            <div class="glass-card p-6">
+                                <h3 class="font-bold text-white mb-4 text-center">مؤشر الأداء العام</h3>
                                 <div class="gauge-container w-full">
                                     <canvas id="efficiencyGauge"></canvas>
-                                    <div class="absolute bottom-0 text-center transform translate-y-4">
-                                        <div class="text-4xl font-black text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]">{{ stats.avgProgress }}%</div>
+                                    <div class="absolute bottom-0 text-center transform translate-y-3">
+                                        <div class="text-3xl font-black text-white">{{ stats.avgProgress }}%</div>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div class="glass-card p-6 flex flex-col items-center border-2 border-white/30">
-                                <h3 class="font-bold text-lg text-glass mb-4">قيد التنفيذ</h3>
-                                <div class="gauge-container w-full">
-                                    <canvas id="activeGauge"></canvas>
-                                    <div class="absolute bottom-0 text-center transform translate-y-4">
-                                        <div class="text-4xl font-black text-blue-400 drop-shadow-[0_0_10px_rgba(96,165,250,0.5)]">{{ stats.active }}</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="glass-card flex flex-col justify-center items-center relative overflow-hidden border-2 border-white/30 group">
-                                <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:bg-white/20 transition duration-700"></div>
-                                <h3 class="font-bold text-lg text-glass-muted mb-2 z-10">إجمالي المهام</h3>
-                                <div class="text-8xl font-black text-glass z-10 tracking-tighter drop-shadow-2xl">{{ stats.total }}</div>
-                                <div class="text-sm font-bold text-green-400 mt-4 flex items-center gap-2 z-10 bg-green-400/20 px-4 py-2 rounded-xl border border-green-400/30 shadow-[0_0_15px_rgba(74,222,128,0.3)]">
-                                    <i class="fas fa-arrow-up animate-bounce"></i> نشط حالياً
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <div v-if="currentPage === 'reports'" class="space-y-6 max-w-6xl mx-auto animate-slide-up">
-                        <div class="flex justify-between items-center mb-8">
-                            <h2 class="text-3xl font-black text-glass drop-shadow-lg">قائمة المهام</h2>
-                            <button @click="openAddModal" class="glass-button bg-blue-500/30 hover:bg-blue-500/50 text-blue-100 px-6 py-3 rounded-2xl text-lg font-bold shadow-lg transition flex items-center gap-3 border-blue-400/30"><i class="fas fa-plus-circle text-xl"></i> مهمة جديدة</button>
-                        </div>
-
-                         <div v-for="item in filteredReports" :key="item.id" class="glass-card p-6 hover:bg-white/25 border-2 border-white/20">
-                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                                <div class="flex items-start gap-5">
-                                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-2xl border-2 border-white/30" :class="getProgressColor(item.progress)">
-                                        {{ Math.round(item.progress) }}%
-                                    </div>
-                                    <div>
-                                        <h3 class="font-bold text-2xl text-glass mb-2">{{ item.title }}</h3>
-                                        <div class="flex flex-wrap gap-3 text-sm text-glass-muted">
-                                            <span class="glass-card px-3 py-1 rounded-lg flex items-center gap-2 border-0"><i class="far fa-calendar text-blue-300"></i> {{ item.endDate }}</span>
-                                            <span class="glass-card px-3 py-1 rounded-lg flex items-center gap-2 border-0"><i class="far fa-user text-purple-300"></i> {{ item.assignedTo || 'الكل' }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="w-full md:w-auto flex items-center justify-between gap-6">
-                                    <div class="w-full md:w-48 bar-bg h-3 rounded-full">
-                                        <div class="bar-fill shadow-[0_0_15px_currentColor]" :class="getProgressColor(item.progress)" :style="{width: item.progress + '%', color: getProgressColorHex(item.progress)}"></div>
-                                    </div>
-                                    <button @click="openEditModal(item)" class="w-12 h-12 rounded-full glass-button bg-white/10 flex items-center justify-center text-glass shadow-md hover:text-blue-400 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] transition group"><i class="fas fa-pen text-lg group-hover:rotate-12 transition"></i></button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div v-if="currentPage === 'users' && currentUser.role === 'manager'" class="space-y-6 max-w-5xl mx-auto animate-slide-up">
-                        <h2 class="text-3xl font-black text-glass mb-8 drop-shadow-lg">إدارة الفريق</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div v-for="user in users" :key="user.id" class="glass-card p-6 flex items-center justify-between border-2 border-white/20 hover:border-white/40">
-                                <div class="flex items-center gap-5">
-                                    <img :src="user.image" class="w-16 h-16 rounded-full border-[3px] border-white/50 shadow-xl object-cover">
+
+                    <div v-if="currentPage === 'reports'" class="space-y-4 max-w-5xl mx-auto">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold text-white">قائمة المهام</h2>
+                        </div>
+                        <div v-for="item in filteredReports" :key="item.id" class="glass-card p-5 hover:bg-white/10 transition flex flex-col md:flex-row gap-4 items-center">
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg shadow-lg" :class="getProgressBg(item.progress)">
+                                {{ item.progress }}%
+                            </div>
+                            <div class="flex-1 text-center md:text-right">
+                                <h3 class="font-bold text-lg text-white">{{ item.title }}</h3>
+                                <p class="text-sm text-gray-400 mt-1 flex gap-3 justify-center md:justify-start">
+                                    <span><i class="far fa-calendar"></i> {{ item.endDate }}</span>
+                                    <span><i class="far fa-user"></i> {{ item.assignedTo || 'عام' }}</span>
+                                </p>
+                            </div>
+                            <div class="w-full md:w-48">
+                                <div class="bar-bg"><div class="bar-fill" :style="{width: item.progress + '%', backgroundColor: getProgressColorHex(item.progress)}"></div></div>
+                            </div>
+                            <button @click="openEditModal(item)" class="w-10 h-10 rounded-full bg-white/5 hover:bg-indigo-600 hover:text-white transition flex items-center justify-center text-gray-300"><i class="fas fa-pen"></i></button>
+                        </div>
+                    </div>
+
+                    <div v-if="currentPage === 'users' && currentUser.role === 'manager'" class="space-y-4 max-w-4xl mx-auto">
+                        <h2 class="text-xl font-bold text-white mb-4">إدارة الفريق</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div v-for="user in users" :key="user.id" class="glass-card p-4 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <img :src="user.image" class="w-12 h-12 rounded-full border border-white/20">
                                     <div>
-                                        <div class="font-bold text-xl text-glass mb-1">{{ user.username }}</div>
-                                        <div class="text-sm flex gap-3">
-                                            <span class="glass-card px-3 py-0.5 rounded-md text-glass-muted border-0">{{ getRoleName(user.role) }}</span>
-                                            <span :class="user.status==='active'?'text-green-400 bg-green-400/20 border-green-400/30':'text-orange-400 bg-orange-400/20 border-orange-400/30'" class="font-bold px-3 py-0.5 rounded-md border shadow-sm">{{ user.status==='active'?'نشط':'انتظار' }}</span>
+                                        <p class="font-bold text-white">{{ user.username }}</p>
+                                        <div class="flex gap-2 text-xs mt-1">
+                                            <span class="bg-white/10 px-2 py-0.5 rounded text-gray-300">{{ getRoleName(user.role) }}</span>
+                                            <span :class="user.status==='active'?'text-green-400':'text-orange-400'">{{ user.status==='active'?'نشط':'انتظار' }}</span>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="flex gap-3">
-                                    <button v-if="user.status === 'pending'" @click="approveUser(user)" class="w-10 h-10 rounded-full bg-green-500/40 text-green-100 shadow-lg hover:scale-110 hover:bg-green-500/60 transition flex items-center justify-center border border-green-400/50"><i class="fas fa-check text-lg"></i></button>
-                                    <button v-if="user.id !== currentUser.id" @click="rejectUser(user.id)" class="w-10 h-10 rounded-full bg-red-500/20 text-red-300 shadow-lg hover:bg-red-500/50 hover:text-white transition flex items-center justify-center border border-red-400/30"><i class="fas fa-trash-alt text-lg"></i></button>
+                                <div class="flex gap-2">
+                                    <button v-if="user.status === 'pending'" @click="approveUser(user)" class="w-8 h-8 rounded bg-green-500/20 text-green-400 hover:bg-green-500 hover:text-white transition"><i class="fas fa-check"></i></button>
+                                    <button v-if="user.id !== currentUser.id" @click="rejectUser(user.id)" class="w-8 h-8 rounded bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition"><i class="fas fa-trash"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -364,54 +334,53 @@
 
                 </div>
 
-                <div class="md:hidden fixed bottom-6 left-6 right-6 glass-panel rounded-[25px] flex justify-around py-4 z-30 shadow-[0_10px_30px_rgba(0,0,0,0.3)] border-2 border-white/20">
-                    <button @click="changePage('dashboard')" :class="currentPage==='dashboard'?'text-blue-400 scale-125 drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]':'text-glass-muted'" class="transition-all duration-300"><i class="fas fa-chart-pie text-2xl"></i></button>
-                    <button @click="changePage('reports')" :class="currentPage==='reports'?'text-blue-400 scale-125 drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]':'text-glass-muted'" class="transition-all duration-300"><i class="fas fa-tasks text-2xl"></i></button>
-                    <button @click="openAddModal" class="glass-button bg-blue-600/60 text-white w-16 h-16 rounded-full -mt-10 shadow-2xl flex items-center justify-center border-4 border-white/40 hover:scale-110 transition hover:rotate-90"><i class="fas fa-plus text-3xl"></i></button>
-                    <button v-if="currentUser.role==='manager'" @click="changePage('users')" :class="currentPage==='users'?'text-blue-400 scale-125 drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]':'text-glass-muted'" class="transition-all duration-300"><i class="fas fa-users text-2xl"></i></button>
+                <div class="md:hidden fixed bottom-0 w-full glass-panel border-t border-white/10 flex justify-around py-3 z-30 backdrop-blur-xl">
+                    <button @click="changePage('dashboard')" :class="currentPage==='dashboard'?'text-indigo-400':'text-gray-500'"><i class="fas fa-th-large text-xl"></i></button>
+                    <button @click="changePage('reports')" :class="currentPage==='reports'?'text-indigo-400':'text-gray-500'"><i class="fas fa-clipboard-list text-xl"></i></button>
+                    <button @click="openAddModal" class="bg-indigo-600 text-white w-12 h-12 rounded-full -mt-8 shadow-lg border-4 border-slate-900 flex items-center justify-center"><i class="fas fa-plus text-xl"></i></button>
+                    <button v-if="currentUser.role==='manager'" @click="changePage('users')" :class="currentPage==='users'?'text-indigo-400':'text-gray-500'"><i class="fas fa-users text-xl"></i></button>
                 </div>
             </main>
         </div>
 
         <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div class="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity" @click="closeModal"></div>
-            <div class="glass-panel w-full max-w-xl rounded-[35px] shadow-[0_20px_60px_rgba(0,0,0,0.5)] relative z-10 animate-slide-up max-h-[90vh] flex flex-col border-2 border-white/30">
-                <div class="p-6 border-b border-white/20 bg-white/5 flex justify-between items-center">
-                    <h3 class="font-black text-2xl text-glass">{{ isEditing ? 'تحديث المهمة' : 'مهمة جديدة' }}</h3>
-                    <button @click="closeModal" class="w-10 h-10 rounded-full glass-button bg-white/10 hover:bg-red-500/50 hover:text-white transition flex items-center justify-center text-glass shadow-inner"><i class="fas fa-times text-lg"></i></button>
+            <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="closeModal"></div>
+            <div class="glass-panel w-full max-w-lg rounded-2xl relative z-10 animate-fade-in border border-white/10">
+                <div class="p-5 border-b border-white/10 flex justify-between items-center">
+                    <h3 class="font-bold text-xl text-white">{{ isEditing ? 'تحديث' : 'جديد' }}</h3>
+                    <button @click="closeModal" class="text-gray-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
                 </div>
-                <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar">
+                <div class="p-6 space-y-4">
                     <div>
-                        <label class="block text-sm font-bold text-glass mb-2 ml-2 flex items-center gap-2"><i class="fas fa-heading text-blue-300"></i> العنوان</label>
-                        <input v-model="form.title" class="glass-input font-bold text-lg" placeholder="اسم المشروع أو المهمة">
+                        <label class="text-xs font-bold text-gray-400 mb-1 block">العنوان</label>
+                        <input v-model="form.title" class="glass-input">
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-glass mb-2 ml-2 flex items-center gap-2"><i class="fas fa-align-right text-purple-300"></i> التفاصيل</label>
-                        <textarea v-model="form.description" class="glass-input h-32 text-lg" placeholder="اكتب وصفاً مختصراً..."></textarea>
+                        <label class="text-xs font-bold text-gray-400 mb-1 block">الوصف</label>
+                        <textarea v-model="form.description" class="glass-input h-24"></textarea>
                     </div>
-                    <div class="flex flex-col md:flex-row gap-6">
+                    <div class="flex gap-4">
                         <div class="flex-1">
-                            <label class="block text-sm font-bold text-glass mb-2 ml-2 flex items-center gap-2"><i class="far fa-calendar-alt text-green-300"></i> موعد التسليم</label>
-                            <input type="date" v-model="form.endDate" class="glass-input text-lg text-glass">
+                            <label class="text-xs font-bold text-gray-400 mb-1 block">التسليم</label>
+                            <input type="date" v-model="form.endDate" class="glass-input text-gray-200">
                         </div>
                         <div class="flex-1">
-                            <label class="block text-sm font-bold text-glass mb-2 ml-2 flex items-center gap-2"><i class="far fa-user-circle text-yellow-300"></i> المسؤول</label>
-                            <select v-model="form.assignedTo" class="glass-input text-lg text-glass font-bold">
-                                <option class="text-slate-800" value="">الجميع</option>
-                                <option class="text-slate-800" v-for="u in activeUsers" :key="u.id" :value="u.username">{{ u.username }}</option>
+                            <label class="text-xs font-bold text-gray-400 mb-1 block">المسؤول</label>
+                            <select v-model="form.assignedTo" class="glass-input text-gray-200 cursor-pointer">
+                                <option class="bg-slate-800" value="">الجميع</option>
+                                <option class="bg-slate-800" v-for="u in activeUsers" :key="u.id" :value="u.username">{{ u.username }}</option>
                             </select>
                         </div>
                     </div>
-                    <div v-if="isEditing" class="glass-card p-6 rounded-2xl border-2 border-white/30 bg-white/10">
-                        <label class="flex justify-between text-sm font-bold text-glass mb-4"><span><i class="fas fa-chart-line text-blue-300 mr-2"></i> نسبة الإنجاز</span><span class="text-blue-300 text-2xl font-black drop-shadow-[0_0_10px_currentColor]">{{ form.progress }}%</span></label>
-                        <input type="range" v-model.number="form.progress" class="w-full h-3 bg-white/20 rounded-full appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400 transition">
+                    <div v-if="isEditing" class="glass-card p-4 rounded-xl bg-white/5">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm font-bold text-gray-300">نسبة الإنجاز</span>
+                            <span class="text-indigo-400 font-bold">{{ form.progress }}%</span>
+                        </div>
+                        <input type="range" v-model.number="form.progress" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-indigo-500">
                     </div>
-                </div>
-                <div class="p-6 border-t border-white/20 bg-white/5">
-                    <button @click="saveReport" :disabled="submitting" class="w-full glass-button bg-blue-600/50 hover:bg-blue-600/70 text-white py-4 rounded-2xl font-black text-xl shadow-xl transition transform active:scale-95 border-blue-400/50 flex items-center justify-center gap-3">
-                        <i v-if="!submitting" class="fas fa-save text-2xl"></i>
-                        <span v-if="submitting" class="animate-spin h-6 w-6 border-4 border-white border-t-transparent rounded-full"></span>
-                        {{ submitting ? 'جاري الحفظ...' : 'حفظ التغييرات' }}
+                    <button @click="saveReport" :disabled="submitting" class="btn-primary w-full py-3 rounded-xl font-bold shadow-lg mt-2">
+                        {{ submitting ? 'جاري الحفظ...' : 'حفظ' }}
                     </button>
                 </div>
             </div>
@@ -487,7 +456,6 @@
                     });
                     this.initNotifications();
                 },
-                
                 updateCharts() {
                     if(this.currentPage !== 'dashboard') return;
                     
@@ -496,49 +464,32 @@
                         plugins: { legend: { display: false }, tooltip: { enabled: false } },
                         maintainAspectRatio: false, responsive: true
                     };
-
-                    this.renderChart('statusDistributionChart', 'bar', {
-                        indexAxis: 'y',
-                        labels: ['مكتمل', 'جاري', 'جديد'],
-                        datasets: [{ 
-                            data: [this.stats.completed, this.stats.active, this.stats.total - (this.stats.completed + this.stats.active)],
-                            backgroundColor: ['rgba(52, 211, 153, 0.6)', 'rgba(96, 165, 250, 0.6)', 'rgba(255, 255, 255, 0.2)'], 
-                            borderColor: ['#34d399', '#60a5fa', 'rgba(255,255,255,0.4)'], borderWidth: 2, barThickness: 18, borderRadius: 6
-                        }]
-                    }, { plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { grid: { display: false }, ticks: { color: 'white', font: { weight: 'bold' } } } }, maintainAspectRatio: false });
+                    
+                    // Chart Configs for Dark Mode
+                    Chart.defaults.color = '#94a3b8';
+                    Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
 
                     this.renderChart('dailyProgressChart', 'bar', {
                         labels: this.recentReports.map(t => t.title.substring(0,5)),
-                        datasets: [{ data: this.recentReports.map(t => t.progress), backgroundColor: 'rgba(96, 165, 250, 0.6)', borderColor: '#60a5fa', borderWidth: 2, borderRadius: 6, barThickness: 12 }]
-                    }, { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false }, ticks: { color: 'white' } } }, maintainAspectRatio: false });
-
-                    this.renderChart('deliveryGauge', 'doughnut', {
-                        datasets: [{ data: [this.stats.completed, this.stats.total - this.stats.completed], backgroundColor: ['#ffffff', 'rgba(255,255,255,0.1)'], borderWidth: 0, hoverOffset: 5 }]
-                    }, gaugeOptions);
+                        datasets: [{ data: this.recentReports.map(t => t.progress), backgroundColor: '#6366f1', borderRadius: 4 }]
+                    }, { plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(255,255,255,0.05)' } } }, maintainAspectRatio: false });
 
                     this.renderChart('efficiencyGauge', 'doughnut', {
-                        datasets: [{ data: [this.stats.avgProgress, 100 - this.stats.avgProgress], backgroundColor: ['#34d399', 'rgba(255,255,255,0.1)'], borderWidth: 0, hoverOffset: 5 }]
-                    }, gaugeOptions);
-
-                    this.renderChart('activeGauge', 'doughnut', {
-                        datasets: [{ data: [this.stats.active, this.stats.total - this.stats.active], backgroundColor: ['#60a5fa', 'rgba(255,255,255,0.1)'], borderWidth: 0, hoverOffset: 5 }]
+                        datasets: [{ data: [this.stats.avgProgress, 100 - this.stats.avgProgress], backgroundColor: ['#a855f7', 'rgba(255,255,255,0.1)'], borderWidth: 0 }]
                     }, gaugeOptions);
                 },
-
                 renderChart(id, type, data, options) {
                     const ctx = document.getElementById(id);
                     if(!ctx) return;
                     if(this.charts[id]) this.charts[id].destroy();
                     this.charts[id] = new Chart(ctx, { type, data, options });
                 },
-
-                getProgressColor(p) { return p < 30 ? 'bg-red-500/60 border-red-400/50' : p < 70 ? 'bg-blue-500/60 border-blue-400/50' : 'bg-emerald-500/60 border-emerald-400/50'; },
-                getProgressColorHex(p) { return p < 30 ? '#ef4444' : p < 70 ? '#3b82f6' : '#10b981'; },
+                getProgressBg(p) { return p < 30 ? 'bg-red-500/20 text-red-400' : p < 70 ? 'bg-orange-500/20 text-orange-400' : 'bg-green-500/20 text-green-400'; },
+                getProgressColorHex(p) { return p < 30 ? '#ef4444' : p < 70 ? '#f97316' : '#22c55e'; },
                 getRoleName(r) { return r==='manager'?'مدير':r==='supervisor'?'مشرف':'فني'; },
                 toggleAuthMode() { this.isRegistering = !this.isRegistering; },
                 handleProfilePic(e) { const f = e.target.files[0]; const r = new FileReader(); r.onload=v=>this.authForm.image=v.target.result; r.readAsDataURL(f); },
                 handleImageError(e) { e.target.style.display='none'; },
-                
                 async authAction() {
                     this.loading = true;
                     try {
