@@ -35,7 +35,7 @@
             content: '';
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.8); /* خلفية داكنة لتباين أفضل */
+            background: rgba(15, 23, 42, 0.8);
             backdrop-filter: blur(5px);
             z-index: -1;
         }
@@ -45,7 +45,7 @@
             background: var(--glass-bg);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(254, 155, 2, 0.1); /* حدود برتقالية خفيفة */
+            border: 1px solid rgba(254, 155, 2, 0.1);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
         }
 
@@ -100,9 +100,6 @@
         ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
         ::-webkit-scrollbar-thumb { background: var(--primary-orange); border-radius: 4px; }
 
-        .bar-bg { background: rgba(255,255,255,0.1); border-radius: 99px; height: 8px; width: 100%; overflow: hidden; }
-        .bar-fill { height: 100%; border-radius: 99px; transition: width 1s ease; box-shadow: 0 0 10px currentColor; }
-        
         .animate-fade-in { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -236,7 +233,6 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div @click="filterAndGo('all')" class="glass-card p-5 relative overflow-hidden group border-b-4 border-gray-500">
-                                <div class="absolute -right-6 -top-6 w-24 h-24 bg-gray-500/10 rounded-full blur-xl group-hover:bg-gray-500/20 transition"></div>
                                 <div class="relative z-10">
                                     <p class="text-gray-400 text-xs font-bold mb-1 group-hover:text-white transition">الكل</p>
                                     <h3 class="text-3xl font-black text-white">{{ stats.total }}</h3>
@@ -244,7 +240,6 @@
                                 </div>
                             </div>
                             <div @click="filterAndGo('active')" class="glass-card p-5 relative overflow-hidden group border-b-4 border-[#fe9b02]">
-                                <div class="absolute -right-6 -top-6 w-24 h-24 bg-orange-500/10 rounded-full blur-xl group-hover:bg-orange-500/20 transition"></div>
                                 <div class="relative z-10">
                                     <p class="text-gray-400 text-xs font-bold mb-1 group-hover:text-[#fe9b02] transition">قيد التنفيذ</p>
                                     <h3 class="text-3xl font-black text-[#fe9b02]">{{ stats.active }}</h3>
@@ -252,7 +247,6 @@
                                 </div>
                             </div>
                             <div @click="filterAndGo('completed')" class="glass-card p-5 relative overflow-hidden group border-b-4 border-green-500">
-                                <div class="absolute -right-6 -top-6 w-24 h-24 bg-green-500/10 rounded-full blur-xl group-hover:bg-green-500/20 transition"></div>
                                 <div class="relative z-10">
                                     <p class="text-gray-400 text-xs font-bold mb-1 group-hover:text-green-400 transition">المكتملة</p>
                                     <h3 class="text-3xl font-black text-green-400">{{ stats.completed }}</h3>
@@ -260,7 +254,6 @@
                                 </div>
                             </div>
                             <div class="glass-card p-5 relative overflow-hidden group border-b-4 border-blue-500">
-                                <div class="absolute -right-6 -top-6 w-24 h-24 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition"></div>
                                 <div class="relative z-10">
                                     <p class="text-gray-400 text-xs font-bold mb-1 group-hover:text-blue-400 transition">متوسط الإنجاز</p>
                                     <h3 class="text-3xl font-black text-blue-400">{{ stats.avgProgress }}%</h3>
@@ -270,10 +263,15 @@
                         </div>
 
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <div class="glass-card p-6 lg:col-span-2">
-                                <h3 class="font-bold text-white mb-4">تقدم المشاريع الحالية</h3>
-                                <div class="h-64 relative w-full"><canvas id="dailyProgressChart"></canvas></div>
+                            
+                            <div class="bg-white p-6 rounded-2xl shadow-xl lg:col-span-2 border border-slate-100 relative overflow-hidden">
+                                <h3 class="font-bold text-slate-800 mb-4 text-lg">تقدم المشاريع الحالية</h3>
+                                <div class="h-80 relative w-full">
+                                    <canvas id="dailyProgressChart"></canvas>
+                                </div>
+                                <div class="absolute top-0 left-0 w-2 h-full bg-[#fe9b02]"></div>
                             </div>
+
                             <div class="glass-card p-6">
                                 <h3 class="font-bold text-white mb-4 text-center">مؤشر الأداء العام</h3>
                                 <div class="gauge-container w-full">
@@ -329,7 +327,6 @@
 
                     <div v-if="currentPage === 'users' && currentUser.role === 'manager'" class="space-y-6 max-w-5xl mx-auto">
                         <h2 class="text-2xl font-bold text-white mb-6">إدارة الموظفين</h2>
-                        
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                             <div v-for="user in users" :key="user.id" class="glass-card p-6 flex flex-col items-center text-center relative hover:border-[#fe9b02] transition">
                                 <div class="w-20 h-20 rounded-full p-1 border-2 border-[#fe9b02] mb-3">
@@ -337,7 +334,6 @@
                                 </div>
                                 <h3 class="font-bold text-lg text-white">{{ user.username }}</h3>
                                 <span class="text-xs bg-white/10 px-2 py-1 rounded mt-1 text-gray-300">{{ getRoleName(user.role) }}</span>
-                                
                                 <div class="w-full mt-4 space-y-2 text-sm text-gray-400 border-t border-white/10 pt-4">
                                     <div class="flex justify-between">
                                         <span><i class="fas fa-envelope text-[#fe9b02] ml-1"></i> البريد:</span>
@@ -352,7 +348,6 @@
                                         <span :class="user.status==='active'?'text-green-400':'text-orange-400'">{{ user.status==='active'?'نشط':'انتظار' }}</span>
                                     </div>
                                 </div>
-
                                 <div class="flex gap-2 mt-4 w-full">
                                     <button v-if="user.status === 'pending'" @click="approveUser(user)" class="flex-1 bg-green-500/20 text-green-400 py-2 rounded hover:bg-green-500 hover:text-white transition font-bold text-xs"><i class="fas fa-check"></i> قبول</button>
                                     <button v-if="user.id !== currentUser.id" @click="rejectUser(user.id)" class="flex-1 bg-red-500/20 text-red-400 py-2 rounded hover:bg-red-500 hover:text-white transition font-bold text-xs"><i class="fas fa-trash"></i> حذف</button>
@@ -456,10 +451,10 @@
                 return {
                     currentUser: JSON.parse(localStorage.getItem('jsaas_user_v5')) || null,
                     isRegistering: false,
-                    authForm: { username: '', password: '', role: 'technician', email: '', image: null, phone: '' }, // Added Phone
+                    authForm: { username: '', password: '', role: 'technician', email: '', image: null, phone: '' },
                     loading: false,
                     currentPage: 'dashboard',
-                    currentFilter: 'all', // Added for Dashboard Filtering
+                    currentFilter: 'all',
                     users: [],
                     reports: [],
                     notifications: [],
@@ -477,11 +472,9 @@
                 unreadCount() { return this.notifications.filter(n => !n.read).length; },
                 filteredReports() {
                     let list = this.reports;
-                    // تصفية حسب الدور
                     if(this.currentUser.role !== 'manager') {
                         list = list.filter(r => r.createdBy === this.currentUser.username || r.assignedTo === this.currentUser.username || !r.assignedTo);
                     }
-                    // تصفية حسب الداش بورد
                     if(this.currentFilter === 'active') {
                         list = list.filter(r => r.progress > 0 && r.progress < 100);
                     } else if (this.currentFilter === 'completed') {
@@ -489,7 +482,7 @@
                     }
                     return list;
                 },
-                recentReports() { return this.reports.slice(0, 5); }, // Use 'reports' (all) for charts, not filtered
+                recentReports() { return this.reports.slice(0, 5); },
                 stats() {
                     const list = this.reports;
                     const total = list.length;
@@ -502,9 +495,8 @@
             methods: {
                 changePage(p) { 
                     this.currentPage = p; 
-                    if(p !== 'reports') this.currentFilter = 'all'; // Reset filter when leaving reports
+                    if(p !== 'reports') this.currentFilter = 'all';
                 },
-                // وظيفة الفلترة من الداش بورد
                 filterAndGo(status) {
                     this.currentFilter = status;
                     this.currentPage = 'reports';
@@ -533,13 +525,51 @@
                         maintainAspectRatio: false, responsive: true
                     };
                     
+                    // إعدادات الشارتات (تم تعديلها لتتناسب مع الخلفية البيضاء)
                     Chart.defaults.color = '#94a3b8';
-                    Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
+                    Chart.defaults.borderColor = 'rgba(0,0,0,0.05)'; // خطوط باهتة جداً
 
+                    // --- تعديل الرسم البياني ليصبح عمودياً وبألوان متغيرة ---
                     this.renderChart('dailyProgressChart', 'bar', {
                         labels: this.recentReports.map(t => t.title.substring(0,8)),
-                        datasets: [{ data: this.recentReports.map(t => t.progress), backgroundColor: '#fe9b02', borderRadius: 4 }]
-                    }, { plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(255,255,255,0.05)' } } }, maintainAspectRatio: false });
+                        datasets: [{ 
+                            data: this.recentReports.map(t => t.progress), 
+                            // دالة تحديد اللون بناءً على النسبة
+                            backgroundColor: (context) => {
+                                const value = context.raw;
+                                // المنطق:
+                                // أقل من 30% (بداية) = أخضر
+                                // 100% (مكتمل) = أخضر
+                                // 30% إلى 75% = برتقالي (تحذير/عمل)
+                                // فوق 75% (ولم يكتمل) = أحمر (خطر التأخير)
+                                if (value === 100) return '#22c55e'; // مكتمل - أخضر
+                                if (value < 30) return '#22c55e';    // بداية - أخضر
+                                if (value < 75) return '#fe9b02';    // عمل - برتقالي
+                                return '#ef4444';                    // متأخر - أحمر
+                            },
+                            borderRadius: 20, // حواف دائرية للعمود
+                            barPercentage: 0.5, // عمود أنحف
+                            borderSkipped: false
+                        }]
+                    }, { 
+                        plugins: { legend: { display: false } }, 
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: {
+                            duration: 2000,
+                            easing: 'easeOutQuart' // أنميشن ناعم للصعود
+                        },
+                        scales: { 
+                            x: { 
+                                grid: { display: false },
+                                ticks: { color: '#475569', font: { family: 'Tajawal', weight: 'bold' } } // لون الخط أسود غامق
+                            }, 
+                            y: { 
+                                grid: { color: 'rgba(0,0,0,0.05)' }, // خطوط الشبكة رمادية خفيفة
+                                ticks: { color: '#64748b' }
+                            } 
+                        } 
+                    });
 
                     this.renderChart('efficiencyGauge', 'doughnut', {
                         datasets: [{ data: [this.stats.avgProgress, 100 - this.stats.avgProgress], backgroundColor: ['#3b82f6', 'rgba(255,255,255,0.1)'], borderWidth: 0 }]
@@ -564,7 +594,6 @@
                             if(!this.authForm.image) throw "الصورة مطلوبة";
                             const check = await db.collection('users').where('username','==',this.authForm.username).get();
                             if(!check.empty) throw "الاسم مستخدم";
-                            // إضافة الهاتف والبيانات
                             await db.collection('users').add({...this.authForm, status: 'pending', createdAt: new Date()});
                             alert("تم إرسال الطلب"); this.isRegistering = false;
                         } else {
