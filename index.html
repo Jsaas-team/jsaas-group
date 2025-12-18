@@ -19,66 +19,57 @@
         :root {
             --primary-orange: #fe9b02;
             --primary-red: #f53f2c;
-            --glass-bg: rgba(30, 41, 59, 0.85);
+            --bg-body: #f3f5f9; /* خلفية أوف وايت */
+            --bg-card: #ffffff; /* كروت بيضاء */
+            --text-main: #1e293b; /* نص غامق */
+            --text-sub: #64748b; /* نص رمادي */
         }
 
         body {
             font-family: 'Tajawal', sans-serif;
-            color: #ffffff;
-            background: url('image_12.png') no-repeat center center fixed;
-            background-size: cover;
+            color: var(--text-main);
+            background-color: var(--bg-body);
             min-height: 100vh;
             overflow-x: hidden;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.8); /* خلفية داكنة لتباين أفضل */
-            backdrop-filter: blur(5px);
-            z-index: -1;
-        }
-
-        /* === الزجاج الداكن === */
-        .glass-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(254, 155, 2, 0.1); /* حدود برتقالية خفيفة */
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
+        /* تنسيق الكروت الجديد (Light Mode Clean) */
+        .clean-card {
+            background: var(--bg-card);
             border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); /* ظل ناعم جداً */
             transition: all 0.3s ease;
         }
-        .glass-card:hover {
+        
+        .clean-card:hover {
             transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.1);
-            border-color: var(--primary-orange);
-            box-shadow: 0 10px 25px rgba(254, 155, 2, 0.15);
-            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(254, 155, 2, 0.1);
+            border-color: rgba(254, 155, 2, 0.3);
+        }
+
+        /* القائمة الجانبية */
+        .sidebar-panel {
+            background: var(--bg-card);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+            border-left: 1px solid #e2e8f0;
         }
 
         /* حقول الإدخال */
-        .glass-input {
+        .clean-input {
             width: 100%;
             padding: 1rem;
             border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            background: rgba(0, 0, 0, 0.3);
-            color: #fff;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            color: #334155;
             outline: none;
             transition: 0.3s;
         }
-        .glass-input:focus {
+        .clean-input:focus {
             border-color: var(--primary-orange);
-            background: rgba(0, 0, 0, 0.5);
-            box-shadow: 0 0 0 4px rgba(254, 155, 2, 0.2);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(254, 155, 2, 0.1);
         }
 
         /* زر جساس الرئيسي */
@@ -86,22 +77,28 @@
             background: linear-gradient(135deg, #fe9b02 0%, #f53f2c 100%);
             color: white;
             border: none;
-            box-shadow: 0 4px 15px rgba(245, 63, 44, 0.4);
+            box-shadow: 0 4px 15px rgba(245, 63, 44, 0.3);
             transition: all 0.3s;
         }
         .btn-jsaas:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(254, 155, 2, 0.6);
-            filter: brightness(1.1);
+            box-shadow: 0 6px 20px rgba(254, 155, 2, 0.5);
         }
 
         /* شريط التمرير */
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
-        ::-webkit-scrollbar-thumb { background: var(--primary-orange); border-radius: 4px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary-orange); }
 
-        .bar-bg { background: rgba(255,255,255,0.1); border-radius: 99px; height: 8px; width: 100%; overflow: hidden; }
-        .bar-fill { height: 100%; border-radius: 99px; transition: width 1s ease; box-shadow: 0 0 10px currentColor; }
+        /* Checkbox مخصص */
+        .checkbox-wrapper input:checked + div {
+            background-color: #10b981;
+            border-color: #10b981;
+        }
+        .checkbox-wrapper input:checked + div svg {
+            display: block;
+        }
         
         .animate-fade-in { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -111,37 +108,37 @@
 
     <div id="app" class="h-full flex flex-col">
 
-        <div v-if="!currentUser" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div class="glass-panel w-full max-w-md p-8 rounded-3xl animate-fade-in border-t-4 border-[#fe9b02]">
+        <div v-if="!currentUser" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#f3f5f9]">
+            <div class="clean-card w-full max-w-md p-8 rounded-3xl animate-fade-in border-t-4 border-[#fe9b02]">
                 <div class="text-center mb-8">
-                    <img src="image_0.png" class="h-28 mx-auto mb-4 object-contain drop-shadow-2xl" @error="handleImageError">
-                    <h2 class="text-3xl font-bold mb-2 text-white">مرحباً بك</h2>
-                    <p class="text-gray-400 text-sm">بوابة الموظفين والإدارة</p>
+                    <img src="image_0.png" class="h-28 mx-auto mb-4 object-contain" @error="handleImageError">
+                    <h2 class="text-3xl font-bold mb-2 text-slate-800">مرحباً بك</h2>
+                    <p class="text-slate-500 text-sm">بوابة الموظفين والإدارة</p>
                 </div>
 
                 <form @submit.prevent="authAction" class="space-y-5">
                     <div v-if="isRegistering" class="space-y-4">
-                        <div class="bg-orange-500/10 border border-orange-500/30 p-3 rounded-xl text-orange-300 text-xs font-bold text-center">
+                        <div class="bg-orange-50 p-3 rounded-xl text-orange-600 text-xs font-bold text-center border border-orange-200">
                             <i class="fas fa-info-circle ml-1"></i> التسجيل يتطلب موافقة الإدارة
                         </div>
                         <div class="flex justify-center">
-                            <div @click="$refs.profilePic.click()" class="relative w-24 h-24 rounded-full border-2 border-dashed border-gray-500 flex items-center justify-center cursor-pointer hover:border-[#fe9b02] transition group">
+                            <div @click="$refs.profilePic.click()" class="relative w-24 h-24 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-[#fe9b02] transition group bg-gray-50">
                                 <img v-if="authForm.image" :src="authForm.image" class="w-full h-full object-cover rounded-full">
                                 <div v-else class="text-gray-400 group-hover:text-[#fe9b02]"><i class="fas fa-camera text-2xl"></i></div>
                             </div>
                             <input ref="profilePic" type="file" class="hidden" accept="image/*" @change="handleProfilePic">
                         </div>
-                        <select v-model="authForm.role" class="glass-input cursor-pointer" required>
-                            <option class="bg-slate-800 text-white" value="technician">فني / عامل</option>
-                            <option class="bg-slate-800 text-white" value="supervisor">مشرف</option>
-                            <option class="bg-slate-800 text-white" value="manager">مدير</option>
+                        <select v-model="authForm.role" class="clean-input cursor-pointer" required>
+                            <option value="technician">فني / عامل</option>
+                            <option value="supervisor">مشرف</option>
+                            <option value="manager">مدير</option>
                         </select>
-                        <input v-model="authForm.email" type="email" placeholder="البريد الإلكتروني" class="glass-input">
-                        <input v-model="authForm.phone" type="tel" placeholder="رقم الجوال (05xxxxxxx)" class="glass-input">
+                        <input v-model="authForm.email" type="email" placeholder="البريد الإلكتروني" class="clean-input">
+                        <input v-model="authForm.phone" type="tel" placeholder="رقم الجوال (05xxxxxxx)" class="clean-input">
                     </div>
 
-                    <input v-model="authForm.username" type="text" placeholder="اسم المستخدم" class="glass-input">
-                    <input v-model="authForm.password" type="password" placeholder="كلمة المرور" class="glass-input">
+                    <input v-model="authForm.username" type="text" placeholder="اسم المستخدم" class="clean-input">
+                    <input v-model="authForm.password" type="password" placeholder="كلمة المرور" class="clean-input">
 
                     <button type="submit" :disabled="loading" class="btn-jsaas w-full py-4 rounded-xl font-bold text-lg flex justify-center items-center gap-2">
                         <span v-if="loading" class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
@@ -150,7 +147,7 @@
                 </form>
 
                 <div class="mt-6 text-center">
-                    <button @click="toggleAuthMode" class="text-sm text-[#fe9b02] hover:text-white transition font-bold underline decoration-wavy underline-offset-4">
+                    <button @click="toggleAuthMode" class="text-sm text-[#fe9b02] hover:text-[#f53f2c] transition font-bold underline decoration-wavy underline-offset-4">
                         {{ isRegistering ? 'لديك حساب؟ تسجيل الدخول' : 'ليس لديك حساب؟ إنشاء حساب جديد' }}
                     </button>
                 </div>
@@ -159,63 +156,66 @@
 
         <div v-else class="flex h-full">
             
-            <aside class="hidden md:flex flex-col w-72 m-4 glass-panel rounded-2xl overflow-hidden border border-white/10 z-20">
-                <div class="p-6 text-center border-b border-white/10 bg-white/5 relative overflow-hidden">
+            <aside class="hidden md:flex flex-col w-72 m-4 sidebar-panel rounded-2xl overflow-hidden z-20">
+                <div class="p-6 text-center border-b border-gray-100 bg-gray-50 relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#fe9b02] to-[#f53f2c]"></div>
                     <div class="relative inline-block">
-                        <img :src="currentUser.image || 'https://via.placeholder.com/150'" class="w-20 h-20 rounded-full border-2 border-[#fe9b02] shadow-lg object-cover">
+                        <img :src="currentUser.image || 'https://via.placeholder.com/150'" class="w-20 h-20 rounded-full border-2 border-[#fe9b02] shadow-sm object-cover bg-white">
                     </div>
-                    <h3 class="font-bold text-lg mt-3 text-white">{{ currentUser.username }}</h3>
-                    <span class="text-xs font-bold text-[#fe9b02] uppercase tracking-wider bg-orange-500/10 px-2 py-1 rounded">{{ getRoleName(currentUser.role) }}</span>
+                    <h3 class="font-bold text-lg mt-3 text-slate-800">{{ currentUser.username }}</h3>
+                    <span class="text-xs font-bold text-[#fe9b02] uppercase tracking-wider bg-orange-50 px-2 py-1 rounded border border-orange-100">{{ getRoleName(currentUser.role) }}</span>
                 </div>
 
                 <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-                    <a @click="changePage('dashboard')" :class="currentPage === 'dashboard' ? 'bg-gradient-to-r from-[#fe9b02] to-[#f53f2c] shadow-lg text-white' : 'text-gray-300 hover:bg-white/10'" class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300">
+                    <a @click="changePage('dashboard')" :class="currentPage === 'dashboard' ? 'btn-jsaas shadow-lg' : 'text-slate-500 hover:bg-gray-100'" class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300">
                         <i class="fas fa-th-large ml-3 w-6"></i> <span class="font-bold">لوحة القيادة</span>
                     </a>
-                    <a @click="changePage('reports')" :class="currentPage === 'reports' ? 'bg-gradient-to-r from-[#fe9b02] to-[#f53f2c] shadow-lg text-white' : 'text-gray-300 hover:bg-white/10'" class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300">
+                    <a @click="changePage('reports')" :class="currentPage === 'reports' ? 'btn-jsaas shadow-lg' : 'text-slate-500 hover:bg-gray-100'" class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300">
                         <i class="fas fa-clipboard-list ml-3 w-6"></i> <span class="font-bold">المشاريع</span>
                     </a>
-                    <a v-if="currentUser.role === 'manager'" @click="changePage('users')" :class="currentPage === 'users' ? 'bg-gradient-to-r from-[#fe9b02] to-[#f53f2c] shadow-lg text-white' : 'text-gray-300 hover:bg-white/10'" class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300">
+                    <a @click="changePage('daily')" :class="currentPage === 'daily' ? 'btn-jsaas shadow-lg' : 'text-slate-500 hover:bg-gray-100'" class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300">
+                        <i class="fas fa-calendar-check ml-3 w-6"></i> <span class="font-bold">التقارير اليومية</span>
+                    </a>
+                    <a v-if="currentUser.role === 'manager'" @click="changePage('users')" :class="currentPage === 'users' ? 'btn-jsaas shadow-lg' : 'text-slate-500 hover:bg-gray-100'" class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300">
                         <i class="fas fa-users ml-3 w-6"></i> <span class="font-bold">الموظفين</span>
                         <span v-if="pendingUsersCount > 0" class="mr-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ pendingUsersCount }}</span>
                     </a>
                 </nav>
 
-                <div class="p-4 border-t border-white/10">
-                    <button @click="logout" class="w-full flex items-center justify-center gap-2 text-red-400 hover:bg-red-500/10 hover:text-red-300 py-3 rounded-xl transition font-bold">
+                <div class="p-4 border-t border-gray-100">
+                    <button @click="logout" class="w-full flex items-center justify-center gap-2 text-red-500 hover:bg-red-50 hover:text-red-600 py-3 rounded-xl transition font-bold">
                         <i class="fas fa-sign-out-alt"></i> خروج
                     </button>
                 </div>
             </aside>
 
             <main class="flex-1 flex flex-col h-full relative overflow-hidden">
-                <header class="h-20 flex items-center justify-between px-6 z-10">
-                    <div class="md:hidden flex items-center gap-3 glass-panel px-4 py-2 rounded-full">
+                <header class="h-20 flex items-center justify-between px-6 z-10 bg-transparent">
+                    <div class="md:hidden flex items-center gap-3 bg-white px-4 py-2 rounded-full shadow-sm">
                         <img :src="currentUser.image" class="w-8 h-8 rounded-full border border-[#fe9b02]">
-                        <span class="font-bold text-sm">{{ currentUser.username }}</span>
+                        <span class="font-bold text-sm text-slate-800">{{ currentUser.username }}</span>
                     </div>
 
                     <div class="ml-auto flex items-center gap-3">
-                        <button @click="showNotifications = !showNotifications" class="glass-panel w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 transition relative">
-                            <i class="fas fa-bell text-gray-300"></i>
-                            <span v-if="unreadCount > 0" class="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-slate-800"></span>
+                        <button @click="showNotifications = !showNotifications" class="bg-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-50 shadow-sm transition relative text-slate-500">
+                            <i class="fas fa-bell"></i>
+                            <span v-if="unreadCount > 0" class="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>
                         </button>
                         
-                        <div v-if="showNotifications" class="absolute left-6 top-20 w-80 glass-panel rounded-2xl shadow-2xl z-50 overflow-hidden border border-white/10 animate-fade-in">
-                            <div class="p-3 border-b border-white/10 flex justify-between items-center bg-white/5">
-                                <span class="font-bold text-sm">الإشعارات</span>
-                                <button @click="markAllRead" class="text-xs text-[#fe9b02] hover:text-white">تحديد كمقروء</button>
+                        <div v-if="showNotifications" class="absolute left-6 top-20 w-80 bg-white rounded-2xl shadow-xl z-50 overflow-hidden border border-gray-100 animate-fade-in">
+                            <div class="p-3 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                                <span class="font-bold text-sm text-slate-800">الإشعارات</span>
+                                <button @click="markAllRead" class="text-xs text-[#fe9b02] hover:text-[#f53f2c]">تحديد كمقروء</button>
                             </div>
                             <div class="max-h-64 overflow-y-auto p-2">
-                                <div v-for="n in notifications" :key="n.id" @click="handleNotificationClick(n)" class="p-3 mb-1 rounded-xl hover:bg-white/10 cursor-pointer flex gap-3 transition">
-                                    <div class="w-8 h-8 rounded-full bg-orange-500/20 text-[#fe9b02] flex items-center justify-center shrink-0"><i class="fas fa-info"></i></div>
+                                <div v-for="n in notifications" :key="n.id" @click="handleNotificationClick(n)" class="p-3 mb-1 rounded-xl hover:bg-gray-50 cursor-pointer flex gap-3 transition">
+                                    <div class="w-8 h-8 rounded-full bg-orange-100 text-[#fe9b02] flex items-center justify-center shrink-0"><i class="fas fa-info"></i></div>
                                     <div>
-                                        <p class="text-sm font-bold text-white">{{ n.title }}</p>
-                                        <p class="text-xs text-gray-400">{{ n.message }}</p>
+                                        <p class="text-sm font-bold text-slate-800">{{ n.title }}</p>
+                                        <p class="text-xs text-slate-500">{{ n.message }}</p>
                                     </div>
                                 </div>
-                                <div v-if="!notifications.length" class="text-center py-6 text-gray-500 text-sm">لا توجد إشعارات</div>
+                                <div v-if="!notifications.length" class="text-center py-6 text-gray-400 text-sm">لا توجد إشعارات</div>
                             </div>
                         </div>
                     </div>
@@ -224,10 +224,10 @@
                 <div class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 scroll-smooth">
                     
                     <div v-if="currentPage === 'dashboard'" class="max-w-7xl mx-auto space-y-6">
-                        <div class="glass-panel p-6 rounded-2xl flex flex-col md:flex-row justify-between items-center bg-gradient-to-r from-slate-900/60 to-slate-800/60 border-t border-[#fe9b02]">
+                        <div class="clean-card p-6 rounded-2xl flex flex-col md:flex-row justify-between items-center bg-white border-t-4 border-[#fe9b02]">
                             <div>
-                                <h2 class="text-2xl font-bold text-white mb-1">لوحة المتابعة</h2>
-                                <p class="text-gray-400 text-sm">أهلاً بك في نظام جسّاس، لديك <span class="text-[#fe9b02] font-bold">{{ stats.active }}</span> مشاريع جارية.</p>
+                                <h2 class="text-2xl font-bold text-slate-800 mb-1">لوحة المتابعة</h2>
+                                <p class="text-slate-500 text-sm">أهلاً بك في نظام جسّاس، لديك <span class="text-[#fe9b02] font-bold">{{ stats.active }}</span> مشاريع جارية.</p>
                             </div>
                             <button @click="openAddModal" class="btn-jsaas px-6 py-2.5 rounded-xl font-bold shadow-lg flex items-center gap-2 mt-4 md:mt-0">
                                 <i class="fas fa-plus"></i> مشروع جديد
@@ -235,51 +235,46 @@
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <div @click="filterAndGo('all')" class="glass-card p-5 relative overflow-hidden group border-b-4 border-gray-500">
-                                <div class="absolute -right-6 -top-6 w-24 h-24 bg-gray-500/10 rounded-full blur-xl group-hover:bg-gray-500/20 transition"></div>
+                            <div @click="filterAndGo('all')" class="clean-card p-5 relative overflow-hidden group cursor-pointer">
+                                <div class="absolute -right-6 -top-6 w-24 h-24 bg-gray-100 rounded-full blur-xl group-hover:bg-gray-200 transition"></div>
                                 <div class="relative z-10">
-                                    <p class="text-gray-400 text-xs font-bold mb-1 group-hover:text-white transition">الكل</p>
-                                    <h3 class="text-3xl font-black text-white">{{ stats.total }}</h3>
-                                    <span class="text-[10px] text-gray-500 flex items-center gap-1 mt-2 group-hover:text-gray-300"><i class="fas fa-mouse-pointer"></i> اضغط للعرض</span>
+                                    <p class="text-slate-400 text-xs font-bold mb-1 group-hover:text-slate-600 transition">الكل</p>
+                                    <h3 class="text-3xl font-black text-slate-700">{{ stats.total }}</h3>
                                 </div>
                             </div>
-                            <div @click="filterAndGo('active')" class="glass-card p-5 relative overflow-hidden group border-b-4 border-[#fe9b02]">
-                                <div class="absolute -right-6 -top-6 w-24 h-24 bg-orange-500/10 rounded-full blur-xl group-hover:bg-orange-500/20 transition"></div>
+                            <div @click="filterAndGo('active')" class="clean-card p-5 relative overflow-hidden group cursor-pointer border-r-4 border-[#fe9b02]">
+                                <div class="absolute -right-6 -top-6 w-24 h-24 bg-orange-50 rounded-full blur-xl group-hover:bg-orange-100 transition"></div>
                                 <div class="relative z-10">
-                                    <p class="text-gray-400 text-xs font-bold mb-1 group-hover:text-[#fe9b02] transition">قيد التنفيذ</p>
+                                    <p class="text-slate-400 text-xs font-bold mb-1 group-hover:text-[#fe9b02] transition">قيد التنفيذ</p>
                                     <h3 class="text-3xl font-black text-[#fe9b02]">{{ stats.active }}</h3>
-                                    <span class="text-[10px] text-gray-500 flex items-center gap-1 mt-2 group-hover:text-orange-300"><i class="fas fa-mouse-pointer"></i> اضغط للعرض</span>
                                 </div>
                             </div>
-                            <div @click="filterAndGo('completed')" class="glass-card p-5 relative overflow-hidden group border-b-4 border-green-500">
-                                <div class="absolute -right-6 -top-6 w-24 h-24 bg-green-500/10 rounded-full blur-xl group-hover:bg-green-500/20 transition"></div>
+                            <div @click="filterAndGo('completed')" class="clean-card p-5 relative overflow-hidden group cursor-pointer border-r-4 border-green-500">
+                                <div class="absolute -right-6 -top-6 w-24 h-24 bg-green-50 rounded-full blur-xl group-hover:bg-green-100 transition"></div>
                                 <div class="relative z-10">
-                                    <p class="text-gray-400 text-xs font-bold mb-1 group-hover:text-green-400 transition">المكتملة</p>
-                                    <h3 class="text-3xl font-black text-green-400">{{ stats.completed }}</h3>
-                                    <span class="text-[10px] text-gray-500 flex items-center gap-1 mt-2 group-hover:text-green-300"><i class="fas fa-mouse-pointer"></i> اضغط للعرض</span>
+                                    <p class="text-slate-400 text-xs font-bold mb-1 group-hover:text-green-600 transition">المكتملة</p>
+                                    <h3 class="text-3xl font-black text-green-500">{{ stats.completed }}</h3>
                                 </div>
                             </div>
-                            <div class="glass-card p-5 relative overflow-hidden group border-b-4 border-blue-500">
-                                <div class="absolute -right-6 -top-6 w-24 h-24 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition"></div>
+                            <div class="clean-card p-5 relative overflow-hidden group border-r-4 border-blue-500">
                                 <div class="relative z-10">
-                                    <p class="text-gray-400 text-xs font-bold mb-1 group-hover:text-blue-400 transition">متوسط الإنجاز</p>
-                                    <h3 class="text-3xl font-black text-blue-400">{{ stats.avgProgress }}%</h3>
-                                    <span class="text-[10px] text-gray-500 mt-2 block">مؤشر عام</span>
+                                    <p class="text-slate-400 text-xs font-bold mb-1">متوسط الإنجاز</p>
+                                    <h3 class="text-3xl font-black text-blue-500">{{ stats.avgProgress }}%</h3>
                                 </div>
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <div class="glass-card p-6 lg:col-span-2">
-                                <h3 class="font-bold text-white mb-4">تقدم المشاريع الحالية</h3>
+                            <div class="clean-card p-6 lg:col-span-2">
+                                <h3 class="font-bold text-slate-800 mb-4">تقدم المشاريع الحالية</h3>
                                 <div class="h-64 relative w-full"><canvas id="dailyProgressChart"></canvas></div>
                             </div>
-                            <div class="glass-card p-6">
-                                <h3 class="font-bold text-white mb-4 text-center">مؤشر الأداء العام</h3>
-                                <div class="gauge-container w-full">
+                            <div class="clean-card p-6">
+                                <h3 class="font-bold text-slate-800 mb-4 text-center">مؤشر الأداء العام</h3>
+                                <div class="gauge-container w-full relative h-48 flex justify-center">
                                     <canvas id="efficiencyGauge"></canvas>
-                                    <div class="absolute bottom-0 text-center transform translate-y-3">
-                                        <div class="text-3xl font-black text-white">{{ stats.avgProgress }}%</div>
+                                    <div class="absolute bottom-0 text-center transform translate-y-[-10px]">
+                                        <div class="text-3xl font-black text-slate-700">{{ stats.avgProgress }}%</div>
                                     </div>
                                 </div>
                             </div>
@@ -288,74 +283,139 @@
 
                     <div v-if="currentPage === 'reports'" class="space-y-4 max-w-6xl mx-auto">
                         <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                            <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
                                 <span>قائمة المشاريع</span>
                                 <span v-if="currentFilter !== 'all'" class="text-xs bg-[#fe9b02] text-white px-2 py-1 rounded-md">
                                     تصفية: {{ currentFilter === 'active' ? 'قيد التنفيذ' : 'مكتملة' }}
                                     <button @click="currentFilter='all'" class="mr-2 hover:text-black font-bold">&times;</button>
                                 </span>
                             </h2>
-                            <button @click="openAddModal" class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm transition"><i class="fas fa-plus"></i> جديد</button>
+                            <button @click="openAddModal" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm transition shadow-lg"><i class="fas fa-plus"></i> جديد</button>
                         </div>
                         
-                        <div v-if="filteredReports.length === 0" class="text-center py-12 text-gray-500">
+                        <div v-if="filteredReports.length === 0" class="text-center py-12 text-slate-400">
                             <i class="fas fa-box-open text-4xl mb-2"></i>
                             <p>لا توجد مشاريع في هذا التصنيف</p>
                         </div>
 
-                        <div v-for="item in filteredReports" :key="item.id" class="glass-card p-6 hover:bg-white/10 transition group">
+                        <div v-for="item in filteredReports" :key="item.id" class="clean-card p-6 hover:bg-gray-50 transition group">
                             <div class="flex flex-col md:flex-row gap-6 items-start md:items-center">
-                                <div class="w-16 h-16 rounded-2xl flex items-center justify-center font-bold text-xl shadow-lg border border-white/10 shrink-0" :class="getProgressBg(item.progress)">
+                                <div class="w-16 h-16 rounded-2xl flex items-center justify-center font-bold text-xl shadow-sm border" :class="getProgressBg(item.progress)">
                                     {{ item.progress }}%
                                 </div>
                                 <div class="flex-1">
-                                    <h3 class="font-bold text-xl text-white group-hover:text-[#fe9b02] transition">{{ item.title }}</h3>
-                                    <p class="text-gray-400 mt-2 text-sm line-clamp-2">{{ item.description }}</p>
-                                    <div class="flex flex-wrap gap-4 mt-3 text-xs text-gray-500">
-                                        <span class="flex items-center gap-1 bg-white/5 px-2 py-1 rounded"><i class="far fa-calendar text-[#fe9b02]"></i> {{ item.endDate }}</span>
-                                        <span class="flex items-center gap-1 bg-white/5 px-2 py-1 rounded"><i class="far fa-user text-blue-400"></i> {{ item.assignedTo || 'عام' }}</span>
+                                    <h3 class="font-bold text-xl text-slate-800 group-hover:text-[#fe9b02] transition">{{ item.title }}</h3>
+                                    <p class="text-slate-500 mt-2 text-sm line-clamp-2">{{ item.description }}</p>
+                                    <div class="flex flex-wrap gap-4 mt-3 text-xs text-slate-400">
+                                        <span class="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded"><i class="far fa-calendar text-[#fe9b02]"></i> {{ item.endDate }}</span>
+                                        <span class="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded"><i class="far fa-user text-blue-500"></i> {{ item.assignedTo || 'عام' }}</span>
                                     </div>
                                 </div>
                                 <div class="flex -space-x-2 overflow-hidden px-2">
-                                    <img v-for="(img, idx) in item.images" :key="idx" :src="img" @click="previewImage = img" class="inline-block h-10 w-10 rounded-full ring-2 ring-slate-800 object-cover cursor-pointer hover:scale-110 transition z-10 relative">
+                                    <img v-for="(img, idx) in item.images" :key="idx" :src="img" @click="previewImage = img" class="inline-block h-10 w-10 rounded-full ring-2 ring-white object-cover cursor-pointer hover:scale-110 transition z-10 relative shadow-sm">
                                 </div>
-                                <button @click="openEditModal(item)" class="w-10 h-10 rounded-full bg-white/5 hover:bg-[#fe9b02] hover:text-white transition flex items-center justify-center text-gray-400 shrink-0"><i class="fas fa-pen"></i></button>
+                                <button @click="openEditModal(item)" class="w-10 h-10 rounded-full bg-gray-100 hover:bg-[#fe9b02] hover:text-white transition flex items-center justify-center text-gray-400 shrink-0"><i class="fas fa-pen"></i></button>
                             </div>
-                            <div class="mt-4 w-full bg-gray-700/50 h-1.5 rounded-full overflow-hidden">
+                            <div class="mt-4 w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
                                 <div class="h-full transition-all duration-1000" :style="{width: item.progress + '%', backgroundColor: getProgressColorHex(item.progress)}"></div>
                             </div>
                         </div>
                     </div>
 
+                    <div v-if="currentPage === 'daily'" class="max-w-4xl mx-auto space-y-6">
+                        <div class="clean-card p-6">
+                            <h2 class="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                <i class="fas fa-calendar-check text-[#fe9b02]"></i> تقرير يومي جديد
+                            </h2>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                <div>
+                                    <label class="text-xs font-bold text-slate-500 mb-1 block">اختر المشروع</label>
+                                    <select v-model="dailyReportForm.projectId" class="clean-input">
+                                        <option value="" disabled>-- حدد المشروع --</option>
+                                        <option v-for="r in reports" :key="r.id" :value="r.id">{{ r.title }}</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-500 mb-1 block">تاريخ التقرير</label>
+                                    <input type="date" v-model="dailyReportForm.date" class="clean-input">
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="text-xs font-bold text-slate-500 mb-2 block">قائمة المهام (ضع علامة صح إذا أنجزت)</label>
+                                <div v-for="(task, index) in dailyReportForm.tasks" :key="index" class="flex items-center gap-3 mb-3 animate-fade-in">
+                                    <div class="flex-1">
+                                        <input type="text" v-model="task.desc" placeholder="وصف المهمة..." class="clean-input">
+                                    </div>
+                                    <label class="cursor-pointer checkbox-wrapper flex items-center gap-2 select-none">
+                                        <span class="text-sm font-bold" :class="task.done ? 'text-green-600' : 'text-slate-400'">{{ task.done ? 'تمت' : 'لم تتم' }}</span>
+                                        <div class="relative">
+                                            <input type="checkbox" v-model="task.done" class="hidden">
+                                            <div class="w-8 h-8 rounded-lg border-2 border-gray-300 flex items-center justify-center transition-all bg-white">
+                                                <svg class="w-5 h-5 text-white hidden pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                            </div>
+                                        </div>
+                                    </label>
+                                    <button @click="removeTask(index)" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button>
+                                </div>
+                                <button @click="addTask" class="text-[#fe9b02] font-bold text-sm hover:underline"><i class="fas fa-plus"></i> إضافة مهمة أخرى</button>
+                            </div>
+
+                            <button @click="saveDailyReport" class="btn-jsaas w-full py-3 rounded-xl font-bold text-lg shadow-md mt-4">
+                                حفظ التقرير اليومي
+                            </button>
+                        </div>
+
+                        <div class="space-y-4">
+                            <h3 class="font-bold text-slate-700">آخر التقارير المرسلة</h3>
+                            <div v-for="dr in dailyReportsList" :key="dr.id" class="clean-card p-4 border-r-4 border-[#fe9b02]">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div>
+                                        <h4 class="font-bold text-slate-800">{{ getProjectName(dr.projectId) }}</h4>
+                                        <span class="text-xs text-slate-500"><i class="far fa-clock"></i> {{ dr.date }}</span>
+                                    </div>
+                                    <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">بواسطة: {{ dr.submittedBy }}</span>
+                                </div>
+                                <ul class="space-y-1">
+                                    <li v-for="(t, i) in dr.tasks" :key="i" class="text-sm flex items-center gap-2">
+                                        <i class="fas fa-circle text-[8px]" :class="t.done ? 'text-green-500' : 'text-red-400'"></i>
+                                        <span :class="{'line-through text-gray-400': !t.done}">{{ t.desc }}</span>
+                                        <span v-if="t.done" class="text-green-600 text-xs font-bold">(تم الإنجاز)</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
                     <div v-if="currentPage === 'users' && currentUser.role === 'manager'" class="space-y-6 max-w-5xl mx-auto">
-                        <h2 class="text-2xl font-bold text-white mb-6">إدارة الموظفين</h2>
-                        
+                        <h2 class="text-2xl font-bold text-slate-800 mb-6">إدارة الموظفين</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                            <div v-for="user in users" :key="user.id" class="glass-card p-6 flex flex-col items-center text-center relative hover:border-[#fe9b02] transition">
+                            <div v-for="user in users" :key="user.id" class="clean-card p-6 flex flex-col items-center text-center relative hover:border-[#fe9b02] transition">
                                 <div class="w-20 h-20 rounded-full p-1 border-2 border-[#fe9b02] mb-3">
                                     <img :src="user.image" class="w-full h-full rounded-full object-cover">
                                 </div>
-                                <h3 class="font-bold text-lg text-white">{{ user.username }}</h3>
-                                <span class="text-xs bg-white/10 px-2 py-1 rounded mt-1 text-gray-300">{{ getRoleName(user.role) }}</span>
+                                <h3 class="font-bold text-lg text-slate-800">{{ user.username }}</h3>
+                                <span class="text-xs bg-orange-50 px-2 py-1 rounded mt-1 text-orange-600 border border-orange-100">{{ getRoleName(user.role) }}</span>
                                 
-                                <div class="w-full mt-4 space-y-2 text-sm text-gray-400 border-t border-white/10 pt-4">
+                                <div class="w-full mt-4 space-y-2 text-sm text-slate-500 border-t border-gray-100 pt-4">
                                     <div class="flex justify-between">
                                         <span><i class="fas fa-envelope text-[#fe9b02] ml-1"></i> البريد:</span>
-                                        <span class="text-white">{{ user.email || '-' }}</span>
+                                        <span class="text-slate-800">{{ user.email || '-' }}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span><i class="fas fa-phone text-[#fe9b02] ml-1"></i> الجوال:</span>
-                                        <span class="text-white">{{ user.phone || 'غير مسجل' }}</span>
+                                        <span class="text-slate-800">{{ user.phone || 'غير مسجل' }}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span><i class="fas fa-circle ml-1" :class="user.status==='active'?'text-green-500':'text-orange-500'"></i> الحالة:</span>
-                                        <span :class="user.status==='active'?'text-green-400':'text-orange-400'">{{ user.status==='active'?'نشط':'انتظار' }}</span>
+                                        <span :class="user.status==='active'?'text-green-600':'text-orange-500'">{{ user.status==='active'?'نشط':'انتظار' }}</span>
                                     </div>
                                 </div>
 
                                 <div class="flex gap-2 mt-4 w-full">
-                                    <button v-if="user.status === 'pending'" @click="approveUser(user)" class="flex-1 bg-green-500/20 text-green-400 py-2 rounded hover:bg-green-500 hover:text-white transition font-bold text-xs"><i class="fas fa-check"></i> قبول</button>
-                                    <button v-if="user.id !== currentUser.id" @click="rejectUser(user.id)" class="flex-1 bg-red-500/20 text-red-400 py-2 rounded hover:bg-red-500 hover:text-white transition font-bold text-xs"><i class="fas fa-trash"></i> حذف</button>
+                                    <button v-if="user.status === 'pending'" @click="approveUser(user)" class="flex-1 bg-green-50 text-green-600 py-2 rounded hover:bg-green-500 hover:text-white transition font-bold text-xs border border-green-200"><i class="fas fa-check"></i> قبول</button>
+                                    <button v-if="user.id !== currentUser.id" @click="rejectUser(user.id)" class="flex-1 bg-red-50 text-red-600 py-2 rounded hover:bg-red-500 hover:text-white transition font-bold text-xs border border-red-200"><i class="fas fa-trash"></i> حذف</button>
                                 </div>
                             </div>
                         </div>
@@ -363,65 +423,66 @@
 
                 </div>
 
-                <div class="md:hidden fixed bottom-0 w-full glass-panel border-t border-white/10 flex justify-around py-3 z-30 backdrop-blur-xl">
-                    <button @click="changePage('dashboard')" :class="currentPage==='dashboard'?'text-[#fe9b02]':'text-gray-500'"><i class="fas fa-th-large text-xl"></i></button>
-                    <button @click="changePage('reports')" :class="currentPage==='reports'?'text-[#fe9b02]':'text-gray-500'"><i class="fas fa-clipboard-list text-xl"></i></button>
-                    <button @click="openAddModal" class="bg-[#fe9b02] text-white w-12 h-12 rounded-full -mt-8 shadow-lg border-4 border-slate-900 flex items-center justify-center"><i class="fas fa-plus text-xl"></i></button>
-                    <button v-if="currentUser.role==='manager'" @click="changePage('users')" :class="currentPage==='users'?'text-[#fe9b02]':'text-gray-500'"><i class="fas fa-users text-xl"></i></button>
+                <div class="md:hidden fixed bottom-0 w-full bg-white border-t border-gray-100 flex justify-around py-3 z-30 shadow-[0_-5px_10px_rgba(0,0,0,0.05)]">
+                    <button @click="changePage('dashboard')" :class="currentPage==='dashboard'?'text-[#fe9b02]':'text-gray-400'"><i class="fas fa-th-large text-xl"></i></button>
+                    <button @click="changePage('reports')" :class="currentPage==='reports'?'text-[#fe9b02]':'text-gray-400'"><i class="fas fa-clipboard-list text-xl"></i></button>
+                    <button @click="openAddModal" class="bg-[#fe9b02] text-white w-12 h-12 rounded-full -mt-8 shadow-lg border-4 border-[#f3f5f9] flex items-center justify-center"><i class="fas fa-plus text-xl"></i></button>
+                    <button @click="changePage('daily')" :class="currentPage==='daily'?'text-[#fe9b02]':'text-gray-400'"><i class="fas fa-calendar-check text-xl"></i></button>
+                    <button v-if="currentUser.role==='manager'" @click="changePage('users')" :class="currentPage==='users'?'text-[#fe9b02]':'text-gray-400'"><i class="fas fa-users text-xl"></i></button>
                 </div>
             </main>
         </div>
 
         <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="closeModal"></div>
-            <div class="glass-panel w-full max-w-lg rounded-2xl relative z-10 animate-fade-in border border-white/10">
-                <div class="p-5 border-b border-white/10 flex justify-between items-center bg-[#fe9b02]/10">
-                    <h3 class="font-bold text-xl text-white">{{ isEditing ? 'تحديث المشروع' : 'مشروع جديد' }}</h3>
-                    <button @click="closeModal" class="text-gray-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+            <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="closeModal"></div>
+            <div class="clean-card w-full max-w-lg rounded-2xl relative z-10 animate-fade-in">
+                <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-2xl">
+                    <h3 class="font-bold text-xl text-slate-800">{{ isEditing ? 'تحديث المشروع' : 'مشروع جديد' }}</h3>
+                    <button @click="closeModal" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
                 </div>
                 <div class="p-6 space-y-4">
                     <div>
-                        <label class="text-xs font-bold text-gray-400 mb-1 block">عنوان المشروع</label>
-                        <input v-model="form.title" class="glass-input font-bold">
+                        <label class="text-xs font-bold text-slate-500 mb-1 block">عنوان المشروع</label>
+                        <input v-model="form.title" class="clean-input font-bold">
                     </div>
                     <div>
-                        <label class="text-xs font-bold text-gray-400 mb-1 block">التفاصيل</label>
-                        <textarea v-model="form.description" class="glass-input h-24"></textarea>
+                        <label class="text-xs font-bold text-slate-500 mb-1 block">التفاصيل</label>
+                        <textarea v-model="form.description" class="clean-input h-24"></textarea>
                     </div>
                     <div class="flex gap-4">
                         <div class="flex-1">
-                            <label class="text-xs font-bold text-gray-400 mb-1 block">تاريخ التسليم</label>
-                            <input type="date" v-model="form.endDate" class="glass-input text-gray-200">
+                            <label class="text-xs font-bold text-slate-500 mb-1 block">تاريخ التسليم</label>
+                            <input type="date" v-model="form.endDate" class="clean-input">
                         </div>
                         <div class="flex-1">
-                            <label class="text-xs font-bold text-gray-400 mb-1 block">المسؤول</label>
-                            <select v-model="form.assignedTo" class="glass-input text-gray-200 cursor-pointer">
-                                <option class="bg-slate-800" value="">الجميع</option>
-                                <option class="bg-slate-800" v-for="u in activeUsers" :key="u.id" :value="u.username">{{ u.username }}</option>
+                            <label class="text-xs font-bold text-slate-500 mb-1 block">المسؤول</label>
+                            <select v-model="form.assignedTo" class="clean-input cursor-pointer">
+                                <option value="">الجميع</option>
+                                <option v-for="u in activeUsers" :key="u.id" :value="u.username">{{ u.username }}</option>
                             </select>
                         </div>
                     </div>
                     
                     <div>
-                        <label class="text-xs font-bold text-gray-400 mb-2 block">صور المشروع</label>
+                        <label class="text-xs font-bold text-slate-500 mb-2 block">صور المشروع</label>
                         <div class="flex flex-wrap gap-2">
-                            <div v-for="(img, idx) in form.images" :key="idx" class="relative w-16 h-16 rounded border border-white/20 overflow-hidden group">
+                            <div v-for="(img, idx) in form.images" :key="idx" class="relative w-16 h-16 rounded border border-gray-200 overflow-hidden group">
                                 <img :src="img" class="w-full h-full object-cover">
                                 <button @click="removeImage(idx)" class="absolute top-0 right-0 bg-red-500 text-white w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition">&times;</button>
                             </div>
-                            <div @click="$refs.files.click()" class="w-16 h-16 rounded border-2 border-dashed border-gray-600 flex items-center justify-center cursor-pointer hover:border-[#fe9b02] hover:text-[#fe9b02] text-gray-500 transition">
+                            <div @click="$refs.files.click()" class="w-16 h-16 rounded border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-[#fe9b02] hover:text-[#fe9b02] text-gray-400 transition bg-gray-50">
                                 <i class="fas fa-plus"></i>
                             </div>
                             <input ref="files" type="file" multiple class="hidden" accept="image/*" @change="handleFiles">
                         </div>
                     </div>
 
-                    <div v-if="isEditing" class="glass-card p-4 rounded-xl bg-white/5 border border-[#fe9b02]/30">
+                    <div v-if="isEditing" class="p-4 rounded-xl bg-gray-50 border border-gray-200">
                         <div class="flex justify-between mb-2">
-                            <span class="text-sm font-bold text-gray-300">نسبة الإنجاز</span>
+                            <span class="text-sm font-bold text-slate-600">نسبة الإنجاز</span>
                             <span class="text-[#fe9b02] font-bold">{{ form.progress }}%</span>
                         </div>
-                        <input type="range" v-model.number="form.progress" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[#fe9b02]">
+                        <input type="range" v-model.number="form.progress" class="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer accent-[#fe9b02]">
                     </div>
                     <button @click="saveReport" :disabled="submitting" class="btn-jsaas w-full py-3 rounded-xl font-bold shadow-lg mt-2">
                         {{ submitting ? 'جاري الحفظ...' : 'حفظ التغييرات' }}
@@ -430,8 +491,8 @@
             </div>
         </div>
 
-        <div v-if="previewImage" class="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4 backdrop-blur-md" @click="previewImage = null">
-            <img :src="previewImage" class="max-w-full max-h-full rounded-lg shadow-2xl border border-white/20">
+        <div v-if="previewImage" class="fixed inset-0 z-[60] bg-slate-900/90 flex items-center justify-center p-4 backdrop-blur-md" @click="previewImage = null">
+            <img :src="previewImage" class="max-w-full max-h-full rounded-lg shadow-2xl border border-white">
             <button class="absolute top-4 right-4 text-white text-2xl hover:text-red-500">&times;</button>
         </div>
 
@@ -456,16 +517,23 @@
                 return {
                     currentUser: JSON.parse(localStorage.getItem('jsaas_user_v5')) || null,
                     isRegistering: false,
-                    authForm: { username: '', password: '', role: 'technician', email: '', image: null, phone: '' }, // Added Phone
+                    authForm: { username: '', password: '', role: 'technician', email: '', image: null, phone: '' },
                     loading: false,
                     currentPage: 'dashboard',
-                    currentFilter: 'all', // Added for Dashboard Filtering
+                    currentFilter: 'all',
                     users: [],
                     reports: [],
+                    dailyReportsList: [], // قائمة التقارير اليومية
                     notifications: [],
                     showNotifications: false,
                     showModal: false, isEditing: false, editingId: null, submitting: false,
                     form: { title: '', description: '', assignedTo: '', endDate: '', progress: 0, images: [] },
+                    // بيانات التقرير اليومي
+                    dailyReportForm: {
+                        projectId: '',
+                        date: new Date().toISOString().substr(0, 10),
+                        tasks: [{ desc: '', done: false }]
+                    },
                     charts: {},
                     previewImage: null
                 }
@@ -477,11 +545,9 @@
                 unreadCount() { return this.notifications.filter(n => !n.read).length; },
                 filteredReports() {
                     let list = this.reports;
-                    // تصفية حسب الدور
                     if(this.currentUser.role !== 'manager') {
                         list = list.filter(r => r.createdBy === this.currentUser.username || r.assignedTo === this.currentUser.username || !r.assignedTo);
                     }
-                    // تصفية حسب الداش بورد
                     if(this.currentFilter === 'active') {
                         list = list.filter(r => r.progress > 0 && r.progress < 100);
                     } else if (this.currentFilter === 'completed') {
@@ -489,7 +555,7 @@
                     }
                     return list;
                 },
-                recentReports() { return this.reports.slice(0, 5); }, // Use 'reports' (all) for charts, not filtered
+                recentReports() { return this.reports.slice(0, 5); },
                 stats() {
                     const list = this.reports;
                     const total = list.length;
@@ -502,9 +568,8 @@
             methods: {
                 changePage(p) { 
                     this.currentPage = p; 
-                    if(p !== 'reports') this.currentFilter = 'all'; // Reset filter when leaving reports
+                    if(p !== 'reports') this.currentFilter = 'all';
                 },
-                // وظيفة الفلترة من الداش بورد
                 filterAndGo(status) {
                     this.currentFilter = status;
                     this.currentPage = 'reports';
@@ -522,6 +587,10 @@
                         this.reports = s.docs.map(d => ({id:d.id, ...d.data()}));
                         setTimeout(this.updateCharts, 300);
                     });
+                    // جلب التقارير اليومية
+                    db.collection("daily_reports").orderBy("timestamp", "desc").limit(10).onSnapshot(s => {
+                        this.dailyReportsList = s.docs.map(d => ({id:d.id, ...d.data()}));
+                    });
                     this.initNotifications();
                 },
                 updateCharts() {
@@ -533,16 +602,16 @@
                         maintainAspectRatio: false, responsive: true
                     };
                     
-                    Chart.defaults.color = '#94a3b8';
-                    Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
+                    Chart.defaults.color = '#64748b'; // لون نص غامق
+                    Chart.defaults.borderColor = '#e2e8f0'; // لون خطوط فاتح
 
                     this.renderChart('dailyProgressChart', 'bar', {
                         labels: this.recentReports.map(t => t.title.substring(0,8)),
                         datasets: [{ data: this.recentReports.map(t => t.progress), backgroundColor: '#fe9b02', borderRadius: 4 }]
-                    }, { plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(255,255,255,0.05)' } } }, maintainAspectRatio: false });
+                    }, { plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: '#f1f5f9' } } }, maintainAspectRatio: false });
 
                     this.renderChart('efficiencyGauge', 'doughnut', {
-                        datasets: [{ data: [this.stats.avgProgress, 100 - this.stats.avgProgress], backgroundColor: ['#3b82f6', 'rgba(255,255,255,0.1)'], borderWidth: 0 }]
+                        datasets: [{ data: [this.stats.avgProgress, 100 - this.stats.avgProgress], backgroundColor: ['#3b82f6', '#f1f5f9'], borderWidth: 0 }]
                     }, gaugeOptions);
                 },
                 renderChart(id, type, data, options) {
@@ -551,7 +620,7 @@
                     if(this.charts[id]) this.charts[id].destroy();
                     this.charts[id] = new Chart(ctx, { type, data, options });
                 },
-                getProgressBg(p) { return p < 30 ? 'bg-red-500/20 text-red-400' : p < 70 ? 'bg-orange-500/20 text-orange-400' : 'bg-green-500/20 text-green-400'; },
+                getProgressBg(p) { return p < 30 ? 'bg-red-50 text-red-500 border-red-100' : p < 70 ? 'bg-orange-50 text-orange-500 border-orange-100' : 'bg-green-50 text-green-500 border-green-100'; },
                 getProgressColorHex(p) { return p < 30 ? '#ef4444' : p < 70 ? '#f97316' : '#22c55e'; },
                 getRoleName(r) { return r==='manager'?'مدير':r==='supervisor'?'مشرف':'فني'; },
                 toggleAuthMode() { this.isRegistering = !this.isRegistering; },
@@ -564,7 +633,6 @@
                             if(!this.authForm.image) throw "الصورة مطلوبة";
                             const check = await db.collection('users').where('username','==',this.authForm.username).get();
                             if(!check.empty) throw "الاسم مستخدم";
-                            // إضافة الهاتف والبيانات
                             await db.collection('users').add({...this.authForm, status: 'pending', createdAt: new Date()});
                             alert("تم إرسال الطلب"); this.isRegistering = false;
                         } else {
@@ -601,6 +669,28 @@
                     if(!this.isEditing) { d.createdBy = this.currentUser.username; await db.collection("reports").add(d); }
                     else { await db.collection("reports").doc(this.editingId).update(d); }
                     this.submitting = false; this.showModal = false;
+                },
+                // وظائف التقارير اليومية
+                addTask() { this.dailyReportForm.tasks.push({desc: '', done: false}); },
+                removeTask(index) { this.dailyReportForm.tasks.splice(index, 1); },
+                async saveDailyReport() {
+                    if(!this.dailyReportForm.projectId) return alert("اختر المشروع");
+                    if(this.dailyReportForm.tasks.length === 0 || !this.dailyReportForm.tasks[0].desc) return alert("أضف مهمة واحدة على الأقل");
+                    
+                    const reportData = {
+                        ...this.dailyReportForm,
+                        submittedBy: this.currentUser.username,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    
+                    await db.collection("daily_reports").add(reportData);
+                    alert("تم حفظ التقرير اليومي بنجاح");
+                    // تصفير النموذج
+                    this.dailyReportForm.tasks = [{desc:'', done:false}];
+                },
+                getProjectName(id) {
+                    const p = this.reports.find(r => r.id === id);
+                    return p ? p.title : 'مشروع غير معروف';
                 },
                 approveUser(u) { if(confirm('تفعيل؟')) db.collection('users').doc(u.id).update({status:'active'}); },
                 rejectUser(id) { if(confirm('حذف؟')) db.collection('users').doc(id).delete(); },
