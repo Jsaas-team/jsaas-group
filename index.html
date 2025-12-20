@@ -184,7 +184,7 @@
                             {{ getPageTitle() }}
                         </h2>
                     </div>
-                    <div class="text-xs text-gray-400 font-bold hidden md:block">نظام الصيانة الذكي v2.1</div>
+                    <div class="text-xs text-gray-400 font-bold hidden md:block">نظام الصيانة الذكي v2.2</div>
                     <button class="md:hidden text-slate-700"><i class="fas fa-bars"></i></button>
                 </header>
 
@@ -428,8 +428,8 @@
             data() {
                 return {
                     currentUser: JSON.parse(localStorage.getItem('jsaas_user_v5')) || null,
-                    isRegistering: false, // تم الاسترجاع
-                    authForm: { username: '', password: '', role: 'technician', email: '', phone: '', image: null }, // بيانات إضافية
+                    isRegistering: false,
+                    authForm: { username: '', password: '', role: 'technician', email: '', phone: '', image: null },
                     loading: false,
                     currentPage: 'dashboard',
                     historyStack: ['dashboard'],
@@ -478,34 +478,49 @@
                     return '';
                 },
 
-                // Auth Logic (Updated)
+                // Auth Logic (Updated for Image Compression)
                 toggleAuthMode() { this.isRegistering = !this.isRegistering; },
+                
+                // دالة ضغط الصورة (الحل السحري)
                 handleProfilePic(e) { 
-                    const f = e.target.files[0]; 
-                    if(f) {
-                        const r = new FileReader(); 
-                        r.onload=v=>this.authForm.image=v.target.result; 
-                        r.readAsDataURL(f); 
+                    const file = e.target.files[0]; 
+                    if(file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            const img = new Image();
+                            img.src = event.target.result;
+                            img.onload = () => {
+                                const canvas = document.createElement('canvas');
+                                const ctx = canvas.getContext('2d');
+                                const maxWidth = 300; // تصغير العرض إلى 300 بكسل
+                                const scale = maxWidth / img.width;
+                                canvas.width = maxWidth;
+                                canvas.height = img.height * scale;
+                                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                                // تحويل الصورة المضغوطة إلى Base64
+                                this.authForm.image = canvas.toDataURL('image/jpeg', 0.7);
+                            }
+                        };
+                        reader.readAsDataURL(file);
                     }
                 },
+
                 async authAction() {
                     this.loading = true;
                     try {
                         if (this.isRegistering) {
-                            // منطق التسجيل الجديد
                             if(!this.authForm.username || !this.authForm.password) throw "يرجى ملء البيانات الأساسية";
                             const check = await db.collection('users').where('username','==',this.authForm.username).get();
                             if(!check.empty) throw "اسم المستخدم موجود مسبقاً";
                             
                             await db.collection('users').add({
                                 ...this.authForm,
-                                status: 'pending', // حالة انتظار الموافقة
+                                status: 'pending', 
                                 createdAt: new Date()
                             });
                             alert("تم إرسال طلبك بنجاح! يرجى انتظار موافقة الإدارة.");
                             this.isRegistering = false;
                         } else {
-                            // منطق تسجيل الدخول
                             const snap = await db.collection('users')
                                 .where('username','==',this.authForm.username)
                                 .where('password','==',this.authForm.password).get();
