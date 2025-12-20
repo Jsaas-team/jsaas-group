@@ -63,7 +63,7 @@
             display: flex; justify-content: space-between;
         }
 
-        /* قائمة الأصول والموظفين */
+        /* القوائم */
         .list-item {
             display: flex; justify-content: space-between; align-items: center;
             padding: 10px; border-bottom: 1px solid #f0f0f0; margin-bottom: 4px;
@@ -98,18 +98,50 @@
     <div id="app" class="h-full flex flex-col">
 
         <div v-if="!currentUser" class="fixed inset-0 z-50 flex items-center justify-center bg-[#f3f5f9]">
-            <div class="bg-white w-full max-w-md p-8 rounded-2xl shadow-xl border-t-4 border-[#fe9b02]">
-                <div class="text-center mb-8">
+            <div class="bg-white w-full max-w-md p-8 rounded-2xl shadow-xl border-t-4 border-[#fe9b02] max-h-[90vh] overflow-y-auto">
+                <div class="text-center mb-6">
                     <img src="image_0.png" class="h-24 mx-auto mb-4 object-contain" @error="handleImageError">
-                    <h2 class="text-2xl font-bold text-slate-800">بوابة الموظفين</h2>
+                    <h2 class="text-2xl font-bold text-slate-800">{{ isRegistering ? 'تسجيل موظف جديد' : 'بوابة الموظفين' }}</h2>
+                    <p class="text-xs text-gray-400 mt-1">{{ isRegistering ? 'املأ البيانات لطلب الانضمام' : 'سجل دخولك للمتابعة' }}</p>
                 </div>
+
                 <form @submit.prevent="authAction" class="space-y-4">
-                    <input v-model="authForm.username" type="text" placeholder="اسم المستخدم" class="w-full p-3 border rounded-lg bg-gray-50 focus:border-orange-400 outline-none">
-                    <input v-model="authForm.password" type="password" placeholder="كلمة المرور" class="w-full p-3 border rounded-lg bg-gray-50 focus:border-orange-400 outline-none">
-                    <button type="submit" :disabled="loading" class="btn-jsaas w-full py-3 rounded-lg font-bold">
-                        {{ loading ? 'جاري الدخول...' : 'دخول النظام' }}
+                    <div v-if="isRegistering" class="space-y-3 animate-fade-in">
+                        <div class="flex justify-center mb-4">
+                            <div @click="$refs.profilePic.click()" class="relative w-24 h-24 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-[#fe9b02] transition group bg-gray-50 overflow-hidden">
+                                <img v-if="authForm.image" :src="authForm.image" class="w-full h-full object-cover">
+                                <div v-else class="text-gray-400 group-hover:text-[#fe9b02] flex flex-col items-center">
+                                    <i class="fas fa-camera text-xl"></i>
+                                    <span class="text-[10px]">صورة</span>
+                                </div>
+                            </div>
+                            <input ref="profilePic" type="file" class="hidden" accept="image/*" @change="handleProfilePic">
+                        </div>
+
+                        <select v-model="authForm.role" class="w-full p-3 border rounded-lg bg-gray-50 focus:border-orange-400 outline-none cursor-pointer">
+                            <option value="technician">فني / عامل</option>
+                            <option value="supervisor">مشرف صيانة</option>
+                            <option value="manager">مدير النظام</option>
+                        </select>
+                        
+                        <input v-model="authForm.email" type="email" placeholder="البريد الإلكتروني" class="w-full p-3 border rounded-lg bg-gray-50 focus:border-orange-400 outline-none">
+                        <input v-model="authForm.phone" type="tel" placeholder="رقم الجوال" class="w-full p-3 border rounded-lg bg-gray-50 focus:border-orange-400 outline-none">
+                    </div>
+
+                    <input v-model="authForm.username" type="text" placeholder="اسم المستخدم" class="w-full p-3 border rounded-lg bg-gray-50 focus:border-orange-400 outline-none" required>
+                    <input v-model="authForm.password" type="password" placeholder="كلمة المرور" class="w-full p-3 border rounded-lg bg-gray-50 focus:border-orange-400 outline-none" required>
+                    
+                    <button type="submit" :disabled="loading" class="btn-jsaas w-full py-3 rounded-lg font-bold shadow-lg">
+                        <span v-if="loading"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</span>
+                        <span v-else>{{ isRegistering ? 'إرسال طلب التسجيل' : 'دخول النظام' }}</span>
                     </button>
                 </form>
+
+                <div class="mt-6 text-center border-t pt-4">
+                    <button @click="toggleAuthMode" class="text-sm font-bold text-[#fe9b02] hover:text-[#f53f2c] transition">
+                        {{ isRegistering ? 'لديك حساب بالفعل؟ تسجيل الدخول' : 'ليس لديك حساب؟ تسجيل جديد' }}
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -132,6 +164,7 @@
                     </a>
                     <a v-if="currentUser.role==='manager'" @click="navigate('users')" :class="currentPage==='users'?'bg-orange-50 text-orange-600 border-r-4 border-orange-500':'text-gray-500 hover:bg-gray-50'" class="flex items-center p-3 cursor-pointer transition rounded-l-lg">
                         <i class="fas fa-users ml-3 text-lg w-6 text-center"></i> <span class="font-bold">الموظفين</span>
+                        <span v-if="pendingUsersCount > 0" class="mr-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ pendingUsersCount }}</span>
                     </a>
                 </nav>
                 <div class="p-4 border-t">
@@ -151,8 +184,7 @@
                             {{ getPageTitle() }}
                         </h2>
                     </div>
-                    <div class="text-xs text-gray-400 font-bold hidden md:block">نظام الصيانة الذكي v2.0</div>
-                    
+                    <div class="text-xs text-gray-400 font-bold hidden md:block">نظام الصيانة الذكي v2.1</div>
                     <button class="md:hidden text-slate-700"><i class="fas fa-bars"></i></button>
                 </header>
 
@@ -254,9 +286,6 @@
                                     </button>
                                 </div>
                             </div>
-                            <div v-if="templates.length === 0" class="col-span-3 text-center py-10 text-gray-400">
-                                لا توجد قوالب مهام حالياً.
-                            </div>
                         </div>
                     </div>
 
@@ -298,14 +327,15 @@
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-2xl font-bold text-slate-800">فريق العمل</h2>
                         <div class="bg-white px-4 py-2 rounded-lg shadow-sm text-sm">
-                            <span class="font-bold text-[#fe9b02]">{{ users.length }}</span> موظف مسجل
+                            <span class="font-bold text-[#fe9b02]">{{ users.length }}</span> موظف
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div v-for="user in users" :key="user.id" class="white-card flex flex-col items-center text-center p-6 border-t-4" :class="user.status==='active'?'border-green-500':'border-red-500'">
-                            <div class="w-24 h-24 rounded-full p-1 border-2 border-gray-200 mb-4 overflow-hidden">
+                        <div v-for="user in users" :key="user.id" class="white-card flex flex-col items-center text-center p-6 border-t-4" :class="user.status==='active'?'border-green-500':(user.status==='pending'?'border-orange-500':'border-red-500')">
+                            <div class="w-24 h-24 rounded-full p-1 border-2 border-gray-200 mb-4 overflow-hidden relative">
                                 <img :src="user.image || 'https://via.placeholder.com/150'" class="w-full h-full object-cover rounded-full">
+                                <span v-if="user.status==='pending'" class="absolute bottom-0 right-0 bg-orange-500 text-white text-xs px-2 py-1 rounded-full border border-white">جديد</span>
                             </div>
                             <h3 class="font-bold text-lg text-slate-800">{{ user.username }}</h3>
                             <span class="text-xs px-2 py-1 rounded mt-1 mb-4" :class="user.role==='manager'?'bg-purple-100 text-purple-600':'bg-blue-100 text-blue-600'">
@@ -317,12 +347,15 @@
                                 <div class="flex justify-between"><span>الهاتف:</span> <span class="text-slate-700">{{ user.phone || '-' }}</span></div>
                                 <div class="flex justify-between">
                                     <span>الحالة:</span> 
-                                    <span :class="user.status==='active'?'text-green-600':'text-red-500'">{{ user.status==='active'?'نشط':'معطل' }}</span>
+                                    <span :class="user.status==='active'?'text-green-600':(user.status==='pending'?'text-orange-500':'text-red-500')">
+                                        {{ user.status==='active'?'نشط':(user.status==='pending'?'في الانتظار':'معطل') }}
+                                    </span>
                                 </div>
                             </div>
                             
-                            <div v-if="currentUser.role === 'manager' && currentUser.id !== user.id" class="mt-4 flex gap-2 w-full">
-                                <button @click="deleteUser(user.id)" class="flex-1 bg-red-50 text-red-500 py-2 rounded hover:bg-red-500 hover:text-white transition text-xs font-bold">حذف</button>
+                            <div v-if="currentUser.role === 'manager'" class="mt-4 flex gap-2 w-full">
+                                <button v-if="user.status==='pending'" @click="approveUser(user)" class="flex-1 bg-green-50 text-green-600 py-2 rounded hover:bg-green-500 hover:text-white transition text-xs font-bold">قبول</button>
+                                <button v-if="user.id !== currentUser.id" @click="deleteUser(user.id)" class="flex-1 bg-red-50 text-red-500 py-2 rounded hover:bg-red-500 hover:text-white transition text-xs font-bold">حذف</button>
                             </div>
                         </div>
                     </div>
@@ -338,7 +371,7 @@
                     <button @click="showTemplateModal=false"><i class="fas fa-times"></i></button>
                 </div>
                 <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
-                    <input v-model="newTemplate.title" placeholder="اسم القائمة (مثلاً: صيانة التكييف المركزي)" class="w-full p-2 border rounded focus:border-[#fe9b02] outline-none">
+                    <input v-model="newTemplate.title" placeholder="اسم القائمة" class="w-full p-2 border rounded focus:border-[#fe9b02] outline-none">
                     <p class="text-xs text-gray-500 font-bold">بنود المهام:</p>
                     <div v-for="(task, idx) in newTemplate.tasks" :key="idx" class="flex gap-2">
                         <input v-model="task.desc" placeholder="وصف المهمة..." class="flex-1 p-2 border rounded bg-gray-50 text-sm">
@@ -395,10 +428,11 @@
             data() {
                 return {
                     currentUser: JSON.parse(localStorage.getItem('jsaas_user_v5')) || null,
-                    authForm: { username: '', password: '' },
+                    isRegistering: false, // تم الاسترجاع
+                    authForm: { username: '', password: '', role: 'technician', email: '', phone: '', image: null }, // بيانات إضافية
                     loading: false,
                     currentPage: 'dashboard',
-                    historyStack: ['dashboard'], // (3) سجل للتنقل
+                    historyStack: ['dashboard'],
                     reportTab: 'templates',
                     users: [],
                     reports: [],
@@ -418,12 +452,11 @@
                     const active = this.reports.filter(r => r.progress < 100).length;
                     return { total, active };
                 },
-                sortedReports() {
-                    return [...this.reports].sort((a, b) => a.progress - b.progress);
-                }
+                sortedReports() { return [...this.reports].sort((a, b) => a.progress - b.progress); },
+                pendingUsersCount() { return this.users.filter(u => u.status === 'pending').length; }
             },
             methods: {
-                // (3) Navigation Logic
+                // Navigation
                 navigate(page) {
                     if (this.currentPage !== page) {
                         this.historyStack.push(page);
@@ -433,8 +466,8 @@
                 },
                 goBack() {
                     if (this.historyStack.length > 1) {
-                        this.historyStack.pop(); // Remove current
-                        this.currentPage = this.historyStack[this.historyStack.length - 1]; // Go to previous
+                        this.historyStack.pop(); 
+                        this.currentPage = this.historyStack[this.historyStack.length - 1]; 
                         setTimeout(() => this.processRealDataForCharts(), 100);
                     }
                 },
@@ -445,19 +478,46 @@
                     return '';
                 },
 
-                // Auth
+                // Auth Logic (Updated)
+                toggleAuthMode() { this.isRegistering = !this.isRegistering; },
+                handleProfilePic(e) { 
+                    const f = e.target.files[0]; 
+                    if(f) {
+                        const r = new FileReader(); 
+                        r.onload=v=>this.authForm.image=v.target.result; 
+                        r.readAsDataURL(f); 
+                    }
+                },
                 async authAction() {
                     this.loading = true;
                     try {
-                        const snap = await db.collection('users')
-                            .where('username','==',this.authForm.username)
-                            .where('password','==',this.authForm.password).get();
-                        if(snap.empty) throw "بيانات الدخول غير صحيحة";
-                        const u = {id:snap.docs[0].id, ...snap.docs[0].data()};
-                        if(u.status!=='active') throw "الحساب غير نشط";
-                        this.currentUser = u; 
-                        localStorage.setItem('jsaas_user_v5', JSON.stringify(u)); 
-                        this.initData();
+                        if (this.isRegistering) {
+                            // منطق التسجيل الجديد
+                            if(!this.authForm.username || !this.authForm.password) throw "يرجى ملء البيانات الأساسية";
+                            const check = await db.collection('users').where('username','==',this.authForm.username).get();
+                            if(!check.empty) throw "اسم المستخدم موجود مسبقاً";
+                            
+                            await db.collection('users').add({
+                                ...this.authForm,
+                                status: 'pending', // حالة انتظار الموافقة
+                                createdAt: new Date()
+                            });
+                            alert("تم إرسال طلبك بنجاح! يرجى انتظار موافقة الإدارة.");
+                            this.isRegistering = false;
+                        } else {
+                            // منطق تسجيل الدخول
+                            const snap = await db.collection('users')
+                                .where('username','==',this.authForm.username)
+                                .where('password','==',this.authForm.password).get();
+                            if(snap.empty) throw "بيانات الدخول غير صحيحة";
+                            const u = {id:snap.docs[0].id, ...snap.docs[0].data()};
+                            if(u.status === 'pending') throw "حسابك قيد المراجعة من الإدارة";
+                            if(u.status !== 'active') throw "هذا الحساب معطل";
+                            
+                            this.currentUser = u; 
+                            localStorage.setItem('jsaas_user_v5', JSON.stringify(u)); 
+                            this.initData();
+                        }
                     } catch(e) { alert(e); }
                     this.loading = false;
                 },
@@ -476,38 +536,33 @@
                         .onSnapshot(s => this.dailyEntries = s.docs.map(d => ({id:d.id, ...d.data()})));
                 },
 
-                // Charts Logic
+                // User Management
+                approveUser(user) { if(confirm("الموافقة على تفعيل الموظف؟")) db.collection('users').doc(user.id).update({status: 'active'}); },
+                deleteUser(id) { if(confirm("حذف الموظف نهائياً؟")) db.collection('users').doc(id).delete(); },
+
+                // Charts & Data
                 processRealDataForCharts() {
                     if(this.currentPage !== 'dashboard') return;
                     
-                    // 1. Asset Status
                     let grades = { A: 0, B: 0, C: 0, D: 0 };
                     this.reports.forEach(r => {
-                        if(r.progress >= 85) grades.A++;
-                        else if(r.progress >= 70) grades.B++;
-                        else if(r.progress >= 50) grades.C++;
-                        else grades.D++;
+                        if(r.progress >= 85) grades.A++; else if(r.progress >= 70) grades.B++; else if(r.progress >= 50) grades.C++; else grades.D++;
                     });
                     this.renderChart('assetStatusChart', 'doughnut', {
                         labels: ['ممتاز', 'جيد', 'مقبول', 'حرج'],
                         datasets: [{ data: [grades.A, grades.B, grades.C, grades.D], backgroundColor: ['#000c3b', '#004e98', '#ff6b35', '#f53f2c'], borderWidth: 0, cutout: '60%' }]
                     }, { plugins: { legend: { display: false } } });
 
-                    // 2. Reports Status
                     let status = { completed: 0, inProgress: 0, overdue: 0 };
                     const now = new Date();
                     this.reports.forEach(r => {
-                        if(r.progress === 100) status.completed++;
-                        else {
-                            if(r.endDate && new Date(r.endDate) < now) status.overdue++; else status.inProgress++;
-                        }
+                        if(r.progress === 100) status.completed++; else { if(r.endDate && new Date(r.endDate) < now) status.overdue++; else status.inProgress++; }
                     });
                     this.renderChart('reportsBarChart', 'bar', {
                         labels: ['مكتملة', 'جارية', 'متأخرة'],
                         datasets: [{ data: [status.completed, status.inProgress, status.overdue], backgroundColor: '#00b4d8', barThickness: 20 }]
                     }, { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { display: false } } } });
 
-                    // 3. Workload
                     let assignments = {};
                     this.reports.forEach(r => { let user = r.assignedTo || 'Unassigned'; assignments[user] = (assignments[user] || 0) + 1; });
                     this.renderChart('workloadChart', 'doughnut', {
@@ -515,7 +570,6 @@
                         datasets: [{ data: Object.values(assignments).length ? Object.values(assignments) : [1], backgroundColor: ['#000c3b', '#f53f2c', '#fe9b02', '#004e98'], borderWidth: 0, cutout: '50%' }]
                     }, { plugins: { legend: { display: false } } });
 
-                    // 4. Evolution
                     let months = {};
                     this.reports.forEach(r => {
                         let date = r.timestamp ? new Date(r.timestamp.seconds * 1000) : new Date();
@@ -534,18 +588,14 @@
                     this.charts[id] = new Chart(ctx, { type, data, options: { responsive: true, maintainAspectRatio: false, ...options } });
                 },
 
-                // Helpers
                 getGradeLetter(p) { return p >= 85 ? 'A' : p >= 70 ? 'B' : p >= 50 ? 'C' : 'D'; },
                 getGradeColor(p) { return p >= 85 ? 'bg-green-500' : p >= 70 ? 'bg-blue-500' : p >= 50 ? 'bg-yellow-500' : 'bg-red-500'; },
-                
-                // (2) تعديل دالة الوقت لتظهر الساعة
                 formatDate(ts) { 
                     if (!ts) return '';
                     const date = new Date(ts.seconds * 1000);
                     return date.toLocaleDateString('ar-EG') + ' ' + date.toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'});
                 },
 
-                // Template & Entry Methods
                 openTemplateModal() { this.newTemplate={title:'', tasks:[{desc:''}]}; this.showTemplateModal=true; },
                 saveTemplate() {
                     if(!this.newTemplate.title) return alert("مطلوب العنوان");
@@ -561,7 +611,7 @@
                     this.showFillModal=true;
                 },
                 viewEntry(entry) {
-                    this.activeEntry = JSON.parse(JSON.stringify(entry)); // Copy to avoid mutation
+                    this.activeEntry = JSON.parse(JSON.stringify(entry)); 
                     this.isViewOnly = true;
                     this.showFillModal = true;
                 },
@@ -570,8 +620,7 @@
                     db.collection("daily_entries").add({...this.activeEntry, allDone, timestamp: firebase.firestore.FieldValue.serverTimestamp()});
                     this.showFillModal=false;
                     alert("تم الحفظ");
-                },
-                deleteUser(id) { if(confirm("حذف الموظف؟")) db.collection('users').doc(id).delete(); }
+                }
             },
             mounted() { if(this.currentUser) this.initData(); }
         }).mount('#app');
