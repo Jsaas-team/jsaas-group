@@ -739,8 +739,12 @@
                     });
                     this.renderChart('reportsBarChart', 'bar', {
                         labels: ['مكتملة', 'جارية', 'متأخرة'],
-                        datasets: [{ data: [status.completed, status.inProgress, status.overdue], backgroundColor: '#00b4d8', barThickness: 20 }]
-                    }, { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { display: false } } } });
+                        datasets: [{ data: [status.completed, status.inProgress, status.overdue], 
+        // هنا التعديل: مصفوفة ألوان (أخضر، أزرق، أحمر)
+                                     backgroundColor: ['#10b981', '#3b82f6', '#ef4444'], 
+                                     barThickness: 20 
+    }]
+}, { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { display: false } } } });
 
                     let assignments = {};
                     list.forEach(r => { let user = r.assignedTo || 'Unassigned'; assignments[user] = (assignments[user] || 0) + 1; });
