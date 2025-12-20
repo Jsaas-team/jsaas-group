@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>نظام إدارة الصيانة - لوحة المعلومات الحية</title>
+    <title>نظام إدارة الصيانة - جسّاس</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -30,31 +30,20 @@
             overflow-x: hidden;
         }
 
-        /* === تخطيط الشبكة (Grid Layout) === */
-        /* تقسيم الشاشة لـ 3 أعمدة متساوية لتقليد الصورة */
+        /* تنسيقات الداشبورد */
         .dashboard-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr; 
             gap: 20px;
             align-items: start;
         }
+        .dashboard-col { display: flex; flex-direction: column; gap: 20px; }
 
-        /* العمود (Column) */
-        .dashboard-col {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        /* الكروت */
         .total-assets-card {
             background-color: var(--dashboard-dark-blue);
             color: white;
             border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
             height: 220px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
@@ -66,59 +55,39 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.02);
             border: 1px solid #e5e7eb;
             min-height: 220px;
-            display: flex;
-            flex-direction: column;
+            display: flex; flex-direction: column;
         }
 
         .card-title {
-            font-size: 1rem;
-            font-weight: 800;
-            color: #333;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
+            font-size: 1rem; font-weight: 800; color: #333; margin-bottom: 15px;
+            display: flex; justify-content: space-between;
         }
 
-        /* قائمة الأصول */
-        .assets-list-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #f0f0f0;
-            margin-bottom: 4px;
-            background: #fff;
-            border-left: 3px solid transparent;
+        /* قائمة الأصول والموظفين */
+        .list-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px; border-bottom: 1px solid #f0f0f0; margin-bottom: 4px;
+            background: #fff; border-left: 3px solid transparent; transition: 0.2s;
         }
-        .assets-list-item:hover { background-color: #f9fafb; border-left-color: var(--brand-orange); }
+        .list-item:hover { background-color: #f9fafb; border-left-color: var(--brand-orange); }
         
         .grade-badge {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 0.8rem;
-            color: white;
+            width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 0.8rem; color: white;
         }
 
         .btn-jsaas {
             background: linear-gradient(135deg, #fe9b02 0%, #f53f2c 100%);
-            color: white;
-            transition: all 0.3s;
+            color: white; transition: all 0.3s;
         }
         .btn-jsaas:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(254, 155, 2, 0.4); }
 
+        .custom-checkbox input:checked + div { background-color: var(--brand-orange); border-color: var(--brand-orange); }
+
+        /* شريط التمرير */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
 
-        .custom-checkbox input:checked + div {
-            background-color: var(--brand-orange);
-            border-color: var(--brand-orange);
-        }
-        
         @media (max-width: 1024px) {
             .dashboard-grid { grid-template-columns: 1fr; }
         }
@@ -155,13 +124,13 @@
                     </div>
                 </div>
                 <nav class="flex-1 p-4 space-y-2">
-                    <a @click="currentPage='dashboard'" :class="currentPage==='dashboard'?'bg-orange-50 text-orange-600 border-r-4 border-orange-500':'text-gray-500 hover:bg-gray-50'" class="flex items-center p-3 cursor-pointer transition rounded-l-lg">
+                    <a @click="navigate('dashboard')" :class="currentPage==='dashboard'?'bg-orange-50 text-orange-600 border-r-4 border-orange-500':'text-gray-500 hover:bg-gray-50'" class="flex items-center p-3 cursor-pointer transition rounded-l-lg">
                         <i class="fas fa-chart-pie ml-3 text-lg w-6 text-center"></i> <span class="font-bold">لوحة المعلومات</span>
                     </a>
-                    <a @click="currentPage='reports'" :class="currentPage==='reports'?'bg-orange-50 text-orange-600 border-r-4 border-orange-500':'text-gray-500 hover:bg-gray-50'" class="flex items-center p-3 cursor-pointer transition rounded-l-lg">
-                        <i class="fas fa-clipboard-check ml-3 text-lg w-6 text-center"></i> <span class="font-bold">التقارير والقوالب</span>
+                    <a @click="navigate('reports')" :class="currentPage==='reports'?'bg-orange-50 text-orange-600 border-r-4 border-orange-500':'text-gray-500 hover:bg-gray-50'" class="flex items-center p-3 cursor-pointer transition rounded-l-lg">
+                        <i class="fas fa-clipboard-check ml-3 text-lg w-6 text-center"></i> <span class="font-bold">قوالب المهام</span>
                     </a>
-                    <a v-if="currentUser.role==='manager'" @click="currentPage='users'" :class="currentPage==='users'?'bg-orange-50 text-orange-600 border-r-4 border-orange-500':'text-gray-500 hover:bg-gray-50'" class="flex items-center p-3 cursor-pointer transition rounded-l-lg">
+                    <a v-if="currentUser.role==='manager'" @click="navigate('users')" :class="currentPage==='users'?'bg-orange-50 text-orange-600 border-r-4 border-orange-500':'text-gray-500 hover:bg-gray-50'" class="flex items-center p-3 cursor-pointer transition rounded-l-lg">
                         <i class="fas fa-users ml-3 text-lg w-6 text-center"></i> <span class="font-bold">الموظفين</span>
                     </a>
                 </nav>
@@ -172,25 +141,26 @@
 
             <main class="flex-1 overflow-y-auto p-4 md:p-8 bg-[#f8f9fa]">
                 
-                <div class="md:hidden flex justify-between items-center mb-4 bg-white p-3 rounded-lg shadow-sm">
-                    <span class="font-bold text-slate-700">نظام الصيانة</span>
-                    <button @click="logout" class="text-red-500"><i class="fas fa-sign-out-alt"></i></button>
-                </div>
-
-                <div v-if="currentPage === 'dashboard'" class="max-w-7xl mx-auto">
-                    <div class="mb-6 flex justify-between items-end">
-                        <div>
-                            <h1 class="text-2xl font-black text-slate-800">لوحة معلومات الصيانة</h1>
-                            <p class="text-gray-500 text-sm mt-1">نظرة عامة حية على حالة الأصول والتقارير.</p>
-                        </div>
-                        <div class="text-xs text-gray-400 font-bold">بيانات حقيقية محدثة</div>
+                <header class="flex items-center justify-between mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                    <div class="flex items-center gap-4">
+                        <button @click="goBack" class="text-gray-500 hover:text-orange-500 transition" title="رجوع">
+                            <i class="fas fa-arrow-right text-xl"></i>
+                        </button>
+                        <div class="h-6 w-px bg-gray-300"></div>
+                        <h2 class="font-bold text-slate-800 text-lg">
+                            {{ getPageTitle() }}
+                        </h2>
                     </div>
+                    <div class="text-xs text-gray-400 font-bold hidden md:block">نظام الصيانة الذكي v2.0</div>
+                    
+                    <button class="md:hidden text-slate-700"><i class="fas fa-bars"></i></button>
+                </header>
 
+                <div v-if="currentPage === 'dashboard'" class="max-w-7xl mx-auto animate-fade-in">
                     <div class="dashboard-grid">
-                        
                         <div class="dashboard-col">
                             <div class="total-assets-card">
-                                <h3 class="text-lg font-bold mb-4 opacity-90 border-b border-white/20 pb-2 w-3/4 text-center">إجمالي الأصول</h3>
+                                <h3 class="text-lg font-bold mb-4 opacity-90 border-b border-white/20 pb-2 w-3/4 text-center">إجمالي المشاريع</h3>
                                 <div class="flex flex-col items-center gap-2">
                                     <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center text-[#000c3b] text-2xl shadow-lg">
                                         <i class="fas fa-boxes"></i>
@@ -199,14 +169,13 @@
                                     <span class="text-xs opacity-75">مشروع مسجل</span>
                                 </div>
                             </div>
-
                             <div class="white-card flex-1">
                                 <div class="card-title">
                                     <span>الأصول الأكثر أهمية</span>
                                     <span class="text-[10px] bg-gray-100 px-2 py-1 rounded text-gray-500">حسب الأولوية</span>
                                 </div>
                                 <div class="overflow-y-auto max-h-80 pr-1">
-                                    <div v-for="report in sortedReports" :key="report.id" class="assets-list-item cursor-pointer" @click="openEditModal(report)">
+                                    <div v-for="report in sortedReports" :key="report.id" class="list-item cursor-pointer">
                                         <div class="flex flex-col">
                                             <span class="font-bold text-sm text-slate-800 truncate max-w-[150px]">{{ report.title }}</span>
                                             <span class="text-[10px] text-gray-400"><i class="far fa-user"></i> {{ report.assignedTo || 'غير محدد' }}</span>
@@ -215,16 +184,13 @@
                                             {{ getGradeLetter(report.progress) }}
                                         </div>
                                     </div>
-                                    <div v-if="sortedReports.length === 0" class="text-center text-gray-400 py-4 text-sm">لا توجد بيانات</div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="dashboard-col">
                             <div class="white-card">
-                                <div class="card-title">
-                                    <span>حالة الأصول (Status)</span>
-                                </div>
+                                <div class="card-title"><span>حالة الأصول (Status)</span></div>
                                 <div class="h-48 relative flex justify-center">
                                     <canvas id="assetStatusChart"></canvas>
                                     <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -235,52 +201,38 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div class="white-card">
-                                <div class="card-title">
-                                    <span>توزيع المهام (Workload)</span>
-                                </div>
+                                <div class="card-title"><span>توزيع المهام (Workload)</span></div>
                                 <div class="h-48 relative flex justify-center">
-                                    <canvas id="workloadChart"></canvas> </div>
-                                <p class="text-[10px] text-center text-gray-400 mt-2">توزيع المشاريع حسب المسؤول</p>
+                                    <canvas id="workloadChart"></canvas>
+                                </div>
                             </div>
                         </div>
 
                         <div class="dashboard-col">
                             <div class="white-card">
-                                <div class="card-title">
-                                    <span>حالة التقارير (Reports)</span>
-                                </div>
-                                <div class="h-48 w-full">
-                                    <canvas id="reportsBarChart"></canvas>
-                                </div>
+                                <div class="card-title"><span>حالة التقارير (Reports)</span></div>
+                                <div class="h-48 w-full"><canvas id="reportsBarChart"></canvas></div>
                             </div>
-
                             <div class="white-card">
-                                <div class="card-title">
-                                    <span>التطور الشهري (Evolution)</span>
-                                    <span class="text-[10px] text-gray-400">آخر 6 أشهر</span>
-                                </div>
-                                <div class="h-48 w-full">
-                                    <canvas id="evolutionChart"></canvas>
-                                </div>
+                                <div class="card-title"><span>التطور الشهري (Evolution)</span></div>
+                                <div class="h-48 w-full"><canvas id="evolutionChart"></canvas></div>
                             </div>
                         </div>
-
                     </div>
                 </div>
 
-                <div v-if="currentPage === 'reports'" class="max-w-6xl mx-auto space-y-6">
+                <div v-if="currentPage === 'reports'" class="max-w-6xl mx-auto space-y-6 animate-fade-in">
                     <div class="flex gap-4 border-b border-gray-200 pb-2">
-                        <button @click="reportTab='templates'" :class="reportTab==='templates'?'text-[#fe9b02] border-b-2 border-[#fe9b02]':'text-gray-500'" class="pb-2 px-4 font-bold text-lg"><i class="fas fa-layer-group"></i> القوالب</button>
-                        <button @click="reportTab='history'" :class="reportTab==='history'?'text-[#fe9b02] border-b-2 border-[#fe9b02]':'text-gray-500'" class="pb-2 px-4 font-bold text-lg"><i class="fas fa-history"></i> الأرشيف</button>
+                        <button @click="reportTab='templates'" :class="reportTab==='templates'?'text-[#fe9b02] border-b-2 border-[#fe9b02]':'text-gray-500'" class="pb-2 px-4 font-bold text-lg"><i class="fas fa-list-check"></i> (4) قائمة المهام والقوالب</button>
+                        <button @click="reportTab='history'" :class="reportTab==='history'?'text-[#fe9b02] border-b-2 border-[#fe9b02]':'text-gray-500'" class="pb-2 px-4 font-bold text-lg"><i class="fas fa-history"></i> الأرشيف والسجلات</button>
                     </div>
 
                     <div v-if="reportTab === 'templates'">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="font-bold text-slate-700">قوالب الفحص الجاهزة</h3>
+                            <h3 class="font-bold text-slate-700">قوالب المهام والصيانة</h3>
                             <button @click="openTemplateModal()" class="btn-jsaas px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2">
-                                <i class="fas fa-plus"></i> إنشاء قالب جديد
+                                <i class="fas fa-plus"></i> إنشاء قائمة مهام
                             </button>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -289,37 +241,50 @@
                                     <button @click="deleteTemplate(temp.id)" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash"></i></button>
                                 </div>
                                 <h4 class="font-bold text-lg text-slate-800 mb-2">{{ temp.title }}</h4>
-                                <p class="text-xs text-gray-500 mb-4">{{ temp.tasks.length }} نقطة فحص</p>
+                                <div class="text-xs text-gray-500 mb-4 bg-gray-50 p-2 rounded">
+                                    <span class="font-bold block mb-1">المهام المطلوبة:</span>
+                                    <ul class="list-disc list-inside">
+                                        <li v-for="t in temp.tasks.slice(0,3)" :key="t.desc">{{ t.desc }}</li>
+                                        <li v-if="temp.tasks.length > 3">... والمزيد</li>
+                                    </ul>
+                                </div>
                                 <div class="mt-auto">
                                     <button @click="useTemplate(temp)" class="w-full bg-slate-50 text-slate-700 py-2 rounded border border-slate-200 hover:bg-[#fe9b02] hover:text-white transition font-bold text-sm">
-                                        <i class="fas fa-play"></i> بدء الفحص
+                                        <i class="fas fa-play"></i> بدء التنفيذ
                                     </button>
                                 </div>
+                            </div>
+                            <div v-if="templates.length === 0" class="col-span-3 text-center py-10 text-gray-400">
+                                لا توجد قوالب مهام حالياً.
                             </div>
                         </div>
                     </div>
 
                     <div v-if="reportTab === 'history'">
                         <div class="white-card">
-                            <h3 class="font-bold text-slate-700 mb-4">سجل الفحوصات</h3>
+                            <h3 class="font-bold text-slate-700 mb-4">سجل الفحوصات والمهام المنجزة</h3>
                             <div class="overflow-x-auto">
                                 <table class="w-full text-sm text-right">
                                     <thead class="bg-gray-50 text-gray-600 border-b">
                                         <tr>
-                                            <th class="p-3">اسم التقرير</th>
-                                            <th class="p-3">التاريخ</th>
+                                            <th class="p-3">اسم المهمة</th>
+                                            <th class="p-3">التاريخ والوقت</th>
                                             <th class="p-3">بواسطة</th>
                                             <th class="p-3">الحالة</th>
+                                            <th class="p-3">عرض</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr v-for="entry in dailyEntries" :key="entry.id" class="border-b hover:bg-gray-50">
                                             <td class="p-3 font-bold">{{ entry.templateTitle }}</td>
-                                            <td class="p-3">{{ formatDate(entry.timestamp) }}</td>
+                                            <td class="p-3" dir="ltr" class="text-right">{{ formatDate(entry.timestamp) }}</td>
                                             <td class="p-3"><span class="bg-blue-50 text-blue-600 px-2 py-1 rounded text-xs">{{ entry.submittedBy }}</span></td>
                                             <td class="p-3">
                                                 <span v-if="entry.allDone" class="text-green-600"><i class="fas fa-check-circle"></i> مكتمل</span>
                                                 <span v-else class="text-orange-500"><i class="fas fa-exclamation-circle"></i> ملاحظات</span>
+                                            </td>
+                                            <td class="p-3">
+                                                <button @click="viewEntry(entry)" class="text-gray-400 hover:text-[#fe9b02]"><i class="fas fa-eye"></i></button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -328,25 +293,61 @@
                         </div>
                     </div>
                 </div>
+
+                <div v-if="currentPage === 'users'" class="max-w-6xl mx-auto animate-fade-in">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-slate-800">فريق العمل</h2>
+                        <div class="bg-white px-4 py-2 rounded-lg shadow-sm text-sm">
+                            <span class="font-bold text-[#fe9b02]">{{ users.length }}</span> موظف مسجل
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div v-for="user in users" :key="user.id" class="white-card flex flex-col items-center text-center p-6 border-t-4" :class="user.status==='active'?'border-green-500':'border-red-500'">
+                            <div class="w-24 h-24 rounded-full p-1 border-2 border-gray-200 mb-4 overflow-hidden">
+                                <img :src="user.image || 'https://via.placeholder.com/150'" class="w-full h-full object-cover rounded-full">
+                            </div>
+                            <h3 class="font-bold text-lg text-slate-800">{{ user.username }}</h3>
+                            <span class="text-xs px-2 py-1 rounded mt-1 mb-4" :class="user.role==='manager'?'bg-purple-100 text-purple-600':'bg-blue-100 text-blue-600'">
+                                {{ getRoleName(user.role) }}
+                            </span>
+                            
+                            <div class="w-full text-sm text-gray-500 space-y-2 border-t pt-4">
+                                <div class="flex justify-between"><span>البريد:</span> <span class="text-slate-700">{{ user.email || '-' }}</span></div>
+                                <div class="flex justify-between"><span>الهاتف:</span> <span class="text-slate-700">{{ user.phone || '-' }}</span></div>
+                                <div class="flex justify-between">
+                                    <span>الحالة:</span> 
+                                    <span :class="user.status==='active'?'text-green-600':'text-red-500'">{{ user.status==='active'?'نشط':'معطل' }}</span>
+                                </div>
+                            </div>
+                            
+                            <div v-if="currentUser.role === 'manager' && currentUser.id !== user.id" class="mt-4 flex gap-2 w-full">
+                                <button @click="deleteUser(user.id)" class="flex-1 bg-red-50 text-red-500 py-2 rounded hover:bg-red-500 hover:text-white transition text-xs font-bold">حذف</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </main>
         </div>
 
         <div v-if="showTemplateModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
             <div class="bg-white w-full max-w-lg rounded-xl shadow-2xl overflow-hidden animate-fade-in">
                 <div class="bg-slate-800 p-4 flex justify-between items-center text-white">
-                    <h3 class="font-bold">إنشاء قالب جديد</h3>
+                    <h3 class="font-bold">إنشاء قائمة مهام جديدة</h3>
                     <button @click="showTemplateModal=false"><i class="fas fa-times"></i></button>
                 </div>
                 <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
-                    <input v-model="newTemplate.title" placeholder="اسم القالب (مثلاً: فحص مولدات)" class="w-full p-2 border rounded focus:border-[#fe9b02] outline-none">
+                    <input v-model="newTemplate.title" placeholder="اسم القائمة (مثلاً: صيانة التكييف المركزي)" class="w-full p-2 border rounded focus:border-[#fe9b02] outline-none">
+                    <p class="text-xs text-gray-500 font-bold">بنود المهام:</p>
                     <div v-for="(task, idx) in newTemplate.tasks" :key="idx" class="flex gap-2">
-                        <input v-model="task.desc" placeholder="المهمة..." class="flex-1 p-2 border rounded bg-gray-50 text-sm">
+                        <input v-model="task.desc" placeholder="وصف المهمة..." class="flex-1 p-2 border rounded bg-gray-50 text-sm">
                         <button @click="newTemplate.tasks.splice(idx, 1)" class="text-red-500"><i class="fas fa-trash"></i></button>
                     </div>
-                    <button @click="newTemplate.tasks.push({desc:''})" class="text-[#fe9b02] text-sm font-bold"><i class="fas fa-plus"></i> إضافة مهمة</button>
+                    <button @click="newTemplate.tasks.push({desc:''})" class="text-[#fe9b02] text-sm font-bold"><i class="fas fa-plus"></i> إضافة بند</button>
                 </div>
                 <div class="p-4 border-t bg-gray-50 flex justify-end">
-                    <button @click="saveTemplate" class="btn-jsaas px-6 py-2 rounded-lg font-bold">حفظ</button>
+                    <button @click="saveTemplate" class="btn-jsaas px-6 py-2 rounded-lg font-bold">حفظ القائمة</button>
                 </div>
             </div>
         </div>
@@ -361,7 +362,7 @@
                     <div v-for="(task, idx) in activeEntry.tasks" :key="idx" class="bg-white p-3 rounded border flex items-center justify-between">
                         <span class="text-sm font-bold">{{ task.desc }}</span>
                         <label class="custom-checkbox cursor-pointer relative w-6 h-6">
-                            <input type="checkbox" v-model="task.done" class="hidden">
+                            <input type="checkbox" v-model="task.done" class="hidden" :disabled="isViewOnly">
                             <div class="w-6 h-6 border-2 border-gray-300 rounded flex items-center justify-center transition">
                                 <i v-if="task.done" class="fas fa-check text-white text-xs"></i>
                             </div>
@@ -369,7 +370,8 @@
                     </div>
                 </div>
                 <div class="p-4 border-t bg-white flex justify-end">
-                    <button @click="submitEntry" class="bg-green-600 text-white px-8 py-2 rounded-lg font-bold hover:bg-green-700">حفظ التقرير</button>
+                    <button v-if="!isViewOnly" @click="submitEntry" class="bg-green-600 text-white px-8 py-2 rounded-lg font-bold hover:bg-green-700">حفظ وإنهاء</button>
+                    <button v-else @click="showFillModal=false" class="bg-gray-500 text-white px-8 py-2 rounded-lg font-bold hover:bg-gray-600">إغلاق</button>
                 </div>
             </div>
         </div>
@@ -396,6 +398,7 @@
                     authForm: { username: '', password: '' },
                     loading: false,
                     currentPage: 'dashboard',
+                    historyStack: ['dashboard'], // (3) سجل للتنقل
                     reportTab: 'templates',
                     users: [],
                     reports: [],
@@ -405,6 +408,7 @@
                     newTemplate: { title: '', tasks: [{desc:''}] },
                     showFillModal: false,
                     activeEntry: null,
+                    isViewOnly: false,
                     charts: {}
                 }
             },
@@ -415,11 +419,33 @@
                     return { total, active };
                 },
                 sortedReports() {
-                    // ترتيب الأصول حسب النسبة الأقل (الأكثر أهمية للصيانة)
                     return [...this.reports].sort((a, b) => a.progress - b.progress);
                 }
             },
             methods: {
+                // (3) Navigation Logic
+                navigate(page) {
+                    if (this.currentPage !== page) {
+                        this.historyStack.push(page);
+                        this.currentPage = page;
+                        setTimeout(() => this.processRealDataForCharts(), 100);
+                    }
+                },
+                goBack() {
+                    if (this.historyStack.length > 1) {
+                        this.historyStack.pop(); // Remove current
+                        this.currentPage = this.historyStack[this.historyStack.length - 1]; // Go to previous
+                        setTimeout(() => this.processRealDataForCharts(), 100);
+                    }
+                },
+                getPageTitle() {
+                    if(this.currentPage==='dashboard') return 'لوحة المعلومات';
+                    if(this.currentPage==='reports') return 'قوالب المهام والأرشيف';
+                    if(this.currentPage==='users') return 'إدارة الموظفين';
+                    return '';
+                },
+
+                // Auth
                 async authAction() {
                     this.loading = true;
                     try {
@@ -437,6 +463,7 @@
                 },
                 logout() { localStorage.removeItem('jsaas_user_v5'); location.reload(); },
                 getRoleName(r) { return r==='manager'?'مدير النظام':r==='supervisor'?'مشرف صيانة':'فني'; },
+                
                 initData() {
                     if(!this.currentUser) return;
                     db.collection("users").onSnapshot(s => this.users = s.docs.map(d => ({id:d.id, ...d.data()})));
@@ -448,11 +475,12 @@
                     db.collection("daily_entries").orderBy("timestamp", "desc").limit(20)
                         .onSnapshot(s => this.dailyEntries = s.docs.map(d => ({id:d.id, ...d.data()})));
                 },
-                // === معالجة البيانات الحقيقية للرسوم البيانية ===
+
+                // Charts Logic
                 processRealDataForCharts() {
                     if(this.currentPage !== 'dashboard') return;
                     
-                    // 1. Asset Status (حسب نسبة الإنجاز)
+                    // 1. Asset Status
                     let grades = { A: 0, B: 0, C: 0, D: 0 };
                     this.reports.forEach(r => {
                         if(r.progress >= 85) grades.A++;
@@ -460,76 +488,44 @@
                         else if(r.progress >= 50) grades.C++;
                         else grades.D++;
                     });
-
                     this.renderChart('assetStatusChart', 'doughnut', {
-                        labels: ['ممتاز (A)', 'جيد (B)', 'مقبول (C)', 'حرج (D)'],
-                        datasets: [{
-                            data: [grades.A, grades.B, grades.C, grades.D],
-                            backgroundColor: ['#000c3b', '#004e98', '#ff6b35', '#f53f2c'],
-                            borderWidth: 0, cutout: '60%'
-                        }]
+                        labels: ['ممتاز', 'جيد', 'مقبول', 'حرج'],
+                        datasets: [{ data: [grades.A, grades.B, grades.C, grades.D], backgroundColor: ['#000c3b', '#004e98', '#ff6b35', '#f53f2c'], borderWidth: 0, cutout: '60%' }]
                     }, { plugins: { legend: { display: false } } });
 
-                    // 2. Reports Status (مكتملة vs قيد التنفيذ vs متأخرة)
+                    // 2. Reports Status
                     let status = { completed: 0, inProgress: 0, overdue: 0 };
                     const now = new Date();
                     this.reports.forEach(r => {
                         if(r.progress === 100) status.completed++;
                         else {
-                            if(r.endDate && new Date(r.endDate) < now) status.overdue++;
-                            else status.inProgress++;
+                            if(r.endDate && new Date(r.endDate) < now) status.overdue++; else status.inProgress++;
                         }
                     });
-
                     this.renderChart('reportsBarChart', 'bar', {
                         labels: ['مكتملة', 'جارية', 'متأخرة'],
-                        datasets: [{
-                            data: [status.completed, status.inProgress, status.overdue],
-                            backgroundColor: '#00b4d8', barThickness: 20
-                        }]
-                    }, { 
-                        indexAxis: 'y',
-                        plugins: { legend: { display: false } },
-                        scales: { x: { grid: { display: false } }, y: { grid: { display: false } } }
-                    });
+                        datasets: [{ data: [status.completed, status.inProgress, status.overdue], backgroundColor: '#00b4d8', barThickness: 20 }]
+                    }, { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { display: false } } } });
 
-                    // 3. Workload (بدلاً من الأعطال الوهمية - نعرض توزيع الموظفين الحقيقي)
+                    // 3. Workload
                     let assignments = {};
-                    this.reports.forEach(r => {
-                        let user = r.assignedTo || 'Unassigned';
-                        assignments[user] = (assignments[user] || 0) + 1;
-                    });
-                    const assignLabels = Object.keys(assignments);
-                    const assignData = Object.values(assignments);
-
+                    this.reports.forEach(r => { let user = r.assignedTo || 'Unassigned'; assignments[user] = (assignments[user] || 0) + 1; });
                     this.renderChart('workloadChart', 'doughnut', {
-                        labels: assignLabels,
-                        datasets: [{
-                            data: assignData.length ? assignData : [1], // لو مفيش بيانات نعرض 1 كشكل
-                            backgroundColor: ['#000c3b', '#f53f2c', '#fe9b02', '#004e98', '#999'],
-                            borderWidth: 0, cutout: '50%'
-                        }]
+                        labels: Object.keys(assignments),
+                        datasets: [{ data: Object.values(assignments).length ? Object.values(assignments) : [1], backgroundColor: ['#000c3b', '#f53f2c', '#fe9b02', '#004e98'], borderWidth: 0, cutout: '50%' }]
                     }, { plugins: { legend: { display: false } } });
 
-                    // 4. Evolution (التطور الزمني الحقيقي حسب تاريخ الإنشاء)
+                    // 4. Evolution
                     let months = {};
                     this.reports.forEach(r => {
                         let date = r.timestamp ? new Date(r.timestamp.seconds * 1000) : new Date();
-                        let key = date.toLocaleString('en-US', { month: 'short' });
+                        let key = date.toLocaleString('ar-EG', { month: 'short' });
                         months[key] = (months[key] || 0) + 1;
                     });
-                    
                     this.renderChart('evolutionChart', 'bar', {
                         labels: Object.keys(months),
-                        datasets: [{ 
-                            label: 'تقارير جديدة',
-                            data: Object.values(months), 
-                            backgroundColor: '#000c3b' 
-                        }]
-                    }, { 
-                        plugins: { legend: { display: false } },
-                        scales: { x: { grid:{display:false} }, y: { beginAtZero: true } }
-                    });
+                        datasets: [{ label: 'تقارير', data: Object.values(months), backgroundColor: '#000c3b' }]
+                    }, { plugins: { legend: { display: false } }, scales: { x: { grid:{display:false} } } });
                 },
                 renderChart(id, type, data, options) {
                     const ctx = document.getElementById(id);
@@ -537,33 +533,52 @@
                     if(this.charts[id]) this.charts[id].destroy();
                     this.charts[id] = new Chart(ctx, { type, data, options: { responsive: true, maintainAspectRatio: false, ...options } });
                 },
+
+                // Helpers
                 getGradeLetter(p) { return p >= 85 ? 'A' : p >= 70 ? 'B' : p >= 50 ? 'C' : 'D'; },
                 getGradeColor(p) { return p >= 85 ? 'bg-green-500' : p >= 70 ? 'bg-blue-500' : p >= 50 ? 'bg-yellow-500' : 'bg-red-500'; },
-                formatDate(ts) { return ts ? new Date(ts.seconds * 1000).toLocaleDateString('ar-EG') : ''; },
+                
+                // (2) تعديل دالة الوقت لتظهر الساعة
+                formatDate(ts) { 
+                    if (!ts) return '';
+                    const date = new Date(ts.seconds * 1000);
+                    return date.toLocaleDateString('ar-EG') + ' ' + date.toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'});
+                },
+
+                // Template & Entry Methods
                 openTemplateModal() { this.newTemplate={title:'', tasks:[{desc:''}]}; this.showTemplateModal=true; },
                 saveTemplate() {
                     if(!this.newTemplate.title) return alert("مطلوب العنوان");
                     const valid = this.newTemplate.tasks.filter(t=>t.desc);
                     if(!valid.length) return alert("مهمة واحدة على الأقل");
-                    db.collection("report_templates").add({
-                        title: this.newTemplate.title, tasks: valid, createdBy: this.currentUser.username
-                    });
+                    db.collection("report_templates").add({ title: this.newTemplate.title, tasks: valid, createdBy: this.currentUser.username });
                     this.showTemplateModal=false;
                 },
                 deleteTemplate(id) { if(confirm("حذف؟")) db.collection("report_templates").doc(id).delete(); },
                 useTemplate(t) {
                     this.activeEntry = { templateId: t.id, templateTitle: t.title, tasks: t.tasks.map(k=>({desc:k.desc, done:false})), submittedBy: this.currentUser.username, timestamp: new Date() };
+                    this.isViewOnly = false;
                     this.showFillModal=true;
+                },
+                viewEntry(entry) {
+                    this.activeEntry = JSON.parse(JSON.stringify(entry)); // Copy to avoid mutation
+                    this.isViewOnly = true;
+                    this.showFillModal = true;
                 },
                 submitEntry() {
                     const allDone = this.activeEntry.tasks.every(t=>t.done);
                     db.collection("daily_entries").add({...this.activeEntry, allDone, timestamp: firebase.firestore.FieldValue.serverTimestamp()});
                     this.showFillModal=false;
                     alert("تم الحفظ");
-                }
+                },
+                deleteUser(id) { if(confirm("حذف الموظف؟")) db.collection('users').doc(id).delete(); }
             },
             mounted() { if(this.currentUser) this.initData(); }
         }).mount('#app');
     </script>
+    <style>
+        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </body>
 </html>
